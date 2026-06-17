@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ソース ファイル\Application">
+      <UniqueIdentifier>{70b7b6a2-c0f7-4da6-a2c7-69d538933225}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework">
+      <UniqueIdentifier>{ad2cf478-aef2-4b7a-8803-178e3710521a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Shader">
+      <UniqueIdentifier>{2e936225-290e-4388-a452-d47a1cff979e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Shader\SampleShader">
+      <UniqueIdentifier>{efe6cbba-d5cd-47c4-8516-07456e7746c4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Application\Application.h">
+      <Filter>ソース ファイル\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Pch.h">
+      <Filter>ソース ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Application\Application.cpp">
+      <Filter>ソース ファイル\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\main.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Pch.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\Framework\Shader\SampleShader\SimpleVS.hlsl">
+      <Filter>ソース ファイル\Framework\Shader\SampleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Framework\Shader\SampleShader\SimplePS.hlsl">
+      <Filter>ソース ファイル\Framework\Shader\SampleShader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Framework\Shader\SampleShader\SimpleInc.hlsli">
+      <Filter>ソース ファイル\Framework\Shader\SampleShader</Filter>
+    </None>
+  </ItemGroup>
+</Project>
