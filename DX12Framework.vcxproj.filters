@@ -25,6 +25,15 @@
     <Filter Include="ソース ファイル\Framework\Shader\SampleShader">
       <UniqueIdentifier>{efe6cbba-d5cd-47c4-8516-07456e7746c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Framework\Texture">
+      <UniqueIdentifier>{effdf227-79dc-483f-849b-8c779411262b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Mesh">
+      <UniqueIdentifier>{49d3d4bc-3609-4786-b78f-68e331fbb060}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\FileUtil">
+      <UniqueIdentifier>{329274d4-067c-49a1-ae0d-8122f012fe51}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -32,6 +41,15 @@
     </ClInclude>
     <ClInclude Include="Source\Pch.h">
       <Filter>ソース ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Texture\TextureManager.h">
+      <Filter>ソース ファイル\Framework\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Mesh\Mesh.h">
+      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\FileUtil\FileUtil.h">
+      <Filter>ソース ファイル\Framework\FileUtil</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +61,15 @@
     </ClCompile>
     <ClCompile Include="Source\Pch.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Texture\TextureManager.cpp">
+      <Filter>ソース ファイル\Framework\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Mesh\Mesh.cpp">
+      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\FileUtil\FileUtil.cpp">
+      <Filter>ソース ファイル\Framework\FileUtil</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

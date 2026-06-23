@@ -3,17 +3,12 @@
 // -------------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------------
-#include <cstdint>
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <d3dcompiler.h>
+#include "../Framework/Texture/TextureManager.h"
+#include "../Framework/Mesh/Mesh.h"
 
 // -------------------------------------------------------------------------------
 // Linker
 // -------------------------------------------------------------------------------
-#pragma comment( lib, "d3d12.lib" )
-#pragma comment( lib, "dxgi.lib" )
-#pragma comment( lib, "d3dcompiler.lib" )
 
 // -------------------------------------------------------------------------------
 // namespace
@@ -49,10 +44,10 @@ public:
 	template<typename T>
 	struct ConstantBufferView
 	{
-		D3D12_CONSTANT_BUFFER_VIEW_DESC	Desc;				// 定数バッファの構成設定
+		D3D12_CONSTANT_BUFFER_VIEW_DESC	Desc;			// 定数バッファの構成設定
 		D3D12_CPU_DESCRIPTOR_HANDLE			HandleCPU;	// CPUディスクリプタハンドル
 		D3D12_GPU_DESCRIPTOR_HANDLE			HandleGPU;	// GPUディスクリプタハンドル
-		T* pBuffer;			// バッファ先頭へのポインタ
+		T* pBuffer;										// バッファ先頭へのポインタ
 	};
 
 	// -------------------------------------------------------------------------------
@@ -102,10 +97,15 @@ private:
 	D3D12_RECT							m_Scissor;						// シザー矩形
 	ConstantBufferView<Transform>		m_CBV[FrameCount * 2];			// 定数バッファービュー
 	float								m_RotateAngle = 0;				// 回転角
+	TextureManager						m_TextureManager;				// テクスチャマネージャ
+	std::vector<Mesh>					m_Meshes;						// メッシュ
+	std::vector<Material>				m_Materials;					// マテリアル
+	uint32_t							m_TexSlot = 0;					// ロードしたテクスチャのスロット番号
 
 	struct Vertex
 	{
 		DirectX::XMFLOAT3 Position;	// 位置情報
+		DirectX::XMFLOAT2 UV;		// UV情報
 		DirectX::XMFLOAT4 Color;	// 頂点カラー
 	};
 

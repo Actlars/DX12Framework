@@ -5,9 +5,9 @@
 
 PSOutput main(VSOutput input)
 {
-    PSOutput output = (PSOutput) 0;
-	
-    output.Color = input.Color;
-	
+    PSOutput output;
+    float4 texColor = g_Texture.Sample(g_Sampler, input.TexCoord);
+    
+    output.Color = texColor/* * input.Color*/;
     return output;
 }
