@@ -2,7 +2,7 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include "Application.h"
-#include "../Framework/FileUtil/FileUtil.h"
+#include "../Framework/Utility/FileUtil/FileUtil.h"
 
 namespace /* anonymous */{
 	const auto ClassName = TEXT("SampleWindowClass");	// ウィンドウクラス名
@@ -903,9 +903,10 @@ bool Application::OnInit()
 	TextureManager::InitDesc texDesc = {};
 	texDesc.pDevice = m_pDevice.Get();
 	texDesc.pQueue = m_pQueue.Get();
-	texDesc.pHeapSRV = m_pHeapCBV.Get();	// CBV_SRV_UAV兼用ヒープ
-	texDesc.BaseSlot = FrameCount * 2;	// CBV分のスロットを避ける
-	texDesc.MaxTextures = 16;				// 最大16枚
+	//texDesc.pHeapSRV = m_pHeapCBV.Get();	// CBV_SRV_UAV兼用ヒープ
+	//texDesc.pPool = 
+	//texDesc.BaseSlot = FrameCount * 2;	// CBV分のスロットを避ける
+	texDesc.MaxTextures = 64;				// 最大64枚
 
 	if (!m_TextureManager.Init(texDesc))
 	{
@@ -1046,7 +1047,7 @@ void Application::Render()
 		{
 			m_pCmdList->SetGraphicsRootDescriptorTable(
 				1,
-				tex->HandleGPU);
+				tex->GetHandleGPU());
 		}
 		auto count = static_cast<uint32_t>(m_Meshes[0].Indices.size());
 		m_pCmdList->DrawIndexedInstanced(count, 1, 0, 0, 0);

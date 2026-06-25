@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -178,16 +178,53 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h" />
-    <ClInclude Include="Source\Framework\FileUtil\FileUtil.h" />
+    <ClInclude Include="Source\Framework\Buffer\ConstantBuffer\ConstantBuffer.h" />
+    <ClInclude Include="Source\Framework\Buffer\IndexBuffer\IndexBuffer.h" />
+    <ClInclude Include="Source\Framework\Buffer\VertexBuffer\VertexBuffer.h" />
+    <ClInclude Include="Source\Framework\CommandList\CommandList.h" />
+    <ClInclude Include="Source\Framework\Fence\Fence.h" />
+    <ClInclude Include="Source\Framework\GraphicsDevice\GraphicsDevice.h" />
+    <ClInclude Include="Source\Framework\Mesh\Material\Material.h" />
+    <ClInclude Include="Source\Framework\Mesh\Material\ResMaterial.h" />
     <ClInclude Include="Source\Framework\Mesh\Mesh.h" />
-    <ClInclude Include="Source\Framework\Texture\TextureManager.h" />
+    <ClInclude Include="Source\Framework\Mesh\MeshLoader\MeshLoader.h" />
+    <ClInclude Include="Source\Framework\Mesh\MeshResource.h" />
+    <ClInclude Include="Source\Framework\Mesh\PolygonMeshResource\PolygonMeshResource.h" />
+    <ClInclude Include="Source\Framework\Mesh\ResData.h" />
+    <ClInclude Include="Source\Framework\Mesh\ResMesh.h" />
+    <ClInclude Include="Source\Framework\Pool\DescriptorPool\DescriptorPool.h" />
+    <ClInclude Include="Source\Framework\Pool\Pool.h" />
+    <ClInclude Include="Source\Framework\Target\ColorTarget\ColorTarget.h" />
+    <ClInclude Include="Source\Framework\Target\DepthTarget\DepthTarget.h" />
+    <ClInclude Include="Source\Framework\Texture\Texture.h" />
+    <ClInclude Include="Source\Framework\Texture\TextureManager\TextureManager.h" />
+    <ClInclude Include="Source\Framework\Utility\ComPtr\ComPtr.h" />
+    <ClInclude Include="Source\Framework\Utility\Debug\Logger\Logger.h" />
+    <ClInclude Include="Source\Framework\Utility\FileUtil\FileUtil.h" />
+    <ClInclude Include="Source\Framework\Utility\InlineUtil\InlineUTil.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp" />
-    <ClCompile Include="Source\Framework\FileUtil\FileUtil.cpp" />
+    <ClCompile Include="Source\Framework\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
+    <ClCompile Include="Source\Framework\Buffer\IndexBuffer\IndexBuffer.cpp" />
+    <ClCompile Include="Source\Framework\Buffer\VertexBuffer\VertexBuffer.cpp" />
+    <ClCompile Include="Source\Framework\CommandList\CommandList.cpp" />
+    <ClCompile Include="Source\Framework\Fence\Fence.cpp" />
+    <ClCompile Include="Source\Framework\GraphicsDevice\GraphicsDevice.cpp" />
+    <ClCompile Include="Source\Framework\Mesh\Material\Material.cpp" />
+    <ClCompile Include="Source\Framework\Mesh\Material\ResMaterial.cpp" />
     <ClCompile Include="Source\Framework\Mesh\Mesh.cpp" />
-    <ClCompile Include="Source\Framework\Texture\TextureManager.cpp" />
+    <ClCompile Include="Source\Framework\Mesh\MeshLoader\MeshLoader.cpp" />
+    <ClCompile Include="Source\Framework\Mesh\PolygonMeshResource\PolygonMeshResource.cpp" />
+    <ClCompile Include="Source\Framework\Mesh\ResMesh.cpp" />
+    <ClCompile Include="Source\Framework\Pool\DescriptorPool\DescriptorPool.cpp" />
+    <ClCompile Include="Source\Framework\Target\ColorTarget\ColorTarget.cpp" />
+    <ClCompile Include="Source\Framework\Target\DepthTarget\DepthTarget.cpp" />
+    <ClCompile Include="Source\Framework\Texture\Texture.cpp" />
+    <ClCompile Include="Source\Framework\Texture\TextureManager\TextureManager.cpp" />
+    <ClCompile Include="Source\Framework\Utility\Debug\Logger\Logger.cpp" />
+    <ClCompile Include="Source\Framework\Utility\FileUtil\FileUtil.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

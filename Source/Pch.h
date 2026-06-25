@@ -41,6 +41,16 @@
 #include <filesystem>
 #include <chrono>
 
+// -------------------------------------------------------------------------------
+// Microsoft
+// -------------------------------------------------------------------------------
+//#include <DX12Framework/Source/Framework/Utility/ComPtr/ComPtr.h>
+#include "Framework/Utility/ComPtr/ComPtr.h"
+
+// -------------------------------------------------------------------------------
+// DirectX
+// -------------------------------------------------------------------------------
+
 #include <DirectXMath.h>
 
 #include <DirectXTex.h>

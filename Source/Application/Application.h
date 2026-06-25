@@ -3,7 +3,8 @@
 // -------------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------------
-#include "../Framework/Texture/TextureManager.h"
+#include "../Framework/Texture/TextureManager/TextureManager.h"
+#include "../Framework/Pool/DescriptorPool/DescriptorPool.h"
 #include "../Framework/Mesh/Mesh.h"
 
 // -------------------------------------------------------------------------------

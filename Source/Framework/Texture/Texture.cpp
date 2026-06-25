@@ -1,107 +1,52 @@
 // -------------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------------
-#include "TextureManager.h"
-#include <cassert>
-#include <filesystem>
+#include "Texture.h"
 
 // -------------------------------------------------------------------------------
-// 初期化
+//	初期化
 // -------------------------------------------------------------------------------
-bool TextureManager::Init(const InitDesc& _desc)
+bool Texture::Init(
+	ID3D12Device*		_pDevice,
+	ID3D12CommandQueue* _pQueue,
+	DescriptorPool*		_pPool,
+	const std::wstring& _path)
 {
-	// assertで不正な入力を弾く
-	{
-		assert(_desc.pDevice);
-		assert(_desc.pQueue);
-		assert(_desc.pHeapSRV);
-		assert(_desc.MaxTextures > 0);
-	}
-
-	// メンバ変数への代入
-	{
-		m_pDevice = _desc.pDevice;
-		m_pQueue = _desc.pQueue;
-		m_pHeapSRV = _desc.pHeapSRV;
-		m_BaseSlot = _desc.BaseSlot;
-		m_MaxTextures = _desc.MaxTextures;
-		m_NextSlot = 0;					// まだ一枚もロードしていない状態
-	}
-
-	// インクリメントするサイズをGPUから取得（メーカーによって値が違うので、この関数で取得）
-	m_IncrSize = m_pDevice->GetDescriptorHandleIncrementSize(
-		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-	// Load()が使うメモリを事前に確保
-	{
-		// Load()の中で添え字アクセスするので、resizeを使用
-		m_Textures.resize(m_MaxTextures);
-		// unordered_mapで、Load()のたびに要素を追加していくので、事前にメモリを確保しておき、再確保の負荷をなくす
-		m_PathToSlot.reserve(m_MaxTextures);
-	}
-
-	return true;
-}
-
-// -------------------------------------------------------------------------------
-// 終了
-// -------------------------------------------------------------------------------
-void TextureManager::Term()
-{
-	// ComPtrなので自動解放されるがスロットを明示的にクリア
-	for (auto& tex : m_Textures)
-	{
-		tex.pResource.Reset();
-	}
-	m_Textures.clear();
-	m_PathToSlot.clear();
-	m_NextSlot = 0;
-}
-
-// -------------------------------------------------------------------------------
-// テクスチャのロード
-// -------------------------------------------------------------------------------
-bool TextureManager::Load(const std::wstring& _path, uint32_t& _outSlot)
-{
-	// キャッシュヒット : 同じパスがすでにロード済みなら即返す
-	if (IsLoaded(_path))
-	{
-		_outSlot = m_PathToSlot[_path];
-		return true;
-	}
-
-	// スロット上限チェック
-	if (m_NextSlot >= m_MaxTextures)
-	{
-		assert(false && "TextureManager : スロット上限に達しました");
-		return false;
-	}
+	// 引数チェック
+	assert(_pDevice != nullptr);
+	assert(_pQueue != nullptr);
+	assert(_pPool != nullptr);
 
 	// ファイル存在確認
+	// 存在しないパスを渡されたら早期リターンで無駄な処理を避ける
 	if (!std::filesystem::exists(_path))
 	{
 		return false;
 	}
 
-	// DirectXTexでロード
-	DirectX::ScratchImage	scratchImage;	// テクスチャの仕様書。実施のピクセルデータは持たないが、情報を持つ。どんなテクスチャか
-	DirectX::TexMetadata	meta;			// 実際のピクセルデータをCPUメモリ上に持つ
+	// メンバ変数に保持（所有権はなく参照のみ）
+	m_pDevice	= _pDevice;
+	m_pQueue	= _pQueue;
+	m_pPool		= _pPool;
 
+	// DirectXTexでファイルをCPUメモリにロード
+	DirectX::ScratchImage	scratchImage;
+	DirectX::TexMetadata	meta;
 	HRESULT hr;
 
-	// DDSの読み込み
 	if (IsDDS(_path))
 	{
-		// DDS : BC圧縮・キューブマップ・ミップ付きをそのまま読む
+		// DDS : BC圧縮済み・ミップ付き・キューブマップをそのまま読む
+		// GPUが直接扱えるデータなので加工不要
 		hr = DirectX::LoadFromDDSFile(
 			_path.c_str(),				// std::wstringをwchar_tの生ポインタに変換して渡す
 			DirectX::DDS_FLAGS_NONE,	// 特別な処理をしない。
 			&meta,						// metaに書き込む。ロード後にmeta.widthなどで情報を参照できるように
-			scratchImage
-		);
+			scratchImage);
 	}
 	else
 	{
+		// PNG/JPG/BMP/TGA/HDR : WICでデコードしてRGBA生データにする
 		hr = DirectX::LoadFromWICFile(
 			_path.c_str(),
 			DirectX::WIC_FLAGS_NONE,
@@ -109,7 +54,8 @@ bool TextureManager::Load(const std::wstring& _path, uint32_t& _outSlot)
 			scratchImage
 		);
 
-		// WICはミップを持たないため自動生成
+		// WICフォーマットはミップを持たないため自動生成する
+		// ミップがないと遠距離オブジェクトがちらつく（エイリアシング）
 		if (SUCCEEDED(hr) && meta.mipLevels <= 1)
 		{
 			DirectX::ScratchImage mipped;
@@ -122,8 +68,8 @@ bool TextureManager::Load(const std::wstring& _path, uint32_t& _outSlot)
 
 			if (SUCCEEDED(hr))
 			{
-				scratchImage = std::move(mipped);	// mippedの中身をscratchImageに移動
-				meta = scratchImage.GetMetadata();	// metaを更新。meta.mipLevelsの値が変わるため
+				scratchImage = std::move(mipped);	// mippedの中身をscratchImageに移動。std::moveで所有権を移動（コピーコストゼロ）
+				meta = scratchImage.GetMetadata();	// ミップ生成後にmeta.mipLevelsが変わるので更新
 			}
 		}
 	}
@@ -133,117 +79,146 @@ bool TextureManager::Load(const std::wstring& _path, uint32_t& _outSlot)
 		return false;
 	}
 
-	// GPUへアップロード
-	const uint32_t		slot	= m_NextSlot;			// 現在の空きスロット番号を確定、m_NextSlotはまだ増やさない
-	TextureResource&	tex		= m_Textures[slot];		// m_Textures配列の該当スロットへの参照
+	// GPUへのアップロード
+	if (!UploadToGPU(scratchImage, meta, m_pResource)) 
+	{ return false; }
 
-	if (!UploadToGPU(scratchImage, meta, tex.pResource))
-	{
-		return false;
-	}
+	// SRVをDescriptorPoolに登録
+	CreateSRV(meta);
 
-	// SRV生成
-	CreateSRV(tex.pResource, meta, slot, tex);
-
-	// 後でGetBySlot()した側がテクスチャはピクセルか、フォーマットを知れるようにする
-	tex.Width	= static_cast<uint32_t>(meta.width);
-	tex.Height	= static_cast<uint32_t>(meta.height);
-	tex.Format	= meta.format;
-
-	// キャッシュ登録
-	m_PathToSlot[_path] = slot;	// 次回同じパスでLoad()されたときにキャッシュヒットするように
-	_outSlot = slot;			// 呼び出し元にスロット番号を書き込み。このスロット番号でRender時にGPUハンドルを取得
-	++m_NextSlot;				// 
+	// メタ情報を保持（呼び出し側が参照できるように）
+	m_Width		= static_cast<uint32_t>(meta.width);
+	m_Height	= static_cast<uint32_t>(meta.height);
+	m_Format	= meta.format;
 
 	return true;
-
 }
 
 // -------------------------------------------------------------------------------
-// スロット番号でテクスチャ取得
+// 終了処理
 // -------------------------------------------------------------------------------
-const TextureResource* TextureManager::GetBySlot(uint32_t _slot) const
+void Texture::Term()
 {
-	if (_slot >= m_NextSlot) { return nullptr; }
-	return &m_Textures[_slot];
+	// DescriptorPool にSRVハンドルを返却
+	// プールから借りたハンドルは必ず返す
+	// プールがnullptrの場合（Init未完了）は何もしない
+	if (m_pPool != nullptr && m_pHandle != nullptr)
+	{
+		m_pPool->FreeHandle(m_pHandle);
+		m_pHandle = nullptr;
+	}
+
+	// ─── GPUリソースの解放 ───
+	// ComPtrなので参照カウントが0になったとき自動解放される
+	m_pResource.Reset();
+
+	// ─── ポインタのクリア ───
+	m_pDevice	= nullptr;
+	m_pQueue	= nullptr;
+	m_pPool		= nullptr;
+
+	m_Width		= 0;
+	m_Height	= 0;
+	m_Format	= DXGI_FORMAT_UNKNOWN;
 }
 
 // -------------------------------------------------------------------------------
-// パスでテクスチャ取得
+// GPUハンドルの取得
 // -------------------------------------------------------------------------------
-const TextureResource* TextureManager::GetByPath(const std::wstring& _path) const
+D3D12_GPU_DESCRIPTOR_HANDLE Texture::GetHandleGPU() const
 {
-	auto it = m_PathToSlot.find(_path);
-	if (it == m_PathToSlot.end()) { return nullptr; }
-	return &m_Textures[it->second];
+	// ハンドルが未確保の場合は無効な値（ptr = 0）を返す
+	if (m_pHandle == nullptr) 
+	{ return D3D12_GPU_DESCRIPTOR_HANDLE{ 0 }; }
+
+	return m_pHandle->HandleGPU;
 }
 
 // -------------------------------------------------------------------------------
-// ロード済み確認
+// CPUハンドルの取得
 // -------------------------------------------------------------------------------
-bool TextureManager::IsLoaded(const std::wstring& _path) const
+D3D12_CPU_DESCRIPTOR_HANDLE Texture::GetHandleCPU() const
 {
-	return m_PathToSlot.count(_path) > 0;
+	if (m_pHandle == nullptr) 
+	{ return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 }; }
+
+	return m_pHandle->HandleCPU;
 }
 
 // -------------------------------------------------------------------------------
-// private ヘルパー
+// 横幅の取得
+// -------------------------------------------------------------------------------
+uint32_t Texture::GetWidth() const 
+{ return m_Width; }
+
+// -------------------------------------------------------------------------------
+// 縦幅の取得
+// -------------------------------------------------------------------------------
+uint32_t Texture::GetHeight() const 
+{ return m_Height; }
+
+// -------------------------------------------------------------------------------
+// フォーマットの取得
+// -------------------------------------------------------------------------------
+DXGI_FORMAT Texture::GetFormat() const 
+{ return m_Format; }
+
+// -------------------------------------------------------------------------------
+// GPUリソースの取得
+// -------------------------------------------------------------------------------
+ID3D12Resource* Texture::GetResource() const 
+{ return m_pResource.Get(); }
+
+// -------------------------------------------------------------------------------
+// private
 // -------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------
-// 拡張子でDDSか判定
+// DDSかどうかを拡張子で判定
 // -------------------------------------------------------------------------------
-bool TextureManager::IsDDS(const std::wstring& _path)
+bool Texture::IsDDS(const std::wstring& _path)
 {
-	const auto ext = std::filesystem::path(_path).extension().wstring();
-	// 大文字小文字どちらでも対応
-	std::wstring extLower = ext;
-	for (auto& c : extLower) { c = static_cast<wchar_t>(towlower(c)); }
-	return extLower == L".dds";
+	// std::filesystem::path で拡張子を取りだす
+	auto ext = std::filesystem::path(_path).extension().wstring();
+
+	// 大文字・小文字どちらでも対応（.DDS / .dds）
+	for (auto& c : ext) 
+	{ c = static_cast<wchar_t>(towlower(c)); }
+
+	return ext == L".dds";
 }
 
 // -------------------------------------------------------------------------------
 // GPUへのアップロード
-// UPLOADヒープ（中間バッファ） → DEFAULTヒープ（GPUネイティブ）のコピーフロー
-// ResourceUploadBatchを使わず主導でやることで
-// フレームワーク外部ライブラリへの依存を小さくしている
-// 
-// 1. CPUメモリ上のピクセルデータをD3D12_SUBRESOURCE_DATAに整理
-// 2. DEFAULTヒープにGPUリソースを作成
-// 3. UPLOADヒープに中間バッファを作成（CPUが書ける一時領域）
-// 4. ロード専用CommandListを作成
-// 5. UpdateSubresourcesでCPUデータをUPLOADバッファに書き込み、コピー命令をCommandListに積む
-// 6. バリアを積む（COPY_DEST → PIXEL_SHADER_RESOURCE）
-// 7. CommandListをClose → ExecuteCommandListsでGPUに投入
-// 8. フェンスで完了を待つ
-// 9. 関数を抜けるとpUploadBufferが自動解放、_outResourceにGPU上のテクスチャが入った状態で呼び出し元に返る
 // -------------------------------------------------------------------------------
-bool TextureManager::UploadToGPU(
-	const DirectX::ScratchImage&	_image,			// CPU上のピクセルデータ
-	const DirectX::TexMetadata&		_meta,			// 仕様書
-	ComPtr<ID3D12Resource>&			_outResource)	// 転送先のGPUリソースを返す出力引数
+bool Texture::UploadToGPU(
+	const DirectX::ScratchImage&	_image,
+	const DirectX::TexMetadata&		_meta,
+	ComPtr<ID3D12Resource>&			_outResource)
 {
-	// サブリソースのレイアウト計算
-	// GPUへのコピー命令はサブリソース単位で指定するため、総数が必要
+	// サブリソース総数の計算
+	// サブリソース = ミップ段数 * 配列サイズ
 	const uint32_t subresourceCount =
 		static_cast<uint32_t>(_meta.mipLevels * _meta.arraySize);
-	
-	// D3D12_SUBRESOURCE_DATAはサブリソース1つ分のどこにデータがあるかを表す構造体
+
+	// D3D12_SUBRESOURCE_DATAの配列を構築
+	// 各サブリソースのCPUメモリ上のアドレスとピッチ情報をまとめる
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources(subresourceCount);
 	for (uint32_t i = 0; i < subresourceCount; ++i)
 	{
-		// サブリソースi番目に対応する画像を取得
-		// インデックスiからミップと配列インデックスを逆算
+		// GetImage(mipLevel, arrayIndex, slice)
+		// i番目のサブリソースをミップと配列インデックスに分解して取得
 		const auto* img = _image.GetImage(
-			i % _meta.mipLevels,
-			i / _meta.mipLevels,
-			0);
-		subresources[i].pData = img->pixels;									// CPUメモリ上のピクセルデータの先頭ポインタ
-		subresources[i].RowPitch = static_cast<LONG_PTR>(img->rowPitch);		// 横1行のバイト数。1024*1024のRGBA8なら1024*4バイト = 4096
-		subresources[i].SlicePitch = static_cast<LONG_PTR>(img->slicePitch);	// 1枚全体のバイト数。2DテクスチャならrowPitch * height
+			i % _meta.mipLevels,	// ミップレベル
+			i / _meta.mipLevels,	// 配列インデックス
+			0);						// スライス（3Dテクスチャ以外は0固定）
+
+		subresources[i].pData = img->pixels;
+		subresources[i].RowPitch = static_cast<LONG_PTR>(img->rowPitch);
+		subresources[i].SlicePitch = static_cast<LONG_PTR>(img->slicePitch);
 	}
 
-	// DEFAULTヒープにGPUリソースを作成
+	// デフォルトヒープにGPUリソースを作成（コピー先）
 	D3D12_HEAP_PROPERTIES heapDefault = {};		// GPUリソースをどの種類のメモリに置くかを指定する構造体
 	heapDefault.Type = D3D12_HEAP_TYPE_DEFAULT;	// D3D12_HEAP_TYPE_DEFAULTはGPU専用メモリ（VRAM）のこと。CPUからは直接書き込めないが、GPUからの読み取りが高速
 
@@ -264,6 +239,7 @@ bool TextureManager::UploadToGPU(
 	resDesc.Flags				= D3D12_RESOURCE_FLAG_NONE;									// RenderTargetやUAVとして使う場合に指定。読み取り専用のテクスチャなのでNONE
 
 	// ヒープとリソースを同時に作成
+	// 初期状態をCOPY_DESTにする（コピーを受け取る前提）
 	auto hr = m_pDevice->CreateCommittedResource(
 		&heapDefault,
 		D3D12_HEAP_FLAG_NONE,
@@ -271,10 +247,15 @@ bool TextureManager::UploadToGPU(
 		D3D12_RESOURCE_STATE_COPY_DEST,				// このリソースはコピー先として使うという初期状態の宣言
 		nullptr,									// クリアカラー
 		IID_PPV_ARGS(_outResource.GetAddressOf()));	// COMオブジェクト生成時に使うマクロ。インターフェースのGUIDとポインタのアドレスを同時に渡す
-	if (FAILED(hr)) 
-	{ return false; }
+	if (FAILED(hr))
+	{
+		return false;
+	}
 
 	// UPLOADヒープに中間バッファを作成
+	// CPU が書き込み、GPU がここから DEFAULT ヒープにコピーする
+	
+    // バッファサイズはGPUのアライメント要件があるためAPIに計算させる
 	// 作成したGPUリソースに全サブリソースをコピーするために必要な中間バッファのサイズをバイト単位で返す
 	const UINT64 uploadSize = GetRequiredIntermediateSize(
 		_outResource.Get(), 0, subresourceCount);
@@ -304,8 +285,10 @@ bool TextureManager::UploadToGPU(
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(pUploadBuffer.GetAddressOf()));
-	if (FAILED(hr)) 
-	{ return false; }
+	if (FAILED(hr))
+	{
+		return false;
+	}
 
 	// コマンドアロケータ＆リスト（ロード専用 / 使い捨て）
 	// ロード専用のCommandListを作る理由は描画用のCommandListと分離して描画中のCommandListにコピー命令を混ぜないため
@@ -316,8 +299,10 @@ bool TextureManager::UploadToGPU(
 	hr = m_pDevice->CreateCommandAllocator(
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		IID_PPV_ARGS(pCmdAlloc.GetAddressOf()));
-	if (FAILED(hr)) 
-	{ return false; }
+	if (FAILED(hr))
+	{
+		return false;
+	}
 
 	hr = m_pDevice->CreateCommandList(
 		0,										// 0はNodeMask。マルチGPU構成でも使うもの
@@ -325,8 +310,10 @@ bool TextureManager::UploadToGPU(
 		pCmdAlloc.Get(),
 		nullptr,								// PipelineState。コピーはシェーダーを使わないのでnullptr
 		IID_PPV_ARGS(pCmdList.GetAddressOf()));
-	if (FAILED(hr)) 
-	{ return false; }
+	if (FAILED(hr))
+	{
+		return false;
+	}
 
 	// サブリソースをコピー（UpdateSubresources は d3dx12.hのヘルパー）
 	// 1. UPLOADバッファにCPうからピクセルデータをmemcpyする
@@ -341,17 +328,19 @@ bool TextureManager::UploadToGPU(
 
 	// リソースバリア : COPY_DEST → PIXEL_SHADER_RESOURCE
 	D3D12_RESOURCE_BARRIER barrier = {};
-	barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;		// リソースの用途を切り替えるバリア
-	barrier.Transition.pResource	= _outResource.Get();
-	barrier.Transition.StateBefore	= D3D12_RESOURCE_STATE_COPY_DEST;
-	barrier.Transition.StateAfter	= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;		// 全ミップ・全配列スロットを一括で遷移
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;		// リソースの用途を切り替えるバリア
+	barrier.Transition.pResource = _outResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;		// 全ミップ・全配列スロットを一括で遷移
 	pCmdList->ResourceBarrier(1, &barrier);
 
 	// コマンドリストをクローズして実行
 	hr = pCmdList->Close();	// 記録を終了
-	if (FAILED(hr)) 
-	{ return false; }
+	if (FAILED(hr))
+	{
+		return false;
+	}
 
 	// ExecuteCommandListsはCommandQueueにコマンドリストを投入
 	// この関数はCPU側ではすぐ帰る。GPUが実際に実行するのはこれ以降の非同期のタイミング
@@ -361,8 +350,10 @@ bool TextureManager::UploadToGPU(
 	// GPU完了をフェンスで同期待ち
 	hr = m_pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE,
 		IID_PPV_ARGS(pFence.GetAddressOf()));
-	if (FAILED(hr)) 
-	{ return false; }
+	if (FAILED(hr))
+	{
+		return false;
+	}
 
 	// WindowsのイベントオブジェクトをOSに作らせている
 	// WaitForSingleObjectでこのイベントが通知されるまでCPUスレッドをスリープ
@@ -372,7 +363,7 @@ bool TextureManager::UploadToGPU(
 	// CommandQueueの処理がここまで来たらフェンスの値を1にセットせよという命令をGPUに投入
 	m_pQueue->Signal(pFence.Get(), 1);
 	pFence->SetEventOnCompletion(1, hEvent);	// フェンスの値が1になったらhEventを通知
-	WaitForSingleObject(hEvent, INFINITE);		// CPUスレッドをスリープさせる
+	WaitForSingleObject(hEvent, INFINITE);		// CPUスレッドをスリープさせてGPU完了を待つ
 	CloseHandle(hEvent);						// CPUが起きる
 
 	// pUploadBufferはGPU完了後に解放される（ComPtrがスコープアウト時に自動）
@@ -383,53 +374,51 @@ bool TextureManager::UploadToGPU(
 }
 
 // -------------------------------------------------------------------------------
-// SRVの生成
+// SRVの作成とDescriptorPoolへの登録
 // -------------------------------------------------------------------------------
-void TextureManager::CreateSRV(
-	const ComPtr<ID3D12Resource>&	_pResource,
-	const DirectX::TexMetadata&		_meta,
-	uint32_t						_slot,
-	TextureResource&				_outTex)
+void Texture::CreateSRV(const DirectX::TexMetadata& _meta)
 {
-	const uint32_t heapSlot = m_BaseSlot + _slot;
+	// ─── DescriptorPool からSRVハンドルを1つ借りる ───
+	m_pHandle = m_pPool->AllocHandle();
+	assert(m_pHandle != nullptr && "DescriptorPool のスロットが不足しています");
 
-	// ハンドル計算
-	auto handleCPU = m_pHeapSRV->GetCPUDescriptorHandleForHeapStart();
-	auto handleGPU = m_pHeapSRV->GetGPUDescriptorHandleForHeapStart();
-	handleCPU.ptr += static_cast<SIZE_T>(m_IncrSize) * heapSlot;
-	handleGPU.ptr += static_cast<UINT64>(m_IncrSize) * heapSlot;
-
-	// SRVDesc
+	// ─── SRV Desc の構築 ───
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format					= _meta.format;
+	srvDesc.Format = _meta.format;
 
+	// テクスチャの種類（キューブマップ / 配列 / 通常2D）を自動判別
 	if (_meta.IsCubemap())
 	{
-		srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURECUBE;
-		srvDesc.TextureCube.MipLevels			= static_cast<UINT>(_meta.mipLevels);
-		srvDesc.TextureCube.MostDetailedMip		= 0;
+		// キューブマップ: スカイボックス等に使う。6面を1リソースで管理する
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MipLevels = static_cast<UINT>(_meta.mipLevels);
+		srvDesc.TextureCube.MostDetailedMip = 0;
 		srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
 	}
 	else if (_meta.arraySize > 1)
 	{
-		srvDesc.ViewDimension						= D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-		srvDesc.Texture2DArray.MipLevels			= static_cast<UINT>(_meta.mipLevels);
-		srvDesc.Texture2DArray.MostDetailedMip		= 0;
-		srvDesc.Texture2DArray.ArraySize			= static_cast<UINT>(_meta.arraySize);
-		srvDesc.Texture2DArray.FirstArraySlice		= 0;
-		srvDesc.Texture2DArray.ResourceMinLODClamp	= 0.0f;
+		// 配列テクスチャ: 複数枚を1リソースにまとめたもの
+		// AnimToTextureのBAT（BoneAnimationTexture）等に使う
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+		srvDesc.Texture2DArray.MipLevels = static_cast<UINT>(_meta.mipLevels);
+		srvDesc.Texture2DArray.MostDetailedMip = 0;
+		srvDesc.Texture2DArray.ArraySize = static_cast<UINT>(_meta.arraySize);
+		srvDesc.Texture2DArray.FirstArraySlice = 0;
+		srvDesc.Texture2DArray.ResourceMinLODClamp = 0.0f;
 	}
 	else
 	{
-		srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MipLevels				= static_cast<UINT>(_meta.mipLevels);
-		srvDesc.Texture2D.MostDetailedMip		= 0;
-		srvDesc.Texture2D.ResourceMinLODClamp	= 0.0f;
+		// 通常のTexture2D
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = static_cast<UINT>(_meta.mipLevels);
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	}
 
-	m_pDevice->CreateShaderResourceView(_pResource.Get(), &srvDesc, handleCPU);
-
-	_outTex.HandleCPU = handleCPU;
-	_outTex.HandleGPU = handleGPU;
+	// ─── SRV をDescriptorPool が持つヒープのスロットに書き込む ───
+	m_pDevice->CreateShaderResourceView(
+		m_pResource.Get(),
+		&srvDesc,
+		m_pHandle->HandleCPU);
 }

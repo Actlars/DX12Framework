@@ -31,8 +31,71 @@
     <Filter Include="ソース ファイル\Framework\Mesh">
       <UniqueIdentifier>{49d3d4bc-3609-4786-b78f-68e331fbb060}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\FileUtil">
-      <UniqueIdentifier>{329274d4-067c-49a1-ae0d-8122f012fe51}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Framework\Buffer">
+      <UniqueIdentifier>{87c88788-8b48-4248-9993-f2fca2d6add1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\CommandList">
+      <UniqueIdentifier>{f411ed50-6c8b-41e3-b726-6e2569695b7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Fence">
+      <UniqueIdentifier>{441be0ca-67c1-43c2-9c65-47ad1cefd40e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Pool">
+      <UniqueIdentifier>{47605f16-547c-4afe-a633-c083e3ab96e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Target">
+      <UniqueIdentifier>{235ee742-b90e-409e-abf2-432fc3b48f74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Utility">
+      <UniqueIdentifier>{0a6cffb5-2671-4b96-bc3f-48f2502e88f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Buffer\IndexBuffer">
+      <UniqueIdentifier>{3e7414c3-4300-4e2a-9616-c81fb3376ecd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Buffer\ConstantBuffer">
+      <UniqueIdentifier>{b582bb28-499d-4b53-a347-c59054451c9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Buffer\VertexBuffer">
+      <UniqueIdentifier>{3596b833-b5df-4e84-897e-8daffc805a90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\GraphicsDevice">
+      <UniqueIdentifier>{3fc11c7b-1c9a-4a33-8fff-482e4238d25c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Pool\DescriptorPool">
+      <UniqueIdentifier>{ec2d4718-7183-4494-82ec-50b1bbb1e117}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Target\ColorTarget">
+      <UniqueIdentifier>{40358375-5406-4384-96bc-9550f21916db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Target\DepthTarget">
+      <UniqueIdentifier>{ef313611-f9bc-447c-98dd-cd013f8238f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Texture\TextureManager">
+      <UniqueIdentifier>{7d509f3f-dca6-4231-a560-f3eeb913fe6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Utility\ComPtr">
+      <UniqueIdentifier>{d82e88d9-853c-49d2-8f39-1b36966f2bb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Utility\FileUtil">
+      <UniqueIdentifier>{e9349251-cd6e-4fe3-9f27-c6320b9cc72f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Utility\Debug">
+      <UniqueIdentifier>{e6ed28ac-d78a-4e45-bc71-551b37516312}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Utility\Debug\Logger">
+      <UniqueIdentifier>{7c7940b4-2148-4860-93cd-448b22e04c7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Utility\InlineUtil">
+      <UniqueIdentifier>{98c777ea-376a-4b61-b6fa-cec6f21cde66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Mesh\Material">
+      <UniqueIdentifier>{e57813f5-a20f-4957-88aa-6af732a11da0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Mesh\MeshLoader">
+      <UniqueIdentifier>{f39b0d01-c9a6-40b1-a390-58b522bfde4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Framework\Mesh\PolygonMeshResource">
+      <UniqueIdentifier>{438f188b-16e6-4d76-a9be-468ac8b9dc83}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,14 +105,77 @@
     <ClInclude Include="Source\Pch.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Texture\TextureManager.h">
-      <Filter>ソース ファイル\Framework\Texture</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Framework\Mesh\Mesh.h">
       <Filter>ソース ファイル\Framework\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\FileUtil\FileUtil.h">
-      <Filter>ソース ファイル\Framework\FileUtil</Filter>
+    <ClInclude Include="Source\Framework\Buffer\ConstantBuffer\ConstantBuffer.h">
+      <Filter>ソース ファイル\Framework\Buffer\ConstantBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Buffer\IndexBuffer\IndexBuffer.h">
+      <Filter>ソース ファイル\Framework\Buffer\IndexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Buffer\VertexBuffer\VertexBuffer.h">
+      <Filter>ソース ファイル\Framework\Buffer\VertexBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\CommandList\CommandList.h">
+      <Filter>ソース ファイル\Framework\CommandList</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Fence\Fence.h">
+      <Filter>ソース ファイル\Framework\Fence</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\GraphicsDevice\GraphicsDevice.h">
+      <Filter>ソース ファイル\Framework\GraphicsDevice</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Pool\Pool.h">
+      <Filter>ソース ファイル\Framework\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Pool\DescriptorPool\DescriptorPool.h">
+      <Filter>ソース ファイル\Framework\Pool\DescriptorPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Target\ColorTarget\ColorTarget.h">
+      <Filter>ソース ファイル\Framework\Target\ColorTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Target\DepthTarget\DepthTarget.h">
+      <Filter>ソース ファイル\Framework\Target\DepthTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Texture\Texture.h">
+      <Filter>ソース ファイル\Framework\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Texture\TextureManager\TextureManager.h">
+      <Filter>ソース ファイル\Framework\Texture\TextureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Utility\InlineUtil\InlineUTil.h">
+      <Filter>ソース ファイル\Framework\Utility\InlineUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Utility\FileUtil\FileUtil.h">
+      <Filter>ソース ファイル\Framework\Utility\FileUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Utility\Debug\Logger\Logger.h">
+      <Filter>ソース ファイル\Framework\Utility\Debug\Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Utility\ComPtr\ComPtr.h">
+      <Filter>ソース ファイル\Framework\Utility\ComPtr</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Mesh\MeshResource.h">
+      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Mesh\ResData.h">
+      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Mesh\ResMesh.h">
+      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Mesh\PolygonMeshResource\PolygonMeshResource.h">
+      <Filter>ソース ファイル\Framework\Mesh\PolygonMeshResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Mesh\MeshLoader\MeshLoader.h">
+      <Filter>ソース ファイル\Framework\Mesh\MeshLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Mesh\Material\Material.h">
+      <Filter>ソース ファイル\Framework\Mesh\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Framework\Mesh\Material\ResMaterial.h">
+      <Filter>ソース ファイル\Framework\Mesh\Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -62,14 +188,62 @@
     <ClCompile Include="Source\Pch.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Texture\TextureManager.cpp">
-      <Filter>ソース ファイル\Framework\Texture</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Framework\Mesh\Mesh.cpp">
       <Filter>ソース ファイル\Framework\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\FileUtil\FileUtil.cpp">
-      <Filter>ソース ファイル\Framework\FileUtil</Filter>
+    <ClCompile Include="Source\Framework\Buffer\ConstantBuffer\ConstantBuffer.cpp">
+      <Filter>ソース ファイル\Framework\Buffer\ConstantBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Buffer\IndexBuffer\IndexBuffer.cpp">
+      <Filter>ソース ファイル\Framework\Buffer\IndexBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Buffer\VertexBuffer\VertexBuffer.cpp">
+      <Filter>ソース ファイル\Framework\Buffer\VertexBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\CommandList\CommandList.cpp">
+      <Filter>ソース ファイル\Framework\CommandList</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Fence\Fence.cpp">
+      <Filter>ソース ファイル\Framework\Fence</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\GraphicsDevice\GraphicsDevice.cpp">
+      <Filter>ソース ファイル\Framework\GraphicsDevice</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Pool\DescriptorPool\DescriptorPool.cpp">
+      <Filter>ソース ファイル\Framework\Pool\DescriptorPool</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Target\ColorTarget\ColorTarget.cpp">
+      <Filter>ソース ファイル\Framework\Target\ColorTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Target\DepthTarget\DepthTarget.cpp">
+      <Filter>ソース ファイル\Framework\Target\DepthTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Texture\Texture.cpp">
+      <Filter>ソース ファイル\Framework\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Texture\TextureManager\TextureManager.cpp">
+      <Filter>ソース ファイル\Framework\Texture\TextureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Utility\FileUtil\FileUtil.cpp">
+      <Filter>ソース ファイル\Framework\Utility\FileUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Utility\Debug\Logger\Logger.cpp">
+      <Filter>ソース ファイル\Framework\Utility\Debug\Logger</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Mesh\ResMesh.cpp">
+      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Mesh\PolygonMeshResource\PolygonMeshResource.cpp">
+      <Filter>ソース ファイル\Framework\Mesh\PolygonMeshResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Mesh\MeshLoader\MeshLoader.cpp">
+      <Filter>ソース ファイル\Framework\Mesh\MeshLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Mesh\Material\Material.cpp">
+      <Filter>ソース ファイル\Framework\Mesh\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\Mesh\Material\ResMaterial.cpp">
+      <Filter>ソース ファイル\Framework\Mesh\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
