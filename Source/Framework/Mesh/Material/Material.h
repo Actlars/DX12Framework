@@ -5,25 +5,55 @@
 // -------------------------------------------------------------------------------
 #include <Framework/Pool/DescriptorPool/DescriptorPool.h>
 #include <Framework/Texture/Texture.h>
-#include <Framework/Buffer/ConstantBuffer/ConstantBuffer.h>
+#include "../ResData.h"
+
+// -------------------------------------------------------------------------------
+// MaterialCB 構造体
+// 
+// 概要 : 
+//	シェーダーに渡すマテリアルパラメータ
+//	alignas（256）はDX12の定数バッファのアライメント要件（256バイト境界）
+// -------------------------------------------------------------------------------
+struct alignas(256) MaterialCB
+{
+	DirectX::XMFLOAT3	Diffuse		= { 0.5f,0.5f,0.5f };
+	float				Alpha		= 1.0f;
+	DirectX::XMFLOAT3	Specular	= { 0.0f,0.0f,0.0f };
+	float				Shininess	= 0.0f;
+	DirectX::XMFLOAT3	Emissive	= { 0.0f,0.0f,0.0f };
+	float				Padding		= 0.0f;			//16バイトアライメント用パディング
+};
 
 // -------------------------------------------------------------------------------
 // Material class
+// 
+// 概要 : 
+//	1マテリアル分のGPUリソースを管理するクラス
+//	ResMaterialを受け取り、以下を生成する
+//		- 定数バッファ（MaterialCB）
+//		- テクスチャ（Diffuse / Normal / Specular / Shininess）
+//		  存在しないテクスチャはダミー（1 * 1 白テクスチャ）で補完する
+// 
+// テクスチャスロット : 
+//	TEXTURE_DIFFUSE		t0	ディヒューズカラー
+//	TEXTURE_NORMAL		t1	法線マップ
+//	TEXTURE_SPECULAR	t2	スペキュラーマップ
+//	TEXTURE_SHININESS	t3	シャイネスマップ
 // -------------------------------------------------------------------------------
 class Material
 {
 public:
 
 	// -------------------------------------------------------------------------------
-	// TEXXTURE_USAGE enum
+	// テクスチャの種類
 	// -------------------------------------------------------------------------------
-	enum TEXTURE_USAGE
+	enum TextureType : uint32_t
 	{
-		TEXTURE_USAGE_DIFFUSE = 0,	// ディフューズマップとして利用
-		TEXTURE_USAGE_SPECULAR,		// スペキュラーマップとして利用
-		TEXTURE_USAGE_SHININESS,	// シャイネスマップとして利用
-		TEXTURE_USAGE_NORMAL,		// 法線マップとして利用
-		TEXTURE_USAGE_COUNT
+		TEXTURE_DIFFUSE		= 0,	// ディフューズマップとして利用
+		TEXTURE_NORMAL		= 1,	// 法線マップとして利用
+		TEXTURE_SPECULAR	= 2,	// スペキュラーマップとして利用
+		TEXTURE_SHININESS	= 3,	// シャイネスマップとして利用
+		TEXTURE_COUNT
 	};
 
 	// -------------------------------------------------------------------------------
@@ -38,18 +68,19 @@ public:
 
 	// -------------------------------------------------------------------------------
 	// @brief	初期化処理
-	// @param[in]	pDevice		デバイス
-	// @param[in]	pPool		ディスクリプタプール（CBV_UAV_SRV用のものを設定）
-	// @param[in]	bufferSize	1マテリアルあたりの定数バッファのサイズ
-	// @param[in]	count		マテリアル数
+	// 
+	// @param[in]	_pDevice		デバイス
+	// @param[in]	_pQueue		テクスチャアップロード用コマンドキュー
+	// @param[in]	_pPool		ディスクリプタプール（CBV_UAV_SRV用のものを設定）
+	// @param[in]	_resMat		ロード済みの生マテリアルデータ
 	// @retval	true	初期化に成功
 	// @retval	false	初期化に失敗
 	// -------------------------------------------------------------------------------
 	bool Init(
-		ID3D12Device*	_pDevice,
-		DescriptorPool* _pPool,
-		size_t			_bufferSize,
-		size_t			_count);
+		ID3D12Device*		_pDevice,
+		ID3D12CommandQueue* _pQueue,
+		DescriptorPool*		_pPool,
+		const ResMaterial&	_resMat);
 
 	// -------------------------------------------------------------------------------
 	// @brief	終了処理を行う
@@ -57,92 +88,47 @@ public:
 	void Term();
 
 	// -------------------------------------------------------------------------------
-	// @brief	テクスチャを設定
-	// 
-	// @param[in]	index	マテリアル番号
-	// @param[in]	usage	テクスチャの使用用途
-	// @param[in]	path	テクスチャパス
-	// @param[out]	batch	リソースアップロードバッチ
-	// @retval	treu	設定に成功
-	// @retval	false	設定に失敗
+	// @brief	定数バッファのGPU仮想アドレスを返す
+	//			SetGraphicsRootConstantBufferView()に渡す
 	// -------------------------------------------------------------------------------
-	bool SetTexture(
-		size_t							_index,
-		TEXTURE_USAGE					_usage,
-		const std::wstring&				_path,
-		DirectX::ResourceUploadBatch&	_batch);
+	D3D12_GPU_VIRTUAL_ADDRESS GetCBAddress() const;
 
 	// -------------------------------------------------------------------------------
-	// @brief	定数バッファのポインタを取得
+	// @brief	テクスチャのGPUハンドルを返す
+	//			SetGraphicsRootConstantBufferView()に渡す
 	// 
-	// @param[in]	index	取得するマテリアル番号
-	// @return	指定された番号に一致する定数バッファのポインタを返却
-	//			一致するものがない場合はnullptrを返却
+	// @param[in]	_type	テクスチャの種類
 	// -------------------------------------------------------------------------------
-	void* GetBufferPtr(size_t _index) const;
+	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureHandle(TextureType _type) const;
 
 	// -------------------------------------------------------------------------------
-	// @brief	定数バッファのポインタを取得
-	// 
-	// @param[in]	index	取得するマテリアル番号
-	// @return	指定された番号に一致する定数バッファのポインタを返却
-	//			一致するものがない場合はnullptrを返却
+	// @brief	定数バッファのマップ済みポインタを返す（CPU側から書き換える場合）
 	// -------------------------------------------------------------------------------
-	template<typename T>
-	T* GetBufferPtr(size_t _index) const 
-	{ return reinterpret_cast<T*>(GetBufferPtr(_index);) }
-
-	// -------------------------------------------------------------------------------
-	// @brief	定数バッファのGPU仮想アドレスを取得
-	// 
-	// @param[in]	index	取得するマテリアル番号
-	// @return	指定された番号に一致する定数バッファのGPU仮想アドレスを返却
-	// -------------------------------------------------------------------------------
-	D3D12_GPU_VIRTUAL_ADDRESS GetBufferAddress(size_t _index) const;
-
-	// -------------------------------------------------------------------------------
-	// @brief	テクスチャハンドルを取得
-	// 
-	// @param[in]	index	取得するマテリアル番号
-	// @param[in]	usage	取得するテクスチャの使用用途
-	// @return	指定された番号に一致するテクスチャのディスクリプタハンドルを返却
-	// -------------------------------------------------------------------------------
-	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureHandle(size_t _index, TEXTURE_USAGE _usage) const;
-
-	// -------------------------------------------------------------------------------
-	// @brief	マテリアル数を取得
-	// 
-	// @return	マテリアル数を返却
-	// -------------------------------------------------------------------------------
-	size_t GetCount() const;
+	MaterialCB* GetCBPtr() const;
 
 private:
 
 	// -------------------------------------------------------------------------------
-	// Subset structure
+	// @brief	1*1の白ダミーテクスチャを生成する
+	//			テクスチャが存在しないスロットに差し込む
 	// -------------------------------------------------------------------------------
-	struct Subset
-	{
-		ConstantBuffer*				pConstantBuffer;					// 定数バッファ
-		D3D12_GPU_DESCRIPTOR_HANDLE	TextureHandle[TEXTURE_USAGE_COUNT];	// テクスチャハンドル
-	};
+	bool CreateDummyTexture(
+		ID3D12Device*		_pDevice,
+		ID3D12CommandQueue* _pQueue,
+		DescriptorPool*		_pPool);
 
 	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
-	std::map<std::wstring, Texture*>	m_pTexture;	// テクスチャ
-	std::vector<Subset>					m_Subset;	// サブセット
-	ID3D12Device*						m_pDevice;	// デバイス
-	DescriptorPool*						m_pPool;	// ディスクリプタプール
+	ComPtr<ID3D12Resource>		m_pCB;						// 定数バッファ
+	DescriptorHandle*			m_pCBHandle		= nullptr;	// CBVハンドル
+	DescriptorPool*				m_pPool			= nullptr;	// プール
+	MaterialCB*					m_pMappedPtr	= nullptr;	// Map済みポインタ
+	
+	Texture		m_Textures[TEXTURE_COUNT];			// テクスチャ[4]
+	bool		m_HasTexture[TEXTURE_COUNT] = {};	// テクスチャが存在するか
 
-	// -------------------------------------------------------------------------------
-	// private methods
-	// -------------------------------------------------------------------------------
+
 	Material		(const Material&) = delete;
 	void operator = (const Material&) = delete;
 };
-
-constexpr auto TU_DIFFUSE	= Material::TEXTURE_USAGE_DIFFUSE;
-constexpr auto TU_SPECULAR	= Material::TEXTURE_USAGE_SPECULAR;
-constexpr auto TU_SHININESS = Material::TEXTURE_USAGE_SHININESS;
-constexpr auto TU_NORMAL	= Material::TEXTURE_USAGE_NORMAL;

@@ -62,16 +62,24 @@ uint32_t DescriptorPool::GetCount() const
 DescriptorHandle* DescriptorPool::AllocHandle()
 {
 	// ‰Šú‰»ŠÖ”
-	auto func = [&](uint32_t index, DescriptorHandle* pHandle)
+	auto func = [&](uint32_t _index, DescriptorHandle* _pHandle)
 		{
 			auto handleCPU = m_pHeap->GetCPUDescriptorHandleForHeapStart();
-			handleCPU.ptr += m_DescriptorSize * index;
+			handleCPU.ptr += m_DescriptorSize * _index;
+			_pHandle->HandleCPU = handleCPU;
 
-			auto handleGPU = m_pHeap->GetGPUDescriptorHandleForHeapStart();
-			handleGPU.ptr += m_DescriptorSize * index;
-
-			pHandle->HandleCPU = handleCPU;
-			pHandle->HandleGPU = handleGPU;
+			// SHADER_VISIBLE‚Ì‚à‚Ì‚ÌŽž‚¾‚¯handleGPU‚ð‚í‚½‚·
+			const auto desc = m_pHeap->GetDesc();
+			if (desc.Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
+			{
+				auto handleGPU = m_pHeap->GetGPUDescriptorHandleForHeapStart();
+				handleGPU.ptr += m_DescriptorSize * _index;
+				_pHandle->HandleGPU = handleGPU;
+			}
+			else
+			{
+				_pHandle->HandleGPU = { 0 };
+			}
 		};
 
 	// ‰Šú‰»ŠÖ”‚ðŽÀs‚µ‚Ä‚©‚çƒnƒ“ƒhƒ‹‚ð•Ô‹p

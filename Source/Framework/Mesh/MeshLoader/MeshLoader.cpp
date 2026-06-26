@@ -196,7 +196,7 @@ bool MeshLoader::Load(
 	// ファイル存在確認
 	if (!std::filesystem::exists(_path))
 	{
-		ELOG("MEshLoader::Load() File not found.path = %ls", _path.c_str());
+		ELOG("MeshLoader::Load() File not found.path = %ls", _path.c_str());
 		return false; 
 	}
 

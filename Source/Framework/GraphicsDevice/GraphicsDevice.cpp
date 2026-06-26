@@ -66,8 +66,8 @@ void GraphicsDevice::Term()
 	m_CommandList.Term();
 	m_DepthTarget.Term();
 
-	for (auto& ct : m_ColorTargets) 
-	{ ct.Term(); }
+	//for (auto& ct : m_ColorTargets) 
+	//{ ct->Term(); }
 	m_ColorTargets.clear();
 
 	// DescriptorPool は参照カウント管理なのでRelease()を呼ぶ
@@ -92,11 +92,11 @@ ID3D12GraphicsCommandList* GraphicsDevice::BeginFrame()
 {
 	// コマンドリストのリセット
 	// 前フレームの命令が残ったままだと記録できないのでリセットする
-	auto* pCmd = m_CommandList.Reset();
+	m_pCurrentCmd = m_CommandList.Reset();
 
 	// バックバッファを描画先に切り替えるリソースバリア
 	// PRESENT状態のままRTVとして使おうとするとGPUエラーになる
-	auto* pTarget = m_ColorTargets[m_FrameIndex].GetResource();
+	auto* pTarget = m_ColorTargets[m_FrameIndex]->GetResource();
 	D3D12_RESOURCE_BARRIER barrier	= {};
 	barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -104,23 +104,23 @@ ID3D12GraphicsCommandList* GraphicsDevice::BeginFrame()
 	barrier.Transition.StateBefore	= D3D12_RESOURCE_STATE_PRESENT;
 	barrier.Transition.StateAfter	= D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	pCmd->ResourceBarrier(1, &barrier);
+	m_pCurrentCmd->ResourceBarrier(1, &barrier);
 
 	// レンダーターゲットと深度バッファをクリア
-	auto handleRTV = m_ColorTargets[m_FrameIndex].GetHandleRTV()->HandleCPU;
+	auto handleRTV = m_ColorTargets[m_FrameIndex]->GetHandleRTV()->HandleCPU;
 	auto handleDSV = m_DepthTarget.GetHandleDSV()->HandleCPU;
 
-	pCmd->ClearRenderTargetView(handleRTV, CLEAR_COLOR, 0, nullptr);
-	pCmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	m_pCurrentCmd->ClearRenderTargetView(handleRTV, CLEAR_COLOR, 0, nullptr);
+	m_pCurrentCmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// レンダーターゲットを設定
-	pCmd->OMSetRenderTargets(1, &handleRTV, FALSE, &handleDSV);
+	m_pCurrentCmd->OMSetRenderTargets(1, &handleRTV, FALSE, &handleDSV);
 
 	// ビューポート / シザー矩形を設定
-	pCmd->RSSetViewports(1, &m_Viewport);
-	pCmd->RSSetScissorRects(1, &m_Scissor);
+	m_pCurrentCmd->RSSetViewports(1, &m_Viewport);
+	m_pCurrentCmd->RSSetScissorRects(1, &m_Scissor);
 
-	return pCmd;
+	return m_pCurrentCmd;
 }
 
 // -------------------------------------------------------------------------------
@@ -128,8 +128,8 @@ ID3D12GraphicsCommandList* GraphicsDevice::BeginFrame()
 // -------------------------------------------------------------------------------
 void GraphicsDevice::EndFrame()
 {
-	auto* pCmd		= m_CommandList.Reset();
-	auto* pTarget	= m_ColorTargets[m_FrameIndex].GetResource();
+	//auto* pCmd		= m_CommandList.Reset();
+	auto* pTarget	= m_ColorTargets[m_FrameIndex]->GetResource();
 
 	// バックバッファを表示用に切り替えるバリア
 	// RENDER_TARGETのままPresentしようとするとGPUエラーになる
@@ -140,12 +140,12 @@ void GraphicsDevice::EndFrame()
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	pCmd->ResourceBarrier(1, &barrier);
+	m_pCurrentCmd->ResourceBarrier(1, &barrier);
 
 	// コマンドリストをクローズしてGPUに投入
-	pCmd->Close();
+	m_pCurrentCmd->Close();
 
-	ID3D12CommandList* ppLists[] = { pCmd };
+	ID3D12CommandList* ppLists[] = { m_pCurrentCmd };
 	m_pQueue->ExecuteCommandLists(1, ppLists);
 }
 
@@ -183,7 +183,8 @@ ColorTarget* GraphicsDevice::GetColorTarget(uint32_t _index) const
 {
 	if (_index >= m_ColorTargets.size()) 
 	{ return nullptr; }
-	return const_cast<ColorTarget*>(&m_ColorTargets[_index]);
+	//return const_cast<ColorTarget*>(&m_ColorTargets[_index]);
+	return m_ColorTargets[_index].get();
 }
 
 // -------------------------------------------------------------------------------
@@ -336,12 +337,13 @@ bool GraphicsDevice::InitDescriptorPools()
 // -------------------------------------------------------------------------------
 bool GraphicsDevice::InitColorTargets()
 {
-	m_ColorTargets.resize(m_Desc.FrameCount);
+	m_ColorTargets.reserve(m_Desc.FrameCount);
 
 	for (auto i = 0u; i < m_Desc.FrameCount; ++i)
 	{
 		// InitFrameBackBufferはスワップチェインのバッファを取得してRTVを作る
-		if (!m_ColorTargets[i].InitFromBackBuffer(
+		auto ct = std::make_unique<ColorTarget>();
+		if (!ct->InitFromBackBuffer(
 			m_pDevice.Get(),
 			m_pPool[POOL_TYPE_RTV],
 			i,
@@ -349,6 +351,7 @@ bool GraphicsDevice::InitColorTargets()
 		{
 			return false;
 		}
+		m_ColorTargets.emplace_back(std::move(ct));
 	}
 
 	return true;

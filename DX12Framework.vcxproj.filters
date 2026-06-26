@@ -97,6 +97,9 @@
     <Filter Include="ソース ファイル\Framework\Mesh\PolygonMeshResource">
       <UniqueIdentifier>{438f188b-16e6-4d76-a9be-468ac8b9dc83}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Framework\Shader\MeshShader">
+      <UniqueIdentifier>{5eb83c49-b1ca-4480-8861-a83b888f940c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -253,10 +256,19 @@
     <FxCompile Include="Source\Framework\Shader\SampleShader\SimplePS.hlsl">
       <Filter>ソース ファイル\Framework\Shader\SampleShader</Filter>
     </FxCompile>
+    <FxCompile Include="Source\Framework\Shader\MeshShader\MeshShaderVS.hlsl">
+      <Filter>ソース ファイル\Framework\Shader\MeshShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Framework\Shader\MeshShader\MeshShaderPS.hlsl">
+      <Filter>ソース ファイル\Framework\Shader\MeshShader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Framework\Shader\SampleShader\SimpleInc.hlsli">
       <Filter>ソース ファイル\Framework\Shader\SampleShader</Filter>
+    </None>
+    <None Include="Source\Framework\Shader\MeshShader\MeshShaderInc.hlsli">
+      <Filter>ソース ファイル\Framework\Shader\MeshShader</Filter>
     </None>
   </ItemGroup>
 </Project>

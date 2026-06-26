@@ -2,289 +2,90 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include "Mesh.h"
-
-namespace {
+#include <Framework/Mesh/PolygonMeshResource/PolygonMeshResource.h>
+#include <Framework/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
-//	MeshLoader class
+//		コンストラクタ
 // -------------------------------------------------------------------------------
-class MeshLoader
+Mesh::Mesh()
+{ /* DO_NOTHING */ }
+
+// -------------------------------------------------------------------------------
+//		デストラクタ
+// -------------------------------------------------------------------------------
+Mesh::~Mesh() 
+{ Term(); }
+
+// -------------------------------------------------------------------------------
+//		従来パイプラインで初期化
+// -------------------------------------------------------------------------------
+bool Mesh::Init(ID3D12Device* _pDevice, const ResMesh& _resMesh)
 {
-	// -------------------------------------------------------------------------------
-	// list of friend classes and methods
-	// -------------------------------------------------------------------------------
-	/* NOTHING */
+	if (_pDevice == nullptr) 
+	{ return false; }
 
-public:
-
-	// -------------------------------------------------------------------------------
-	// UTF-8文字列に変換
-	// -------------------------------------------------------------------------------
-	std::string ToUTF8(const std::wstring& _value)
+	// PolygonMeshResourceを生成してMeshResourceとして保持
+	auto resource = std::make_unique<PolygonMeshResource>();
+	if (!resource->Init(_pDevice, _resMesh))
 	{
-		auto length = WideCharToMultiByte(
-			CP_UTF8, 0U, _value.data(), -1, nullptr, 0, nullptr, nullptr);
-		auto buffer = new char[length];
-
-		WideCharToMultiByte(
-			CP_UTF8, 0U, _value.data(), -1, buffer, length, nullptr, nullptr);
-
-		std::string result(buffer);
-		delete[] buffer;
-		buffer = nullptr;
-
-		return result;
-	}
-
-	// -------------------------------------------------------------------------------
-	// public variables
-	// -------------------------------------------------------------------------------
-	/* NOTHING */
-
-	// -------------------------------------------------------------------------------
-	// public methods
-	// -------------------------------------------------------------------------------
-	MeshLoader();
-	~MeshLoader();
-
-	bool Load(
-		const wchar_t* _filename,
-		std::vector<Mesh>& _meshs,
-		std::vector<Material>& _materials);
-
-private:
-
-	// -------------------------------------------------------------------------------
-	// private variables
-	// -------------------------------------------------------------------------------
-	/* NOTHING */
-
-	// -------------------------------------------------------------------------------
-	// private methods
-	// -------------------------------------------------------------------------------
-	void ParseMesh(Mesh& _dstMesh, const aiMesh* _pSrcMesh);
-	void ParseMaterial(Material& _dstMaterial, const aiMaterial* _pSrcMaterial);
-
-};
-
-// -------------------------------------------------------------------------------
-// コンストラクタ
-// -------------------------------------------------------------------------------
-MeshLoader::MeshLoader()
-{ /* DO_NOTHING */
-}
-
-// -------------------------------------------------------------------------------
-// デストラクタ
-// -------------------------------------------------------------------------------
-MeshLoader::~MeshLoader()
-{ /* DO_NOTHING */
-}
-
-// -------------------------------------------------------------------------------
-// メッシュをロード
-// -------------------------------------------------------------------------------
-bool MeshLoader::Load
-(
-	const wchar_t* _filename,
-	std::vector<Mesh>& _meshes,
-	std::vector<Material>& _materials
-)
-{
-	if (_filename == nullptr)
-	{
+		ELOG("Mesh::Init() PolygonMeshResource::Init() failed");
 		return false;
 	}
 
-	// wchar_tからchar型（UTF-8）に変換
-	auto path = ToUTF8(_filename);
+	m_pResource		= std::move(resource);
+	m_MaterialId	= _resMesh.MaterialId;
 
-	Assimp::Importer importer;
-	int flag = 0;
-	flag |= aiProcess_Triangulate;
-	flag |= aiProcess_PreTransformVertices;
-	flag |= aiProcess_CalcTangentSpace;
-	flag |= aiProcess_GenSmoothNormals;
-	flag |= aiProcess_GenUVCoords;
-	flag |= aiProcess_RemoveRedundantMaterials;
-	flag |= aiProcess_OptimizeMeshes;
-
-	// ファイルを読み込み
-	auto pScene = importer.ReadFile(path, flag);
-
-	// チェック
-	if (pScene == nullptr)
-	{
-		return false;
-	}
-
-	// メッシュメモリを確保
-	_meshes.clear();
-	_meshes.resize(pScene->mNumMeshes);
-
-	// メッシュデータを変換
-	for (size_t i = 0; i < _meshes.size(); ++i)
-	{
-		const auto pMesh = pScene->mMeshes[i];
-		ParseMesh(_meshes[i], pMesh);
-	}
-
-	// マテリアルのメモリを確保
-	_materials.clear();
-	_materials.resize(pScene->mNumMaterials);
-
-	// マテリアルデータを変換
-	for (size_t i = 0; i < _materials.size(); ++i)
-	{
-		const auto pMaterial = pScene->mMaterials[i];
-		ParseMaterial(_materials[i], pMaterial);
-	}
-
-	// 不要になったのでクリア
-	pScene = nullptr;
-
-	// 正常終了
 	return true;
 }
 
 // -------------------------------------------------------------------------------
-// メッシュデータを解析
+//		任意のMeshResourceで初期化（メッシュシェーダー等）
 // -------------------------------------------------------------------------------
-void MeshLoader::ParseMesh(Mesh& _dstMesh, const aiMesh* _pSrcMesh)
+void Mesh::InitWithResource(
+	std::unique_ptr<MeshResource>	_resource,
+	uint32_t						_materialId)
 {
-	// マテリアル番号を設定
-	_dstMesh.MaterialId = _pSrcMesh->mMaterialIndex;
-
-	aiVector3D zero3D(0.0f, 0.0f, 0.0f);
-
-	// 頂点データのメモリを確保
-	_dstMesh.Vertices.resize(_pSrcMesh->mNumVertices);
-
-	for (auto i = 0u; i < _pSrcMesh->mNumVertices; ++i)
-	{
-		auto pPosition = &(_pSrcMesh->mVertices[i]);
-		auto pNormal = &(_pSrcMesh->mNormals[i]);
-		auto pTexCoord = (_pSrcMesh->HasTextureCoords(0)) ? &(_pSrcMesh->mTextureCoords[0][i]) : &zero3D;
-		auto pTangent = (_pSrcMesh->HasTangentsAndBitangents()) ? &(_pSrcMesh->mTangents[i]) : &zero3D;
-
-		_dstMesh.Vertices[i] = MeshVertex(
-			DirectX::XMFLOAT3(pPosition->x, pPosition->y, pPosition->z),
-			DirectX::XMFLOAT3(pNormal->x, pNormal->y, pNormal->z),
-			DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y),
-			DirectX::XMFLOAT3(pTangent->x, pTangent->y, pTangent->z)
-		);
-	}
-
-	// 頂点インデックスのメモリを確保
-	_dstMesh.Indices.resize(_pSrcMesh->mNumFaces * 3);
-
-	for (auto i = 0u; i < _pSrcMesh->mNumFaces; ++i)
-	{
-		const auto& face = _pSrcMesh->mFaces[i];
-		assert(face.mNumIndices == 3);	// 三角形化しているので必ず３になっている
-
-		_dstMesh.Indices[i * 3 + 0] = face.mIndices[0];
-		_dstMesh.Indices[i * 3 + 1] = face.mIndices[1];
-		_dstMesh.Indices[i * 3 + 2] = face.mIndices[2];
-	}
+	m_pResource		= std::move(_resource);
+	m_MaterialId	= _materialId;
 }
 
 // -------------------------------------------------------------------------------
-// マテリアルデータを解析
+//		終了処理
 // -------------------------------------------------------------------------------
-void MeshLoader::ParseMaterial(Material& _dstMaterial, const aiMaterial* _pSrcMaterial)
+void Mesh::Term()
 {
-	// 拡散反射成分
-	{
-		aiColor3D color(0.0f, 0.0f, 0.0f);
-
-		if (_pSrcMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
-		{
-			_dstMaterial.Diffuse.x = color.r;
-			_dstMaterial.Diffuse.y = color.g;
-			_dstMaterial.Diffuse.z = color.b;
-		}
-		else
-		{
-			_dstMaterial.Diffuse.x = 0.5f;
-			_dstMaterial.Diffuse.y = 0.5f;
-			_dstMaterial.Diffuse.z = 0.5f;
-		}
-	}
-
-	// 鏡面反射成分
-	{
-		aiColor3D color(0.0f, 0.0f, 0.0f);
-
-		if (_pSrcMaterial->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
-		{
-			_dstMaterial.Specular.x = color.r;
-			_dstMaterial.Specular.y = color.g;
-			_dstMaterial.Specular.z = color.b;
-		}
-		else
-		{
-			_dstMaterial.Specular.x = 0.0f;
-			_dstMaterial.Specular.y = 0.0f;
-			_dstMaterial.Specular.z = 0.0f;
-		}
-	}
-
-	// 鏡面反射強度
-	{
-		auto shininess = 0.0f;
-		if (_pSrcMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
-		{
-			_dstMaterial.Shininess = shininess;
-		}
-		else
-		{
-			_dstMaterial.Shininess = 0.0f;
-		}
-	}
-
-	// ディヒューズマップ
-	{
-		aiString path;
-		if (_pSrcMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), path) == AI_SUCCESS)
-		{
-			_dstMaterial.DiffuseMap = std::string(path.C_Str());
-		}
-		else
-		{
-			_dstMaterial.DiffuseMap.clear();
-		}
-	}
+	m_pResource.reset();
+	m_MaterialId = 0;
 }
-}// namespace
-
-#define FMT_FLOAT3	DXGI_FORMAT_R32G32B32_FLOAT
-#define FMT_FLOAT2	DXGI_FORMAT_R32G32_FLOAT
-#define APPEND		D3D12_APPEND_ALIGNED_ELEMENT
-#define IL_VERTEX	D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA
-
-const D3D12_INPUT_ELEMENT_DESC MeshVertex::InputElements[] = {
-	{"POSITION", 0, FMT_FLOAT3, 0, APPEND, IL_VERTEX, 0},
-	{"NORMAL", 0, FMT_FLOAT3,0,APPEND,IL_VERTEX,0},
-	{"TEXCOORD",0,FMT_FLOAT2,0,APPEND,IL_VERTEX,0},
-	{"TANGENT",0,FMT_FLOAT3,0,APPEND,IL_VERTEX,0}
-};
-const D3D12_INPUT_LAYOUT_DESC MeshVertex::InputLayout = {
-	MeshVertex::InputElements,
-	MeshVertex::InputElementCount
-};
-static_assert(sizeof(MeshVertex) == 44, "Vertex struct/layout mismatch");
 
 // -------------------------------------------------------------------------------
-// メッシュをロード
+//		描画コマンドを積む
 // -------------------------------------------------------------------------------
-bool LoadMesh
-(
-	const wchar_t*			_filename,
-	std::vector<Mesh>&		_meshes,
-	std::vector<Material>&	_materials
-)
+void Mesh::Draw(
+	ID3D12GraphicsCommandList*	_pCmd,
+	uint32_t					_instanceCount) const
 {
-	MeshLoader loader;
-	return loader.Load(_filename, _meshes, _materials);
+	if (m_pResource == nullptr) 
+	{ return; }
+
+	m_pResource->Draw(_pCmd, _instanceCount);
 }
+
+// -------------------------------------------------------------------------------
+//		ゲッター
+// -------------------------------------------------------------------------------
+uint32_t Mesh::GetMaterialId() const
+{ return m_MaterialId; }
+
+bool Mesh::IsValid() const 
+{ return m_pResource != nullptr; }
+
+bool Mesh::NeedsInputLayout() const 
+{ return m_pResource ? m_pResource->NeedsInputLayout() : false; }
+
+uint32_t Mesh::GetIndexCount() const 
+{ return m_pResource ? m_pResource->GetIndexCount() : 0; }
+
+uint32_t Mesh::GetVertexCount() const 
+{ return m_pResource ? m_pResource->GetVertexCount() : 0; }

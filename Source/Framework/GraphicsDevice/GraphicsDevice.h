@@ -181,7 +181,8 @@ private:
 	ComPtr<IDXGISwapChain3>		m_pSwapChain;
 
 	DescriptorPool*				m_pPool[POOL_COUNT] = {};
-	std::vector<ColorTarget>	m_ColorTargets;
+	std::vector<std::unique_ptr<ColorTarget>>	m_ColorTargets;
+	ID3D12GraphicsCommandList*			m_pCurrentCmd = nullptr;
 	DepthTarget					m_DepthTarget;
 	CommandList					m_CommandList;
 	Fence						m_Fence;
