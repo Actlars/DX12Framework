@@ -16,89 +16,134 @@
     <Filter Include="ソース ファイル\Application">
       <UniqueIdentifier>{70b7b6a2-c0f7-4da6-a2c7-69d538933225}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework">
-      <UniqueIdentifier>{ad2cf478-aef2-4b7a-8803-178e3710521a}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine">
+      <UniqueIdentifier>{c0380696-25ec-478a-a602-85ab128d597d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Shader">
-      <UniqueIdentifier>{2e936225-290e-4388-a452-d47a1cff979e}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Game">
+      <UniqueIdentifier>{eb27eabb-6152-410f-8fae-66f79f4bb61f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Shader\SampleShader">
-      <UniqueIdentifier>{efe6cbba-d5cd-47c4-8516-07456e7746c4}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Buffer">
+      <UniqueIdentifier>{ce942b32-d592-402b-8096-0a26c7c3f63b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Texture">
-      <UniqueIdentifier>{effdf227-79dc-483f-849b-8c779411262b}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Camera">
+      <UniqueIdentifier>{172575fb-d720-4516-b55c-92ce80742edd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Mesh">
-      <UniqueIdentifier>{49d3d4bc-3609-4786-b78f-68e331fbb060}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\CommandList">
+      <UniqueIdentifier>{9d206eb9-cc3f-41ad-8acd-591a753b5926}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Buffer">
-      <UniqueIdentifier>{87c88788-8b48-4248-9993-f2fca2d6add1}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Fence">
+      <UniqueIdentifier>{3bb3f0cb-ed3b-451c-bc46-0be68164afd5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\CommandList">
-      <UniqueIdentifier>{f411ed50-6c8b-41e3-b726-6e2569695b7c}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\GraphicsDevice">
+      <UniqueIdentifier>{3da18dcc-240c-4528-9ff3-d17c1cb67f17}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Fence">
-      <UniqueIdentifier>{441be0ca-67c1-43c2-9c65-47ad1cefd40e}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Mesh">
+      <UniqueIdentifier>{d87e9491-acde-44e5-a488-64ede75632af}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Pool">
-      <UniqueIdentifier>{47605f16-547c-4afe-a633-c083e3ab96e6}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Pool">
+      <UniqueIdentifier>{101f4b43-93fe-48ff-8e9b-00b912f10242}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Target">
-      <UniqueIdentifier>{235ee742-b90e-409e-abf2-432fc3b48f74}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Renderer">
+      <UniqueIdentifier>{b5d88c56-992f-406f-a9d1-51c460857b66}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Utility">
-      <UniqueIdentifier>{0a6cffb5-2671-4b96-bc3f-48f2502e88f5}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Sampler">
+      <UniqueIdentifier>{1d32a391-d9ab-472d-a99a-db6928306b4b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Buffer\IndexBuffer">
-      <UniqueIdentifier>{3e7414c3-4300-4e2a-9616-c81fb3376ecd}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Scene">
+      <UniqueIdentifier>{1c6ba6d1-1b78-44ce-886b-42aeee7ea232}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Buffer\ConstantBuffer">
-      <UniqueIdentifier>{b582bb28-499d-4b53-a347-c59054451c9b}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Shader">
+      <UniqueIdentifier>{3e711648-3927-4add-b74c-15d6f3cc31b2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Buffer\VertexBuffer">
-      <UniqueIdentifier>{3596b833-b5df-4e84-897e-8daffc805a90}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Target">
+      <UniqueIdentifier>{501c6b37-b377-4e54-85fc-40b3af67cfc8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\GraphicsDevice">
-      <UniqueIdentifier>{3fc11c7b-1c9a-4a33-8fff-482e4238d25c}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Texture">
+      <UniqueIdentifier>{e30148a7-d4c0-497f-bd93-3e71ff6880f5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Pool\DescriptorPool">
-      <UniqueIdentifier>{ec2d4718-7183-4494-82ec-50b1bbb1e117}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Utility">
+      <UniqueIdentifier>{35a54c21-c48a-41ec-9869-1ec9a3608d54}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Target\ColorTarget">
-      <UniqueIdentifier>{40358375-5406-4384-96bc-9550f21916db}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Buffer\ConstantBuffer">
+      <UniqueIdentifier>{685fafee-5ebe-4c31-b553-b695f3825bfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Target\DepthTarget">
-      <UniqueIdentifier>{ef313611-f9bc-447c-98dd-cd013f8238f4}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Buffer\IndexBuffer">
+      <UniqueIdentifier>{fbe52884-2e49-4d58-b56d-4334746479c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Texture\TextureManager">
-      <UniqueIdentifier>{7d509f3f-dca6-4231-a560-f3eeb913fe6e}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Buffer\VertexBuffer">
+      <UniqueIdentifier>{65fd5603-de53-4d12-a823-b97f6da59305}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Utility\ComPtr">
-      <UniqueIdentifier>{d82e88d9-853c-49d2-8f39-1b36966f2bb3}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Camera\FPSCamera">
+      <UniqueIdentifier>{5255c068-6021-4c7f-9080-34c77bd0422d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Utility\FileUtil">
-      <UniqueIdentifier>{e9349251-cd6e-4fe3-9f27-c6320b9cc72f}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Mesh\Material">
+      <UniqueIdentifier>{9578a1a1-4ec4-4d45-a652-a86f8e9b34b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Utility\Debug">
-      <UniqueIdentifier>{e6ed28ac-d78a-4e45-bc71-551b37516312}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Mesh\Mesh">
+      <UniqueIdentifier>{5418b578-ce1d-4d03-8122-874e7f22c09e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Utility\Debug\Logger">
-      <UniqueIdentifier>{7c7940b4-2148-4860-93cd-448b22e04c7a}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Mesh\MeshLoader">
+      <UniqueIdentifier>{a72907cf-bae2-46cf-a8cd-f209e30a2d73}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Utility\InlineUtil">
-      <UniqueIdentifier>{98c777ea-376a-4b61-b6fa-cec6f21cde66}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Mesh\PolygonMeshResource">
+      <UniqueIdentifier>{e336dba2-5b93-4bc9-b8b6-217baf398550}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Mesh\Material">
-      <UniqueIdentifier>{e57813f5-a20f-4957-88aa-6af732a11da0}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Pool\DescriptorPool">
+      <UniqueIdentifier>{0dfc98fd-9ecd-4c4d-a26f-c90585666151}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Mesh\MeshLoader">
-      <UniqueIdentifier>{f39b0d01-c9a6-40b1-a390-58b522bfde4b}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Shader\MeshShader">
+      <UniqueIdentifier>{adf6a884-3e3e-4757-a09a-bf911adec62a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Mesh\PolygonMeshResource">
-      <UniqueIdentifier>{438f188b-16e6-4d76-a9be-468ac8b9dc83}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Shader\SimpleShader">
+      <UniqueIdentifier>{4cd90d35-7899-4d62-8ef7-105f360de9a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Framework\Shader\MeshShader">
-      <UniqueIdentifier>{5eb83c49-b1ca-4480-8861-a83b888f940c}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Target\ColorTarget">
+      <UniqueIdentifier>{6de153ca-ef2f-4b3b-86b4-292d95e24709}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Target\DepthTarget">
+      <UniqueIdentifier>{df4d1626-dc60-4d21-9124-2d85ede9ef1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Texture\TextureManager">
+      <UniqueIdentifier>{9d768e5f-3b5f-400a-b45f-ece6999276eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Utility\ComPtr">
+      <UniqueIdentifier>{9571d911-2675-4e24-8e15-2a0e0181f22d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Utility\Debug">
+      <UniqueIdentifier>{650527ee-a2a3-4570-aba7-c6f81bfd9d25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Utility\FileUtil">
+      <UniqueIdentifier>{761e97c3-c3cf-4d6f-a303-012d0af735fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Utility\InlineUtil">
+      <UniqueIdentifier>{52e3fd37-522c-41d9-92bb-1c3897ebbdce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Utility\Debug\Logger">
+      <UniqueIdentifier>{cf5d25a3-075b-4569-888e-ac8a7740313c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Scene\SceneManager">
+      <UniqueIdentifier>{3801f64a-041d-4799-91e8-96813c11d5a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Game\Scene">
+      <UniqueIdentifier>{5640b3e2-2286-4b49-b620-deb885f7a8b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Game\Scene\GameScene">
+      <UniqueIdentifier>{962318c9-960b-4387-a314-cdf0b96e9960}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\GameObject">
+      <UniqueIdentifier>{e8c42a4e-7af1-4388-b235-1a6e8613cdc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\GameObject\Components">
+      <UniqueIdentifier>{f8e454f5-1f28-4b23-9128-b927693af3e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\GameObject\Components\TransformComponent">
+      <UniqueIdentifier>{08208a8f-ec4c-4790-b0d2-64fd53d376d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\GameObject\Components\MeshComponent">
+      <UniqueIdentifier>{de008b61-764e-44fb-afb2-4d8d30ca34af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\GameObject\Component">
+      <UniqueIdentifier>{d4deb45e-d36c-4fc4-b434-83f4cf1d0ec3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -108,77 +153,110 @@
     <ClInclude Include="Source\Pch.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Mesh\Mesh.h">
-      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    <ClInclude Include="Source\Engine\Buffer\ConstantBuffer\ConstantBuffer.h">
+      <Filter>ソース ファイル\Engine\Buffer\ConstantBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Buffer\ConstantBuffer\ConstantBuffer.h">
-      <Filter>ソース ファイル\Framework\Buffer\ConstantBuffer</Filter>
+    <ClInclude Include="Source\Engine\Buffer\IndexBuffer\IndexBuffer.h">
+      <Filter>ソース ファイル\Engine\Buffer\IndexBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Buffer\IndexBuffer\IndexBuffer.h">
-      <Filter>ソース ファイル\Framework\Buffer\IndexBuffer</Filter>
+    <ClInclude Include="Source\Engine\Buffer\VertexBuffer\VertexBuffer.h">
+      <Filter>ソース ファイル\Engine\Buffer\VertexBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Buffer\VertexBuffer\VertexBuffer.h">
-      <Filter>ソース ファイル\Framework\Buffer\VertexBuffer</Filter>
+    <ClInclude Include="Source\Engine\Camera\CameraBase.h">
+      <Filter>ソース ファイル\Engine\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\CommandList\CommandList.h">
-      <Filter>ソース ファイル\Framework\CommandList</Filter>
+    <ClInclude Include="Source\Engine\Camera\FPSCamera\FPSCamera.h">
+      <Filter>ソース ファイル\Engine\Camera\FPSCamera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Fence\Fence.h">
-      <Filter>ソース ファイル\Framework\Fence</Filter>
+    <ClInclude Include="Source\Engine\CommandList\CommandList.h">
+      <Filter>ソース ファイル\Engine\CommandList</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\GraphicsDevice\GraphicsDevice.h">
-      <Filter>ソース ファイル\Framework\GraphicsDevice</Filter>
+    <ClInclude Include="Source\Engine\Fence\Fence.h">
+      <Filter>ソース ファイル\Engine\Fence</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Pool\Pool.h">
-      <Filter>ソース ファイル\Framework\Pool</Filter>
+    <ClInclude Include="Source\Engine\GraphicsDevice\GraphicsDevice.h">
+      <Filter>ソース ファイル\Engine\GraphicsDevice</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Pool\DescriptorPool\DescriptorPool.h">
-      <Filter>ソース ファイル\Framework\Pool\DescriptorPool</Filter>
+    <ClInclude Include="Source\Engine\Mesh\MeshResource.h">
+      <Filter>ソース ファイル\Engine\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Target\ColorTarget\ColorTarget.h">
-      <Filter>ソース ファイル\Framework\Target\ColorTarget</Filter>
+    <ClInclude Include="Source\Engine\Mesh\ResData.h">
+      <Filter>ソース ファイル\Engine\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Target\DepthTarget\DepthTarget.h">
-      <Filter>ソース ファイル\Framework\Target\DepthTarget</Filter>
+    <ClInclude Include="Source\Engine\Mesh\Material\Material.h">
+      <Filter>ソース ファイル\Engine\Mesh\Material</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Texture\Texture.h">
-      <Filter>ソース ファイル\Framework\Texture</Filter>
+    <ClInclude Include="Source\Engine\Mesh\Mesh\Mesh.h">
+      <Filter>ソース ファイル\Engine\Mesh\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Texture\TextureManager\TextureManager.h">
-      <Filter>ソース ファイル\Framework\Texture\TextureManager</Filter>
+    <ClInclude Include="Source\Engine\Mesh\MeshLoader\MeshLoader.h">
+      <Filter>ソース ファイル\Engine\Mesh\MeshLoader</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Utility\InlineUtil\InlineUTil.h">
-      <Filter>ソース ファイル\Framework\Utility\InlineUtil</Filter>
+    <ClInclude Include="Source\Engine\Mesh\PolygonMeshResource\PolygonMeshResource.h">
+      <Filter>ソース ファイル\Engine\Mesh\PolygonMeshResource</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Utility\FileUtil\FileUtil.h">
-      <Filter>ソース ファイル\Framework\Utility\FileUtil</Filter>
+    <ClInclude Include="Source\Engine\Pool\Pool.h">
+      <Filter>ソース ファイル\Engine\Pool</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Utility\Debug\Logger\Logger.h">
-      <Filter>ソース ファイル\Framework\Utility\Debug\Logger</Filter>
+    <ClInclude Include="Source\Engine\Pool\DescriptorPool\DescriptorPool.h">
+      <Filter>ソース ファイル\Engine\Pool\DescriptorPool</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Utility\ComPtr\ComPtr.h">
-      <Filter>ソース ファイル\Framework\Utility\ComPtr</Filter>
+    <ClInclude Include="Source\Engine\Sampler\Sampler.h">
+      <Filter>ソース ファイル\Engine\Sampler</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Mesh\MeshResource.h">
-      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    <ClInclude Include="Source\Engine\Target\ColorTarget\ColorTarget.h">
+      <Filter>ソース ファイル\Engine\Target\ColorTarget</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Mesh\ResData.h">
-      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    <ClInclude Include="Source\Engine\Target\DepthTarget\DepthTarget.h">
+      <Filter>ソース ファイル\Engine\Target\DepthTarget</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Mesh\ResMesh.h">
-      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    <ClInclude Include="Source\Engine\Texture\Texture.h">
+      <Filter>ソース ファイル\Engine\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Mesh\PolygonMeshResource\PolygonMeshResource.h">
-      <Filter>ソース ファイル\Framework\Mesh\PolygonMeshResource</Filter>
+    <ClInclude Include="Source\Engine\Texture\TextureManager\TextureManager.h">
+      <Filter>ソース ファイル\Engine\Texture\TextureManager</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Mesh\MeshLoader\MeshLoader.h">
-      <Filter>ソース ファイル\Framework\Mesh\MeshLoader</Filter>
+    <ClInclude Include="Source\Engine\Utility\InlineUtil\InlineUTil.h">
+      <Filter>ソース ファイル\Engine\Utility\InlineUtil</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Mesh\Material\Material.h">
-      <Filter>ソース ファイル\Framework\Mesh\Material</Filter>
+    <ClInclude Include="Source\Engine\Utility\FileUtil\FileUtil.h">
+      <Filter>ソース ファイル\Engine\Utility\FileUtil</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Framework\Mesh\Material\ResMaterial.h">
-      <Filter>ソース ファイル\Framework\Mesh\Material</Filter>
+    <ClInclude Include="Source\Engine\Utility\Debug\Logger\Logger.h">
+      <Filter>ソース ファイル\Engine\Utility\Debug\Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\ComPtr\ComPtr.h">
+      <Filter>ソース ファイル\Engine\Utility\ComPtr</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Scene\IScene.h">
+      <Filter>ソース ファイル\Engine\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h">
+      <Filter>ソース ファイル\Engine\Scene\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Scene\GameScene\GameScene.h">
+      <Filter>ソース ファイル\Game\Scene\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\Renderer.h">
+      <Filter>ソース ファイル\Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\IRenderable.h">
+      <Filter>ソース ファイル\Engine\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\GameObjectManager.h">
+      <Filter>ソース ファイル\Engine\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\GameObject.h">
+      <Filter>ソース ファイル\Engine\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.h">
+      <Filter>ソース ファイル\Engine\GameObject\Components\TransformComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.h">
+      <Filter>ソース ファイル\Engine\GameObject\Components\MeshComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\Component\Component.h">
+      <Filter>ソース ファイル\Engine\GameObject\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -191,84 +269,108 @@
     <ClCompile Include="Source\Pch.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Mesh\Mesh.cpp">
-      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    <ClCompile Include="Source\Engine\Buffer\ConstantBuffer\ConstantBuffer.cpp">
+      <Filter>ソース ファイル\Engine\Buffer\ConstantBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Buffer\ConstantBuffer\ConstantBuffer.cpp">
-      <Filter>ソース ファイル\Framework\Buffer\ConstantBuffer</Filter>
+    <ClCompile Include="Source\Engine\Buffer\IndexBuffer\IndexBuffer.cpp">
+      <Filter>ソース ファイル\Engine\Buffer\IndexBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Buffer\IndexBuffer\IndexBuffer.cpp">
-      <Filter>ソース ファイル\Framework\Buffer\IndexBuffer</Filter>
+    <ClCompile Include="Source\Engine\Buffer\VertexBuffer\VertexBuffer.cpp">
+      <Filter>ソース ファイル\Engine\Buffer\VertexBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Buffer\VertexBuffer\VertexBuffer.cpp">
-      <Filter>ソース ファイル\Framework\Buffer\VertexBuffer</Filter>
+    <ClCompile Include="Source\Engine\Camera\CameraBase.cpp">
+      <Filter>ソース ファイル\Engine\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\CommandList\CommandList.cpp">
-      <Filter>ソース ファイル\Framework\CommandList</Filter>
+    <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp">
+      <Filter>ソース ファイル\Engine\Camera\FPSCamera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Fence\Fence.cpp">
-      <Filter>ソース ファイル\Framework\Fence</Filter>
+    <ClCompile Include="Source\Engine\CommandList\CommandList.cpp">
+      <Filter>ソース ファイル\Engine\CommandList</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\GraphicsDevice\GraphicsDevice.cpp">
-      <Filter>ソース ファイル\Framework\GraphicsDevice</Filter>
+    <ClCompile Include="Source\Engine\Fence\Fence.cpp">
+      <Filter>ソース ファイル\Engine\Fence</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Pool\DescriptorPool\DescriptorPool.cpp">
-      <Filter>ソース ファイル\Framework\Pool\DescriptorPool</Filter>
+    <ClCompile Include="Source\Engine\GraphicsDevice\GraphicsDevice.cpp">
+      <Filter>ソース ファイル\Engine\GraphicsDevice</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Target\ColorTarget\ColorTarget.cpp">
-      <Filter>ソース ファイル\Framework\Target\ColorTarget</Filter>
+    <ClCompile Include="Source\Engine\Mesh\Material\Material.cpp">
+      <Filter>ソース ファイル\Engine\Mesh\Material</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Target\DepthTarget\DepthTarget.cpp">
-      <Filter>ソース ファイル\Framework\Target\DepthTarget</Filter>
+    <ClCompile Include="Source\Engine\Mesh\Mesh\Mesh.cpp">
+      <Filter>ソース ファイル\Engine\Mesh\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Texture\Texture.cpp">
-      <Filter>ソース ファイル\Framework\Texture</Filter>
+    <ClCompile Include="Source\Engine\Mesh\MeshLoader\MeshLoader.cpp">
+      <Filter>ソース ファイル\Engine\Mesh\MeshLoader</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Texture\TextureManager\TextureManager.cpp">
-      <Filter>ソース ファイル\Framework\Texture\TextureManager</Filter>
+    <ClCompile Include="Source\Engine\Mesh\PolygonMeshResource\PolygonMeshResource.cpp">
+      <Filter>ソース ファイル\Engine\Mesh\PolygonMeshResource</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Utility\FileUtil\FileUtil.cpp">
-      <Filter>ソース ファイル\Framework\Utility\FileUtil</Filter>
+    <ClCompile Include="Source\Engine\Pool\DescriptorPool\DescriptorPool.cpp">
+      <Filter>ソース ファイル\Engine\Pool\DescriptorPool</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Utility\Debug\Logger\Logger.cpp">
-      <Filter>ソース ファイル\Framework\Utility\Debug\Logger</Filter>
+    <ClCompile Include="Source\Engine\Sampler\Sampler.cpp">
+      <Filter>ソース ファイル\Engine\Sampler</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Mesh\ResMesh.cpp">
-      <Filter>ソース ファイル\Framework\Mesh</Filter>
+    <ClCompile Include="Source\Engine\Target\ColorTarget\ColorTarget.cpp">
+      <Filter>ソース ファイル\Engine\Target\ColorTarget</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Mesh\PolygonMeshResource\PolygonMeshResource.cpp">
-      <Filter>ソース ファイル\Framework\Mesh\PolygonMeshResource</Filter>
+    <ClCompile Include="Source\Engine\Target\DepthTarget\DepthTarget.cpp">
+      <Filter>ソース ファイル\Engine\Target\DepthTarget</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Mesh\MeshLoader\MeshLoader.cpp">
-      <Filter>ソース ファイル\Framework\Mesh\MeshLoader</Filter>
+    <ClCompile Include="Source\Engine\Texture\Texture.cpp">
+      <Filter>ソース ファイル\Engine\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Mesh\Material\Material.cpp">
-      <Filter>ソース ファイル\Framework\Mesh\Material</Filter>
+    <ClCompile Include="Source\Engine\Texture\TextureManager\TextureManager.cpp">
+      <Filter>ソース ファイル\Engine\Texture\TextureManager</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Mesh\Material\ResMaterial.cpp">
-      <Filter>ソース ファイル\Framework\Mesh\Material</Filter>
+    <ClCompile Include="Source\Engine\Utility\FileUtil\FileUtil.cpp">
+      <Filter>ソース ファイル\Engine\Utility\FileUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\Debug\Logger\Logger.cpp">
+      <Filter>ソース ファイル\Engine\Utility\Debug\Logger</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp">
+      <Filter>ソース ファイル\Engine\Scene\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Scene\GameScene\GameScene.cpp">
+      <Filter>ソース ファイル\Game\Scene\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\Renderer.cpp">
+      <Filter>ソース ファイル\Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\GameObject.cpp">
+      <Filter>ソース ファイル\Engine\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\GameObjectManager.cpp">
+      <Filter>ソース ファイル\Engine\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.cpp">
+      <Filter>ソース ファイル\Engine\GameObject\Components\TransformComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp">
+      <Filter>ソース ファイル\Engine\GameObject\Components\MeshComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\Framework\Shader\SampleShader\SimpleVS.hlsl">
-      <Filter>ソース ファイル\Framework\Shader\SampleShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Framework\Shader\SampleShader\SimplePS.hlsl">
-      <Filter>ソース ファイル\Framework\Shader\SampleShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Framework\Shader\MeshShader\MeshShaderVS.hlsl">
-      <Filter>ソース ファイル\Framework\Shader\MeshShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Framework\Shader\MeshShader\MeshShaderPS.hlsl">
-      <Filter>ソース ファイル\Framework\Shader\MeshShader</Filter>
-    </FxCompile>
+    <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli">
+      <Filter>ソース ファイル\Engine\Shader\MeshShader</Filter>
+    </None>
+    <None Include="Source\Engine\Shader\SimpleShader\SimpleInc.hlsli">
+      <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Source\Framework\Shader\SampleShader\SimpleInc.hlsli">
-      <Filter>ソース ファイル\Framework\Shader\SampleShader</Filter>
-    </None>
-    <None Include="Source\Framework\Shader\MeshShader\MeshShaderInc.hlsli">
-      <Filter>ソース ファイル\Framework\Shader\MeshShader</Filter>
-    </None>
+    <FxCompile Include="Source\Engine\Shader\MeshShader\MeshShaderPS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\MeshShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\MeshShader\MeshShaderVS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\MeshShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\SimpleShader\SimplePS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\SimpleShader\SimpleVS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

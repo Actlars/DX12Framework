@@ -45,7 +45,7 @@
 // Microsoft
 // -------------------------------------------------------------------------------
 //#include <DX12Framework/Source/Framework/Utility/ComPtr/ComPtr.h>
-#include "Framework/Utility/ComPtr/ComPtr.h"
+#include "Engine/Utility/ComPtr/ComPtr.h"
 
 // -------------------------------------------------------------------------------
 // DirectX
@@ -57,9 +57,9 @@
 #pragma comment(lib, "DirectXTex.lib")
 #include <cstdint>
 #include <d3d12.h>
-#include <dxgi1_4.h>
+#include <dxgi1_6.h>
 #include <d3dcompiler.h>
-#include <d3dx12.h>
+#include <include/d3dx12/d3dx12.h>
 
 #pragma comment( lib, "d3d12.lib" )
 #pragma comment( lib, "dxgi.lib" )

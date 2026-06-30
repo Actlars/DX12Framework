@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -132,7 +132,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\DXC_2026_02\include;$(SolutionDir)External\DXC_2026_02\bin\x64;$(SolutionDir)External\Agility_1.619\include;$(SolutionDir)External\Agility_1.619\bin\64;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -143,8 +143,11 @@
       <DelayLoadDLLs>assimp-vc145-mtd.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(OutDir)D3D12\" mkdir "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\Agility_1.619\bin\x64\D3D12Core.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\Agility_1.619\bin\x64\d3d12SDKLayers.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxcompiler.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <FxCompile>
       <ShaderModel>6.8</ShaderModel>
@@ -178,53 +181,72 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h" />
-    <ClInclude Include="Source\Framework\Buffer\ConstantBuffer\ConstantBuffer.h" />
-    <ClInclude Include="Source\Framework\Buffer\IndexBuffer\IndexBuffer.h" />
-    <ClInclude Include="Source\Framework\Buffer\VertexBuffer\VertexBuffer.h" />
-    <ClInclude Include="Source\Framework\CommandList\CommandList.h" />
-    <ClInclude Include="Source\Framework\Fence\Fence.h" />
-    <ClInclude Include="Source\Framework\GraphicsDevice\GraphicsDevice.h" />
-    <ClInclude Include="Source\Framework\Mesh\Material\Material.h" />
-    <ClInclude Include="Source\Framework\Mesh\Material\ResMaterial.h" />
-    <ClInclude Include="Source\Framework\Mesh\Mesh.h" />
-    <ClInclude Include="Source\Framework\Mesh\MeshLoader\MeshLoader.h" />
-    <ClInclude Include="Source\Framework\Mesh\MeshResource.h" />
-    <ClInclude Include="Source\Framework\Mesh\PolygonMeshResource\PolygonMeshResource.h" />
-    <ClInclude Include="Source\Framework\Mesh\ResData.h" />
-    <ClInclude Include="Source\Framework\Mesh\ResMesh.h" />
-    <ClInclude Include="Source\Framework\Pool\DescriptorPool\DescriptorPool.h" />
-    <ClInclude Include="Source\Framework\Pool\Pool.h" />
-    <ClInclude Include="Source\Framework\Target\ColorTarget\ColorTarget.h" />
-    <ClInclude Include="Source\Framework\Target\DepthTarget\DepthTarget.h" />
-    <ClInclude Include="Source\Framework\Texture\Texture.h" />
-    <ClInclude Include="Source\Framework\Texture\TextureManager\TextureManager.h" />
-    <ClInclude Include="Source\Framework\Utility\ComPtr\ComPtr.h" />
-    <ClInclude Include="Source\Framework\Utility\Debug\Logger\Logger.h" />
-    <ClInclude Include="Source\Framework\Utility\FileUtil\FileUtil.h" />
-    <ClInclude Include="Source\Framework\Utility\InlineUtil\InlineUTil.h" />
+    <ClInclude Include="Source\Engine\Buffer\ConstantBuffer\ConstantBuffer.h" />
+    <ClInclude Include="Source\Engine\Buffer\IndexBuffer\IndexBuffer.h" />
+    <ClInclude Include="Source\Engine\Buffer\VertexBuffer\VertexBuffer.h" />
+    <ClInclude Include="Source\Engine\Camera\CameraBase.h" />
+    <ClInclude Include="Source\Engine\Camera\FPSCamera\FPSCamera.h" />
+    <ClInclude Include="Source\Engine\CommandList\CommandList.h" />
+    <ClInclude Include="Source\Engine\Fence\Fence.h" />
+    <ClInclude Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.h" />
+    <ClInclude Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.h" />
+    <ClInclude Include="Source\Engine\GameObject\Component\Component.h" />
+    <ClInclude Include="Source\Engine\GameObject\GameObject.h" />
+    <ClInclude Include="Source\Engine\GameObject\GameObjectManager.h" />
+    <ClInclude Include="Source\Engine\GameObject\IRenderable.h" />
+    <ClInclude Include="Source\Engine\GraphicsDevice\GraphicsDevice.h" />
+    <ClInclude Include="Source\Engine\Mesh\Material\Material.h" />
+    <ClInclude Include="Source\Engine\Mesh\MeshLoader\MeshLoader.h" />
+    <ClInclude Include="Source\Engine\Mesh\MeshResource.h" />
+    <ClInclude Include="Source\Engine\Mesh\Mesh\Mesh.h" />
+    <ClInclude Include="Source\Engine\Mesh\PolygonMeshResource\PolygonMeshResource.h" />
+    <ClInclude Include="Source\Engine\Mesh\ResData.h" />
+    <ClInclude Include="Source\Engine\Pool\DescriptorPool\DescriptorPool.h" />
+    <ClInclude Include="Source\Engine\Pool\Pool.h" />
+    <ClInclude Include="Source\Engine\Renderer\Renderer.h" />
+    <ClInclude Include="Source\Engine\Sampler\Sampler.h" />
+    <ClInclude Include="Source\Engine\Scene\IScene.h" />
+    <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h" />
+    <ClInclude Include="Source\Engine\Target\ColorTarget\ColorTarget.h" />
+    <ClInclude Include="Source\Engine\Target\DepthTarget\DepthTarget.h" />
+    <ClInclude Include="Source\Engine\Texture\Texture.h" />
+    <ClInclude Include="Source\Engine\Texture\TextureManager\TextureManager.h" />
+    <ClInclude Include="Source\Engine\Utility\ComPtr\ComPtr.h" />
+    <ClInclude Include="Source\Engine\Utility\Debug\Logger\Logger.h" />
+    <ClInclude Include="Source\Engine\Utility\FileUtil\FileUtil.h" />
+    <ClInclude Include="Source\Engine\Utility\InlineUtil\InlineUTil.h" />
+    <ClInclude Include="Source\Game\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp" />
-    <ClCompile Include="Source\Framework\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
-    <ClCompile Include="Source\Framework\Buffer\IndexBuffer\IndexBuffer.cpp" />
-    <ClCompile Include="Source\Framework\Buffer\VertexBuffer\VertexBuffer.cpp" />
-    <ClCompile Include="Source\Framework\CommandList\CommandList.cpp" />
-    <ClCompile Include="Source\Framework\Fence\Fence.cpp" />
-    <ClCompile Include="Source\Framework\GraphicsDevice\GraphicsDevice.cpp" />
-    <ClCompile Include="Source\Framework\Mesh\Material\Material.cpp" />
-    <ClCompile Include="Source\Framework\Mesh\Material\ResMaterial.cpp" />
-    <ClCompile Include="Source\Framework\Mesh\Mesh.cpp" />
-    <ClCompile Include="Source\Framework\Mesh\MeshLoader\MeshLoader.cpp" />
-    <ClCompile Include="Source\Framework\Mesh\PolygonMeshResource\PolygonMeshResource.cpp" />
-    <ClCompile Include="Source\Framework\Mesh\ResMesh.cpp" />
-    <ClCompile Include="Source\Framework\Pool\DescriptorPool\DescriptorPool.cpp" />
-    <ClCompile Include="Source\Framework\Target\ColorTarget\ColorTarget.cpp" />
-    <ClCompile Include="Source\Framework\Target\DepthTarget\DepthTarget.cpp" />
-    <ClCompile Include="Source\Framework\Texture\Texture.cpp" />
-    <ClCompile Include="Source\Framework\Texture\TextureManager\TextureManager.cpp" />
-    <ClCompile Include="Source\Framework\Utility\Debug\Logger\Logger.cpp" />
-    <ClCompile Include="Source\Framework\Utility\FileUtil\FileUtil.cpp" />
+    <ClCompile Include="Source\Engine\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
+    <ClCompile Include="Source\Engine\Buffer\IndexBuffer\IndexBuffer.cpp" />
+    <ClCompile Include="Source\Engine\Buffer\VertexBuffer\VertexBuffer.cpp" />
+    <ClCompile Include="Source\Engine\Camera\CameraBase.cpp" />
+    <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp" />
+    <ClCompile Include="Source\Engine\CommandList\CommandList.cpp" />
+    <ClCompile Include="Source\Engine\Fence\Fence.cpp" />
+    <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp" />
+    <ClCompile Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.cpp" />
+    <ClCompile Include="Source\Engine\GameObject\GameObject.cpp" />
+    <ClCompile Include="Source\Engine\GameObject\GameObjectManager.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsDevice\GraphicsDevice.cpp" />
+    <ClCompile Include="Source\Engine\Mesh\Material\Material.cpp" />
+    <ClCompile Include="Source\Engine\Mesh\MeshLoader\MeshLoader.cpp" />
+    <ClCompile Include="Source\Engine\Mesh\Mesh\Mesh.cpp" />
+    <ClCompile Include="Source\Engine\Mesh\PolygonMeshResource\PolygonMeshResource.cpp" />
+    <ClCompile Include="Source\Engine\Pool\DescriptorPool\DescriptorPool.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Renderer.cpp" />
+    <ClCompile Include="Source\Engine\Sampler\Sampler.cpp" />
+    <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp" />
+    <ClCompile Include="Source\Engine\Target\ColorTarget\ColorTarget.cpp" />
+    <ClCompile Include="Source\Engine\Target\DepthTarget\DepthTarget.cpp" />
+    <ClCompile Include="Source\Engine\Texture\Texture.cpp" />
+    <ClCompile Include="Source\Engine\Texture\TextureManager\TextureManager.cpp" />
+    <ClCompile Include="Source\Engine\Utility\Debug\Logger\Logger.cpp" />
+    <ClCompile Include="Source\Engine\Utility\FileUtil\FileUtil.cpp" />
+    <ClCompile Include="Source\Game\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -234,45 +256,30 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\Framework\Shader\MeshShader\MeshShaderPS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Source\Framework\Shader\MeshShader\MeshShaderVS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Source\Framework\Shader\SampleShader\SimplePS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Source\Framework\Shader\SampleShader\SimpleVS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">6.8</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.8</ShaderModel>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Source\Framework\Shader\MeshShader\MeshShaderInc.hlsli" />
-    <None Include="Source\Framework\Shader\SampleShader\SimpleInc.hlsli" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="External\DirectXTex\DirectXTex_Desktop_2022.vcxproj">
       <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli" />
+    <None Include="Source\Engine\Shader\SimpleShader\SimpleInc.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\Engine\Shader\MeshShader\MeshShaderPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\MeshShader\MeshShaderVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\SimpleShader\SimplePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\SimpleShader\SimpleVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

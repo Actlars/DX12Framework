@@ -3,13 +3,9 @@
 // -------------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------------
-#include <Framework/GraphicsDevice/GraphicsDevice.h>
-#include <Framework/Mesh/Mesh.h>
-#include <Framework/Mesh/MeshLoader/MeshLoader.h>
-#include <Framework/Mesh/Material/Material.h>
-#include <Framework/Buffer/ConstantBuffer/ConstantBuffer.h>
-#include <Framework/Texture/TextureManager/TextureManager.h>
-
+#include <Engine/GraphicsDevice/GraphicsDevice.h>
+#include <Engine/Renderer/Renderer.h>
+#include <Engine/Scene/SceneManager/SceneManager.h>
 
 // -------------------------------------------------------------------------------
 // Linker
@@ -20,14 +16,17 @@
 // 
 // 概要 : 
 //	アプリケーション全体のライフサイクルを管理するクラス
-//	Applicationは以下だけを担当する : 
-//		- ウィンドウの生成・管理
-//		- メインループ
-//		- シーン固有の初期化（メッシュ・マテリアルのロード）
-//		- 描画コマンドの組み立て（BeginFrame / EndFrame の間）
-//		- RootSignature / PSO の管理
+//	責務はウィンドウ管理とメインループのみ
 // 
-// DX12の低レベル処理はGraphicsDeviceが行っている
+//	描画フローはRendererが管理する
+//	シーンの描画・更新はSceneManagerが管理する
+//	DX12の低レベル処理はGraphicsDeviceが管理する
+// 
+//	Applicationがやること
+//		- ウィンドウの生成・メッセージ処理
+//		- GraphicsDevice / Renderer / SceneManager の初期化と終了
+//		- メインループ（Update → BeginFrame → Render → EndFrame → Present → ProcessSceneChange）
+//		- 最初のシーンをSceneManagerに渡す
 // -------------------------------------------------------------------------------
 class Application
 {
@@ -60,14 +59,6 @@ public:
 
 private:
 
-	// 変換行列の定数バッファ構造体
-	struct alignas(256) TransformCB
-	{
-		DirectX::XMMATRIX World;
-		DirectX::XMMATRIX View;
-		DirectX::XMMATRIX Proj;
-	};
-
 	// -------------------------------------------------------------------------------
 	// ライフサイクル
 	// -------------------------------------------------------------------------------
@@ -85,8 +76,8 @@ private:
 	// フレーム処理
 	// -------------------------------------------------------------------------------
 
-	// @brief	1フレーム分の描画処理
-	void Render();
+	// @brief	1フレーム分の処理
+	void Tick();
 
 	// -------------------------------------------------------------------------------
 	// ウィンドウ管理
@@ -94,19 +85,6 @@ private:
 	bool InitWnd();
 	void TermWnd();
 	static LRESULT CALLBACK WndProc(HWND _hWnd, UINT _msg, WPARAM _wp, LPARAM _lp);
-
-	// -------------------------------------------------------------------------------
-	// シーン固有の初期化
-	// -------------------------------------------------------------------------------
-
-	// @brief	RootSignatureを生成
-	bool InitRootSignature();
-
-	// @brief	PipelineStateObjectを生成
-	bool InitPipelineState();
-
-	// @brief	メッシュとマテリアルをロードする
-	bool InitScene();
 
 	// -------------------------------------------------------------------------------
 	// private variables
@@ -118,17 +96,12 @@ private:
 	uint32_t	m_Height	= 0;		// ウィンドウの縦幅
 
 	// DX12基盤
-	GraphicsDevice m_GraphicsDevice;
+	GraphicsDevice	m_GraphicsDevice;	// デバイス・スワップチェーン等
+	Renderer		m_Renderer;			// フレーム描画フロー
+	SceneManager	m_SceneManager;		// シーン管理
 
-	// RootSignature / PSO（シーン固有）
-	ComPtr<ID3D12RootSignature> m_pRootSignature;
-	ComPtr<ID3D12PipelineState>	m_pPSO;
-
-	// シーン
-	std::vector<std::unique_ptr<Mesh>>		m_Meshes;		// 描画メッシュ
-	std::vector<std::unique_ptr<Material>>	m_Materials;	// マテリアル
-	std::vector<std::unique_ptr<ConstantBuffer>> m_TransformCBs;
-
-	float m_RotateAngle = 0.0f;
+	// タイマー（デルタタイム計算用）
+	LARGE_INTEGER m_PrevTime	= {};
+	LARGE_INTEGER m_Frequency	= {};
 
 };
