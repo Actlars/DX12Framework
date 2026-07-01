@@ -5,6 +5,8 @@
 #include <Engine/GameObject/GameObject.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
 #include <Engine/Utility/Debug/Logger/Logger.h>
+#include <Engine/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
+#include <Engine/Renderer/RenderQueue/RenderQueue.h>
 
 // -------------------------------------------------------------------------------
 //		コンストラクタ
@@ -96,57 +98,120 @@ void MeshComponent::SetFrameIndex(uint32_t _frameIndex)
 {
 	m_FrameIndex = _frameIndex;
 }
+
+// -------------------------------------------------------------------------------
+//		RootSignatureLayoutを設定
+// -------------------------------------------------------------------------------
+void MeshComponent::SetRootLayout(const RootSignatureLayout* _pRootLayout)
+{
+	if (_pRootLayout == nullptr) 
+	{ return; }
+
+	// スロット番号を名前から取得する
+	m_TransformSlot = _pRootLayout->GetSlot("Transform");
+	m_MaterialSlot	= _pRootLayout->GetSlot("Material");
+	m_TextureSlot	= _pRootLayout->GetSlot("Texture");
+}
+
 void MeshComponent::SetVisible(bool _visible)
 {
 	m_IsValiable = _visible;
 }
 
 // -------------------------------------------------------------------------------
-//		描画コマンドを積む
+// 
 // -------------------------------------------------------------------------------
-void MeshComponent::Draw(ID3D12GraphicsCommandList* _pCmd)
+void MeshComponent::Submit(RenderQueue* _pQueue)
 {
-	if (_pCmd == nullptr || m_pMesh == nullptr) 
+	if (m_pMesh == nullptr) 
 	{ return; }
 
-	// TransformComponent からワールド行列を取得
-	// GetComponentを通じてアクセスする（直接参照しない）
+	// TransformComponentからワールド行列を取得
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
 	if (m_pOwner != nullptr)
 	{
 		auto* pTransform = m_pOwner->GetComponent<TransformComponent>();
-		if (pTransform != nullptr) 
-		{ world = pTransform->GetWorldMatrix(); }
+		if (pTransform != nullptr) { world = pTransform->GetWorldMatrix(); }
 	}
 
+	DrawItem item;
+	item.pMesh			= m_pMesh;
+	item.TransformSlot	= m_TransformSlot;
+	item.MaterialSlot	= m_MaterialSlot;
+	item.TextureSlot	= m_TextureSlot;
+
+	// TransformCBへの書き込み memcpyなのでDX12APIではないので安全に並列化できる
 	if (m_FrameIndex < m_TransformCBs.size() && m_TransformCBs[m_FrameIndex])
 	{
-		auto* pCB = m_TransformCBs[m_FrameIndex]->GetPtr<TransformCB>();
-		pCB->World = world;
-		pCB->View = m_View;
-		pCB->Proj = m_Proj;
+		auto* pCB	= m_TransformCBs[m_FrameIndex]->GetPtr<TransformCB>();
+		pCB->World	= world;
+		pCB->View	= m_View;
+		pCB->Proj	= m_Proj;
 
-		_pCmd->SetGraphicsRootConstantBufferView(
-			m_TransformSlot,
-			m_TransformCBs[m_FrameIndex]->GetAddress());
+		item.TransformCBAddress = m_TransformCBs[m_FrameIndex]->GetAddress();
 	}
 
-	// マテリアルの定数バッファをバインド
 	if (m_pMaterial != nullptr)
 	{
-		_pCmd->SetGraphicsRootConstantBufferView(
-			m_MaterialSlot,
-			m_pMaterial->GetCBAddress());
+		item.MaterialCBAddress = m_pMaterial->GetCBAddress();
 
 		const auto texHandle = m_pMaterial->GetTextureHandle(Material::TEXTURE_DIFFUSE);
 		if (texHandle.ptr != 0)
 		{
-			_pCmd->SetGraphicsRootDescriptorTable(
-				m_TextureSlot,
-				texHandle);
+			item.TextureHandle	= texHandle;
+			item.HasTexture		= true;
 		}
 	}
 
-	// 描画コマンドを積む
-	m_pMesh->Draw(_pCmd);
+	_pQueue->Submit(item);
 }
+
+//// -------------------------------------------------------------------------------
+////		描画コマンドを積む
+//// -------------------------------------------------------------------------------
+//void MeshComponent::Draw(ID3D12GraphicsCommandList* _pCmd)
+//{
+//	if (_pCmd == nullptr || m_pMesh == nullptr) 
+//	{ return; }
+//
+//	// TransformComponent からワールド行列を取得
+//	// GetComponentを通じてアクセスする（直接参照しない）
+//	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
+//	if (m_pOwner != nullptr)
+//	{
+//		auto* pTransform = m_pOwner->GetComponent<TransformComponent>();
+//		if (pTransform != nullptr) 
+//		{ world = pTransform->GetWorldMatrix(); }
+//	}
+//
+//	if (m_FrameIndex < m_TransformCBs.size() && m_TransformCBs[m_FrameIndex])
+//	{
+//		auto* pCB = m_TransformCBs[m_FrameIndex]->GetPtr<TransformCB>();
+//		pCB->World = world;
+//		pCB->View = m_View;
+//		pCB->Proj = m_Proj;
+//
+//		_pCmd->SetGraphicsRootConstantBufferView(
+//			m_TransformSlot,
+//			m_TransformCBs[m_FrameIndex]->GetAddress());
+//	}
+//
+//	// マテリアルの定数バッファをバインド
+//	if (m_pMaterial != nullptr)
+//	{
+//		_pCmd->SetGraphicsRootConstantBufferView(
+//			m_MaterialSlot,
+//			m_pMaterial->GetCBAddress());
+//
+//		const auto texHandle = m_pMaterial->GetTextureHandle(Material::TEXTURE_DIFFUSE);
+//		if (texHandle.ptr != 0)
+//		{
+//			_pCmd->SetGraphicsRootDescriptorTable(
+//				m_TextureSlot,
+//				texHandle);
+//		}
+//	}
+//
+//	// 描画コマンドを積む
+//	m_pMesh->Draw(_pCmd);
+//}

@@ -2,6 +2,7 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include "GameObjectManager.h"
+#include <Engine/Renderer/RenderQueue/RenderQueue.h>
 
 // -------------------------------------------------------------------------------
 //		コンストラクタ
@@ -62,20 +63,29 @@ void GameObjectManager::Update(float _deltaTime)
 	}
 }
 
-// -------------------------------------------------------------------------------
-//		全オブジェクトの描画
-// -------------------------------------------------------------------------------
-void GameObjectManager::Draw(ID3D12GraphicsCommandList* _pCmd)
+void GameObjectManager::Submit(RenderQueue* _pQueue)
 {
-	if (_pCmd == nullptr) 
-	{ return; }
-
 	for (auto& obj : m_Objects)
 	{
 		if (obj->IsActive()) 
-		{ obj->Draw(_pCmd); }
+		{ obj->Submit(_pQueue); }
 	}
 }
+
+//// -------------------------------------------------------------------------------
+////		全オブジェクトの描画
+//// -------------------------------------------------------------------------------
+//void GameObjectManager::Draw(ID3D12GraphicsCommandList* _pCmd)
+//{
+//	if (_pCmd == nullptr) 
+//	{ return; }
+//
+//	for (auto& obj : m_Objects)
+//	{
+//		if (obj->IsActive()) 
+//		{ obj->Draw(_pCmd); }
+//	}
+//}
 
 // -------------------------------------------------------------------------------
 //		名前で検索

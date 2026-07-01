@@ -60,8 +60,8 @@ void GameScene::OnTerm()
     m_pPSO.Reset();
     m_pRootSignature.Reset();
 
-    m_pGraphicsDevice = nullptr;
-    m_IsInitialized = false;
+    m_pGraphicsDevice   = nullptr;
+    m_IsInitialized     = false;
 }
 
 // -------------------------------------------------------------------------------
@@ -77,18 +77,6 @@ void GameScene::OnUpdate(float _deltaTime)
 
     // 全 GameObject の Update を呼ぶ
     m_ObjectManager.Update(_deltaTime);
-
-    // デバッグ用（一度確認したら消す）
-    static bool once = false;
-    if (!once)
-    {
-        once = true;
-        auto pos = m_Camera.GetPosition();
-        auto proj = m_Camera.GetProj();
-        // プロジェクション行列の[1][1]要素（非ゼロなら正常）
-        DirectX::XMFLOAT4X4 p;
-        DirectX::XMStoreFloat4x4(&p, proj);
-    }
 }
 
 // -------------------------------------------------------------------------------
@@ -99,7 +87,7 @@ void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
     if (_pCmd == nullptr) { return; }
 
     // ─── RootSignature / PSO のセット ───
-    _pCmd->SetGraphicsRootSignature(m_pRootSignature.Get());
+    _pCmd->SetGraphicsRootSignature(m_RootSignatureLayout.GetRootSignature());
     _pCmd->SetPipelineState(m_pPSO.Get());
 
     // ─── DescriptorHeap のセット ───
@@ -114,13 +102,14 @@ void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
     // ─── サンプラーのバインド ───
     // サンプラーは全メッシュ共通なのでループの外でバインドする
     _pCmd->SetGraphicsRootDescriptorTable(
-        ROOT_PARAM_SMP,
+        m_RootSignatureLayout.GetSlot("Sampler"),
         m_Sampler.GetHandleGPU());
 
-    // ─── 全 GameObject の描画コマンドを積む ───
-    // 各 MeshComponent の Draw() が
-    // TransformCB・MaterialCB・テクスチャをバインドして DrawIndexedInstanced を呼ぶ
-    m_ObjectManager.Draw(_pCmd);
+    // 描画用データ収集フェーズ（マルチスレッド可）
+    m_ObjectManager.Submit(&m_RenderQueue);
+
+    // コマンド発行フェーズ（単一スレッド）
+    m_RenderQueue.Execute(_pCmd);
 
     // ─── フレーム末の削除処理 ───
     m_ObjectManager.FlushPendingRemoves();
@@ -135,73 +124,83 @@ void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
 // -------------------------------------------------------------------------------
 bool GameScene::InitRootSignature(ID3D12Device* _pDevice)
 {
-    D3D12_DESCRIPTOR_RANGE srvRange = {};
-    srvRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    srvRange.NumDescriptors = 1;
-    srvRange.BaseShaderRegister = 0; // t0
-    srvRange.RegisterSpace = 0;
-    srvRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-    D3D12_DESCRIPTOR_RANGE smpRange = {};
-    smpRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-    smpRange.NumDescriptors = 1;
-    smpRange.BaseShaderRegister = 0; // s0
-    smpRange.RegisterSpace = 0;
-    smpRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-    D3D12_ROOT_PARAMETER params[4] = {};
-
-    // [0] b0: 変換行列（VS）
-    params[ROOT_PARAM_CBV_TRANSFORM].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    params[ROOT_PARAM_CBV_TRANSFORM].Descriptor.ShaderRegister = 0;
-    params[ROOT_PARAM_CBV_TRANSFORM].Descriptor.RegisterSpace = 0;
-    params[ROOT_PARAM_CBV_TRANSFORM].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-
-    // [1] b1: マテリアルパラメータ（PS）
-    params[ROOT_PARAM_CBV_MATERIAL].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    params[ROOT_PARAM_CBV_MATERIAL].Descriptor.ShaderRegister = 1;
-    params[ROOT_PARAM_CBV_MATERIAL].Descriptor.RegisterSpace = 0;
-    params[ROOT_PARAM_CBV_MATERIAL].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-    // [2] t0: ディフューズテクスチャ（PS）
-    params[ROOT_PARAM_SRV_DIFFUSE].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    params[ROOT_PARAM_SRV_DIFFUSE].DescriptorTable.NumDescriptorRanges = 1;
-    params[ROOT_PARAM_SRV_DIFFUSE].DescriptorTable.pDescriptorRanges = &srvRange;
-    params[ROOT_PARAM_SRV_DIFFUSE].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-    // [3] s0: サンプラー（PS）
-    params[ROOT_PARAM_SMP].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    params[ROOT_PARAM_SMP].DescriptorTable.NumDescriptorRanges = 1;
-    params[ROOT_PARAM_SMP].DescriptorTable.pDescriptorRanges = &smpRange;
-    params[ROOT_PARAM_SMP].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-    auto flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-    flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
-    flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS;
-    flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-
-    D3D12_ROOT_SIGNATURE_DESC desc = {};
-    desc.NumParameters = _countof(params);
-    desc.pParameters = params;
-    desc.NumStaticSamplers = 0;
-    desc.pStaticSamplers = nullptr;
-    desc.Flags = flags;
-
-    ComPtr<ID3DBlob> pBlob, pError;
-    auto hr = D3D12SerializeRootSignature(
-        &desc, D3D_ROOT_SIGNATURE_VERSION_1_0,
-        pBlob.GetAddressOf(), pError.GetAddressOf());
-    if (FAILED(hr))
     {
-        if (pError) { ELOG("RootSignature error: %s", (char*)pError->GetBufferPointer()); }
-        return false;
+        //D3D12_DESCRIPTOR_RANGE srvRange = {};
+        //srvRange.RangeType                          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+        //srvRange.NumDescriptors                     = 1;
+        //srvRange.BaseShaderRegister                 = 0; // t0
+        //srvRange.RegisterSpace                      = 0;
+        //srvRange.OffsetInDescriptorsFromTableStart  = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+        //D3D12_DESCRIPTOR_RANGE smpRange = {};
+        //smpRange.RangeType                          = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+        //smpRange.NumDescriptors                     = 1;
+        //smpRange.BaseShaderRegister                 = 0; // s0
+        //smpRange.RegisterSpace                      = 0;
+        //smpRange.OffsetInDescriptorsFromTableStart  = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+        //D3D12_ROOT_PARAMETER params[4] = {};
+
+        //// [0] b0: 変換行列（VS）
+        //params[ROOT_PARAM_CBV_TRANSFORM].ParameterType              = D3D12_ROOT_PARAMETER_TYPE_CBV;
+        //params[ROOT_PARAM_CBV_TRANSFORM].Descriptor.ShaderRegister  = 0;
+        //params[ROOT_PARAM_CBV_TRANSFORM].Descriptor.RegisterSpace   = 0;
+        //params[ROOT_PARAM_CBV_TRANSFORM].ShaderVisibility           = D3D12_SHADER_VISIBILITY_VERTEX;
+
+        //// [1] b1: マテリアルパラメータ（PS）
+        //params[ROOT_PARAM_CBV_MATERIAL].ParameterType               = D3D12_ROOT_PARAMETER_TYPE_CBV;
+        //params[ROOT_PARAM_CBV_MATERIAL].Descriptor.ShaderRegister   = 1;
+        //params[ROOT_PARAM_CBV_MATERIAL].Descriptor.RegisterSpace    = 0;
+        //params[ROOT_PARAM_CBV_MATERIAL].ShaderVisibility            = D3D12_SHADER_VISIBILITY_PIXEL;
+
+        //// [2] t0: ディフューズテクスチャ（PS）
+        //params[ROOT_PARAM_SRV_DIFFUSE].ParameterType                        = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+        //params[ROOT_PARAM_SRV_DIFFUSE].DescriptorTable.NumDescriptorRanges  = 1;
+        //params[ROOT_PARAM_SRV_DIFFUSE].DescriptorTable.pDescriptorRanges    = &srvRange;
+        //params[ROOT_PARAM_SRV_DIFFUSE].ShaderVisibility                     = D3D12_SHADER_VISIBILITY_PIXEL;
+
+        //// [3] s0: サンプラー（PS）
+        //params[ROOT_PARAM_SMP].ParameterType                        = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+        //params[ROOT_PARAM_SMP].DescriptorTable.NumDescriptorRanges  = 1;
+        //params[ROOT_PARAM_SMP].DescriptorTable.pDescriptorRanges    = &smpRange;
+        //params[ROOT_PARAM_SMP].ShaderVisibility                     = D3D12_SHADER_VISIBILITY_PIXEL;
+
+        //auto flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+        //flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS;
+        //flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS;
+        //flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+
+        //D3D12_ROOT_SIGNATURE_DESC desc = {};
+        //desc.NumParameters      = _countof(params);
+        //desc.pParameters        = params;
+        //desc.NumStaticSamplers  = 0;
+        //desc.pStaticSamplers    = nullptr;
+        //desc.Flags              = flags;
+
+        //ComPtr<ID3DBlob> pBlob, pError;
+        //auto hr = D3D12SerializeRootSignature(
+        //    &desc, D3D_ROOT_SIGNATURE_VERSION_1_0,
+        //    pBlob.GetAddressOf(), pError.GetAddressOf());
+        //if (FAILED(hr))
+        //{
+        //    if (pError) { ELOG("RootSignature error: %s", (char*)pError->GetBufferPointer()); }
+        //    return false;
+        //}
+
+        //hr = _pDevice->CreateRootSignature(
+        //    0, pBlob->GetBufferPointer(), pBlob->GetBufferSize(),
+        //    IID_PPV_ARGS(m_pRootSignature.GetAddressOf()));
+        //if (FAILED(hr)) { ELOG("CreateRootSignature failed."); return false; }
+
+        //return true;
     }
 
-    hr = _pDevice->CreateRootSignature(
-        0, pBlob->GetBufferPointer(), pBlob->GetBufferSize(),
-        IID_PPV_ARGS(m_pRootSignature.GetAddressOf()));
-    if (FAILED(hr)) { ELOG("CreateRootSignature failed."); return false; }
-
+    if (!m_RootSignatureLayout.LoadFromJson(_pDevice, L"Assets/Config/Json/RootSignature/MeshShader.json"))
+    {
+        ELOG("RootSignatureLayout::LoadFromJson failed");
+        return false;
+    }
+    
     return true;
 }
 
@@ -220,50 +219,50 @@ bool GameScene::InitPipelineState(ID3D12Device* _pDevice)
     if (FAILED(D3DReadFileToBlob(psPath.c_str(), pPS.GetAddressOf()))) { return false; }
 
     D3D12_RASTERIZER_DESC rsDesc = {};
-    rsDesc.FillMode = D3D12_FILL_MODE_SOLID;
-    rsDesc.CullMode = D3D12_CULL_MODE_BACK;
-    rsDesc.FrontCounterClockwise = FALSE;
-    rsDesc.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
-    rsDesc.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
-    rsDesc.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
-    rsDesc.DepthClipEnable = TRUE;
+    rsDesc.FillMode                 = D3D12_FILL_MODE_SOLID;
+    rsDesc.CullMode                 = D3D12_CULL_MODE_BACK;
+    rsDesc.FrontCounterClockwise    = FALSE;
+    rsDesc.DepthBias                = D3D12_DEFAULT_DEPTH_BIAS;
+    rsDesc.DepthBiasClamp           = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+    rsDesc.SlopeScaledDepthBias     = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+    rsDesc.DepthClipEnable          = TRUE;
 
     D3D12_BLEND_DESC blendDesc = {};
-    blendDesc.AlphaToCoverageEnable = FALSE;
-    blendDesc.IndependentBlendEnable = FALSE;
+    blendDesc.AlphaToCoverageEnable     = FALSE;
+    blendDesc.IndependentBlendEnable    = FALSE;
     for (auto& rt : blendDesc.RenderTarget)
     {
-        rt.BlendEnable = FALSE;
-        rt.SrcBlend = D3D12_BLEND_ONE;
-        rt.DestBlend = D3D12_BLEND_ZERO;
-        rt.BlendOp = D3D12_BLEND_OP_ADD;
-        rt.SrcBlendAlpha = D3D12_BLEND_ONE;
-        rt.DestBlendAlpha = D3D12_BLEND_ZERO;
-        rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-        rt.LogicOp = D3D12_LOGIC_OP_NOOP;
-        rt.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+        rt.BlendEnable              = FALSE;
+        rt.SrcBlend                 = D3D12_BLEND_ONE;
+        rt.DestBlend                = D3D12_BLEND_ZERO;
+        rt.BlendOp                  = D3D12_BLEND_OP_ADD;
+        rt.SrcBlendAlpha            = D3D12_BLEND_ONE;
+        rt.DestBlendAlpha           = D3D12_BLEND_ZERO;
+        rt.BlendOpAlpha             = D3D12_BLEND_OP_ADD;
+        rt.LogicOp                  = D3D12_LOGIC_OP_NOOP;
+        rt.RenderTargetWriteMask    = D3D12_COLOR_WRITE_ENABLE_ALL;
     }
 
     D3D12_DEPTH_STENCIL_DESC dssDesc = {};
-    dssDesc.DepthEnable = TRUE;
-    dssDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-    dssDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-    dssDesc.StencilEnable = FALSE;
+    dssDesc.DepthEnable     = TRUE;
+    dssDesc.DepthWriteMask  = D3D12_DEPTH_WRITE_MASK_ALL;
+    dssDesc.DepthFunc       = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+    dssDesc.StencilEnable   = FALSE;
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-    psoDesc.InputLayout = ResMeshVertex::InputLayout;
-    psoDesc.pRootSignature = m_pRootSignature.Get();
-    psoDesc.VS = { pVS->GetBufferPointer(), pVS->GetBufferSize() };
-    psoDesc.PS = { pPS->GetBufferPointer(), pPS->GetBufferSize() };
-    psoDesc.RasterizerState = rsDesc;
-    psoDesc.BlendState = blendDesc;
-    psoDesc.DepthStencilState = dssDesc;
-    psoDesc.SampleMask = UINT_MAX;
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.NumRenderTargets = 1;
-    psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-    psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-    psoDesc.SampleDesc.Count = 1;
+    psoDesc.InputLayout             = ResMeshVertex::InputLayout;
+    psoDesc.pRootSignature          = m_RootSignatureLayout.GetRootSignature();
+    psoDesc.VS                      = { pVS->GetBufferPointer(), pVS->GetBufferSize() };
+    psoDesc.PS                      = { pPS->GetBufferPointer(), pPS->GetBufferSize() };
+    psoDesc.RasterizerState         = rsDesc;
+    psoDesc.BlendState              = blendDesc;
+    psoDesc.DepthStencilState       = dssDesc;
+    psoDesc.SampleMask              = UINT_MAX;
+    psoDesc.PrimitiveTopologyType   = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psoDesc.NumRenderTargets        = 1;
+    psoDesc.RTVFormats[0]           = DXGI_FORMAT_R8G8B8A8_UNORM;
+    psoDesc.DSVFormat               = DXGI_FORMAT_D32_FLOAT;
+    psoDesc.SampleDesc.Count        = 1;
 
     auto hr = _pDevice->CreateGraphicsPipelineState(
         &psoDesc, IID_PPV_ARGS(m_pPSO.GetAddressOf()));
@@ -278,9 +277,9 @@ bool GameScene::InitPipelineState(ID3D12Device* _pDevice)
 void GameScene::InitCamera()
 {
     FPSCamera::Desc desc;
-    desc.Position = m_Desc.CameraPosition;
-    desc.MoveSpeed = m_Desc.CameraMoveSpeed;
-    desc.RotSpeed = m_Desc.CameraRotSpeed;
+    desc.Position   = m_Desc.CameraPosition;
+    desc.MoveSpeed  = m_Desc.CameraMoveSpeed;
+    desc.RotSpeed   = m_Desc.CameraRotSpeed;
     m_Camera.Init(desc);
 
     m_Camera.SetFov(m_Desc.CameraFov);
@@ -296,14 +295,14 @@ void GameScene::InitCamera()
 // -------------------------------------------------------------------------------
 bool GameScene::InitMeshes()
 {
-    auto* pDevice = m_pGraphicsDevice->GetDevice();
-    auto* pQueue = m_pGraphicsDevice->GetQueue();
-    auto* pPool = m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_RES);
+    auto* pDevice   = m_pGraphicsDevice->GetDevice();
+    auto* pQueue    = m_pGraphicsDevice->GetQueue();
+    auto* pPool     = m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_RES);
 
     std::vector<ResMesh>     resMeshes;
     std::vector<ResMaterial> resMaterials;
     
-    m_Desc.ModelPath = L"Assets/Model/Elinyaa/Elinyaa.fbx";
+    m_Desc.ModelPath = L"Assets/Model/Player/Elinyaa/Elinyaa.fbx";
 
     if (!MeshLoader::Load(m_Desc.ModelPath, resMeshes, resMaterials))
     {
@@ -341,8 +340,8 @@ bool GameScene::InitMeshes()
 // -------------------------------------------------------------------------------
 bool GameScene::InitSampler()
 {
-    auto* pDevice = m_pGraphicsDevice->GetDevice();
-    auto* pSmpPool = m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_SMP);
+    auto* pDevice   = m_pGraphicsDevice->GetDevice();
+    auto* pSmpPool  = m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_SMP);
 
     if (!m_Sampler.Init(pDevice, pSmpPool, Sampler::CreateLinearWrap()))
     {
@@ -357,9 +356,9 @@ bool GameScene::InitSampler()
 // -------------------------------------------------------------------------------
 bool GameScene::InitGameObjects()
 {
-    auto* pDevice = m_pGraphicsDevice->GetDevice();
-    auto* pPool = m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_RES);
-    const auto fc = m_pGraphicsDevice->GetFrameCount();
+    auto* pDevice   = m_pGraphicsDevice->GetDevice();
+    auto* pPool     = m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_RES);
+    const auto fc   = m_pGraphicsDevice->GetFrameCount();
 
     // 各メッシュに対して GameObject を1つ生成する
     for (auto i = 0u; i < m_Meshes.size(); ++i)
@@ -403,10 +402,7 @@ bool GameScene::InitGameObjects()
         }
 
         // RootSignature のスロット番号を設定（GameScene の定義と合わせる）
-        pMeshComp->SetRootParamSlots(
-            ROOT_PARAM_CBV_TRANSFORM,
-            ROOT_PARAM_CBV_MATERIAL,
-            ROOT_PARAM_SRV_DIFFUSE);
+        pMeshComp->SetRootLayout(&m_RootSignatureLayout);
 
         // UpdateViewProj() で使うためにキャッシュしておく
         m_MeshComponents.emplace_back(pMeshComp);

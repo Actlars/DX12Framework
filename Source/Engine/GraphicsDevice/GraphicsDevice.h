@@ -123,37 +123,6 @@ public:
 	// -------------------------------------------------------------------------------
 	void WaitForGPU();
 
-	// -------------------------------------------------------------------------------
-	// @brief	フレーム開始処理
-	// 
-	//	1. バックバッファのリソースバリアを PRESENT → RENDER_TARGET に遷移
-	//	2. ColorTargert / DepthTarget をクリア
-	//	3. レンダーターゲットを設定
-	//	4. ビューポート / シザー矩形を設定
-	// 
-	// @return	記録済みのコマンドリスト（描画命令をここに積む）
-	// -------------------------------------------------------------------------------
-	ID3D12GraphicsCommandList* BeginFrame();
-
-	// -------------------------------------------------------------------------------
-	// @brief	フレーム終了処理
-	// 
-	//	1. バックバッファのリソースバリアを RENDER_TARGET → PRESENT に遷移
-	//	2. コマンドリストをクローズして実行
-	// -------------------------------------------------------------------------------
-	void EndFrame();
-
-	// -------------------------------------------------------------------------------
-	// @brief	画面表示とフレームバッファの切り替え
-	// 
-	//	1. SwapChain::Present
-	//	2. Fence::Wait でGPU完了を待つ
-	//	3. フレームインデックスを更新
-	// 
-	// @param[in]	_syncInterval	垂直同期間隔（0 = VSync無効、1 = VSync有効）
-	// -------------------------------------------------------------------------------
-	void Present(uint32_t _syncInterval);
-
 	// @brief Present() 後にスワップチェインのバックバッファ番号に合わせてフレームインデックスを更新する
 	void UpdateFrameIndex();
 
@@ -164,6 +133,7 @@ public:
 	ID3D12CommandQueue* GetQueue()						const;
 	IDXGISwapChain3*	GetSwapChain()					const;
 	CommandList*		GetCommandList()					 ;
+	Fence*				GetFence()							 ;
 	DescriptorPool*		GetPool(POOL_TYPE _type)		const;
 	ColorTarget*		GetColorTarget(uint32_t _index)	const;
 	DepthTarget*		GetDepthTarget()				const;
@@ -196,18 +166,11 @@ private:
 
 	DescriptorPool*				m_pPool[POOL_COUNT] = {};
 	std::vector<std::unique_ptr<ColorTarget>>	m_ColorTargets;
-	ID3D12GraphicsCommandList*			m_pCurrentCmd = nullptr;
 	DepthTarget					m_DepthTarget;
 	CommandList					m_CommandList;
 	Fence						m_Fence;
 
 	uint32_t					m_FrameIndex	= 0;
-
-	D3D12_VIEWPORT				m_Viewport		= {};
-	D3D12_RECT					m_Scissor		= {};
-
-	// クリアカラー（ブルー）
-	static constexpr float CLEAR_COLOR[4] = { 0.0f,0.0f,1.0f,1.0f };
 
 	// コピー禁止
 	GraphicsDevice	(const GraphicsDevice&) = delete;

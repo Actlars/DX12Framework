@@ -73,7 +73,7 @@ public:
 	//		1. バックバッファのバリアを RENDER_TARGET → PRESENT に遷移
 	//		2. コマンドリストを Close して ExecuteCommandLists
 	// -------------------------------------------------------------------------------
-	void EndFrame();
+	void EndFrame(ID3D12GraphicsCommandList* _pCmd);
 
 	// -------------------------------------------------------------------------------
 	// @brief	画面表示とフレームバッファの切り替え
@@ -98,7 +98,6 @@ private:
 	// private variables
 	// -------------------------------------------------------------------------------
 	GraphicsDevice*				m_pGraphicsDevice	= nullptr;	// 所有権なし
-	ID3D12GraphicsCommandList*	m_pCurrentCmd		= nullptr;	// 現在のフレームのコマンドリスト
 
 	D3D12_VIEWPORT	m_ViewPort	= {};
 	D3D12_RECT		m_Scissor	= {};

@@ -303,6 +303,7 @@ bool MeshLoader::Load(
 
 	const unsigned int flags =
 			aiProcess_Triangulate				// 全ポリゴンを三角形に変換
+		|	aiProcess_ConvertToLeftHanded		// 左手系の計算に変換
 		|	aiProcess_PreTransformVertices		// ノード階層をフラット化
 		|	aiProcess_CalcTangentSpace			// 接線・従法線を自動計算
 		|	aiProcess_GenSmoothNormals			// 法線がない場合に平滑法線を生成

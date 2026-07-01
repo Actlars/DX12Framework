@@ -12,9 +12,9 @@
 //		コンストラクタ
 // -------------------------------------------------------------------------------
 DepthTarget::DepthTarget()
-: m_pTarget(nullptr)
-, m_pHandleDSV(nullptr)
-, m_pPoolDSV(nullptr)
+: m_pTarget		(nullptr)
+, m_pHandleDSV	(nullptr)
+, m_pPoolDSV	(nullptr)
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ bool DepthTarget::Init
 	{ return false; }
 
 	assert(m_pHandleDSV == nullptr);
-	assert(m_pPoolDSV == nullptr);
+	assert(m_pPoolDSV	== nullptr);
 
 	m_pPoolDSV = _pPoolRTV;
 	m_pPoolDSV->AddRef();

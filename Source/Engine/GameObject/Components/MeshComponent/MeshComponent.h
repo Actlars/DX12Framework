@@ -8,6 +8,11 @@
 #include "Engine/Mesh/Material/Material.h"
 #include "Engine/Buffer/ConstantBuffer/ConstantBuffer.h"
 
+// -------------------------------------------------------------------------------
+// 前方宣言
+// -------------------------------------------------------------------------------
+class RootSignatureLayout;
+
 // 定数バッファ（ワールド・ビュー・プロジェクション）
 // MeshComponent自身が持ち、TrnsformComponentから毎フレーム更新する
 struct alignas(256) TransformCB
@@ -67,7 +72,8 @@ public:
 	// -------------------------------------------------------------------------------
 
 	// @brief	描画コマンドを積む
-	void Draw(ID3D12GraphicsCommandList* _pCmd) override;
+	void Submit(RenderQueue* _pQueue) override;
+	//void Draw(ID3D12GraphicsCommandList* _pCmd) override;
 
 	// @brief	描画が有効かどうか返す
 	bool IsVisible() const override;
@@ -91,6 +97,9 @@ public:
 
 	// @brief	現在のフレームインデックスを設定する
 	void SetFrameIndex(uint32_t _frameIndex);
+
+	// @brief	RootSignatureLayoutを設定する
+	void SetRootLayout(const RootSignatureLayout* _pRootLayout);
 
 	// -------------------------------------------------------------------------------
 	// @brief	カメラの View / Proj行列を設定する
@@ -124,9 +133,9 @@ private:
 	DirectX::XMMATRIX m_Proj = DirectX::XMMatrixIdentity();
 
 	// RootSignatureのスロット番号（GameSceneの設定と合わせる）
-	uint32_t m_TransformSlot	= 0;
-	uint32_t m_MaterialSlot		= 1;
-	uint32_t m_TextureSlot		= 2;
+	uint32_t m_TransformSlot	= UINT32_MAX;
+	uint32_t m_MaterialSlot		= UINT32_MAX;
+	uint32_t m_TextureSlot		= UINT32_MAX;
 
 	bool m_IsValiable = true;
 };

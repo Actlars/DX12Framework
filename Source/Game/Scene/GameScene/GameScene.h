@@ -13,6 +13,8 @@
 #include <Engine/GameObject/Components/MeshComponent/MeshComponent.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
 #include <Engine/Mesh/ResData.h>
+#include <Engine/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
+#include <Engine/Renderer/RenderQueue/RenderQueue.h>
 
 // -------------------------------------------------------------------------------
 // GameScene クラス
@@ -109,18 +111,14 @@ private:
     // GameObject 管理
     GameObjectManager   m_ObjectManager;
 
+    // 描画管理
+    RenderQueue         m_RenderQueue;
+
+    // JSONから構築されたRootSignature + スロット対応表
+    RootSignatureLayout m_RootSignatureLayout;
+
     // MeshComponent への参照（UpdateViewProj() で使う）
     // GameObjectManager から毎回 GetComponent() するのではなく
     // 初期化時にキャッシュしておく
     std::vector<MeshComponent*>     m_MeshComponents;
 };
-
-
-
-
-
-
-
-
-
-

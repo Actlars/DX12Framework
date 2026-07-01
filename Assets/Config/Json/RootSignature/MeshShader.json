@@ -1,0 +1,41 @@
+{
+  "Name": "MeshShaderRootSignature",
+  "Parameters": [
+    {
+      "Name": "Transform",
+      "Type": "CBV",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "VS"
+    },
+    {
+      "Name": "Material",
+      "Type": "CBV",
+      "ShaderRegister": 1,
+      "RegisterSpace": 0,
+      "Visibility": "PS"
+    },
+    {
+      "Name": "Texture",
+      "Type": "SRV_Table",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "PS",
+      "NumDescriptors": 1
+    },
+    {
+      "Name": "Sampler",
+      "Type": "Sampler_Table",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "PS",
+      "NumDescriptors": 1
+    }
+  ],
+  "Flags": [
+    "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT",
+    "DENY_HULL_SHADER_ROOT_ACCESS",
+    "DENY_DOMAIN_SHADER_ROOT_ACCESS",
+    "DENY_GEOMETRY_SHADER_ROOT_ACCESS"
+  ]
+}

@@ -145,6 +145,15 @@
     <Filter Include="ソース ファイル\Engine\GameObject\Component">
       <UniqueIdentifier>{d4deb45e-d36c-4fc4-b434-83f4cf1d0ec3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\RootSignature">
+      <UniqueIdentifier>{42af8ecc-e6d8-427b-8cab-947b1f5842fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\RootSignature\RootSignatureLayout">
+      <UniqueIdentifier>{b2c48221-77d1-4d16-bf7b-f0654e94c3d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\RenderQueue">
+      <UniqueIdentifier>{fa9f5df7-4b52-4daa-9cb4-7d09655ad133}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -258,6 +267,15 @@
     <ClInclude Include="Source\Engine\GameObject\Component\Component.h">
       <Filter>ソース ファイル\Engine\GameObject\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\RootSignature\RootSignatureLayout\RootSignatureLayout.h">
+      <Filter>ソース ファイル\Engine\RootSignature\RootSignatureLayout</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\DrawItem.h">
+      <Filter>ソース ファイル\Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\RenderQueue\RenderQueue.h">
+      <Filter>ソース ファイル\Engine\Renderer\RenderQueue</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp">
@@ -349,6 +367,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp">
       <Filter>ソース ファイル\Engine\GameObject\Components\MeshComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\RootSignature\RootSignatureLayout\RootSignatureLayout.cpp">
+      <Filter>ソース ファイル\Engine\RootSignature\RootSignatureLayout</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\RenderQueue\RenderQueue.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\RenderQueue</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -18,10 +18,11 @@ PSOutput main(VSOutput input)
 {
     PSOutput output = (PSOutput) 0;
 
-    // テクスチャカラーをそのまま出力（ライト・マテリアル無視）
     float4 color = ColorMap.Sample(WrapSmp, input.TexCoord);
-    output.Color = color;
-    
-    output.Color = float4(Diffuse, 1.0f);
+
+    // テクスチャのアルファが低い部分は描かない（穴を開ける）
+    clip(color.a - 0.5);
+
+    output.Color = float4(color.rgb, 1.0);
     return output;
 }

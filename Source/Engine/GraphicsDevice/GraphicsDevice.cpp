@@ -36,19 +36,6 @@ bool GraphicsDevice::Init(const Desc& _desc)
 	if (!InitCommandList())		{ Term(); return false; }
 	if (!InitFence())			{ Term(); return false; }
 
-	// ビューポートとシザー矩形の設定
-	m_Viewport.TopLeftX	= 0.0f;
-	m_Viewport.TopLeftY = 0.0f;
-	m_Viewport.Width	= static_cast<float>(_desc.Width);
-	m_Viewport.Height	= static_cast<float>(_desc.Height);
-	m_Viewport.MinDepth = 0.0f;
-	m_Viewport.MaxDepth = 1.0f;
-
-	m_Scissor.left		= 0;
-	m_Scissor.top		= 0;
-	m_Scissor.right		= static_cast<LONG>(_desc.Width);
-	m_Scissor.bottom	= static_cast<LONG>(_desc.Height);
-
 	return true;
 }
 
@@ -57,10 +44,6 @@ bool GraphicsDevice::Init(const Desc& _desc)
 // -------------------------------------------------------------------------------
 void GraphicsDevice::Term()
 {
-	// GPUの全処理が終わるまで待つ
-	// 描画中のリソースを解放するとGPUが壊れたメモリにアクセスするため待機
-	m_Fence.Sync(m_pQueue.Get());
-
 	// 各リソースを逆順に解放
 	m_Fence.Term();
 	m_CommandList.Term();
@@ -98,93 +81,13 @@ void GraphicsDevice::WaitForGPU()
 }
 
 // -------------------------------------------------------------------------------
-//		フレーム開始処理
-// -------------------------------------------------------------------------------
-ID3D12GraphicsCommandList* GraphicsDevice::BeginFrame()
-{
-	// コマンドリストのリセット
-	// 前フレームの命令が残ったままだと記録できないのでリセットする
-	m_pCurrentCmd = m_CommandList.Reset();
-
-	// バックバッファを描画先に切り替えるリソースバリア
-	// PRESENT状態のままRTVとして使おうとするとGPUエラーになる
-	auto* pTarget = m_ColorTargets[m_FrameIndex]->GetResource();
-	D3D12_RESOURCE_BARRIER barrier	= {};
-	barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource	= pTarget;
-	barrier.Transition.StateBefore	= D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.StateAfter	= D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	m_pCurrentCmd->ResourceBarrier(1, &barrier);
-
-	// レンダーターゲットと深度バッファをクリア
-	auto handleRTV = m_ColorTargets[m_FrameIndex]->GetHandleRTV()->HandleCPU;
-	auto handleDSV = m_DepthTarget.GetHandleDSV()->HandleCPU;
-
-	m_pCurrentCmd->ClearRenderTargetView(handleRTV, CLEAR_COLOR, 0, nullptr);
-	m_pCurrentCmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-	// レンダーターゲットを設定
-	m_pCurrentCmd->OMSetRenderTargets(1, &handleRTV, FALSE, &handleDSV);
-
-	// ビューポート / シザー矩形を設定
-	m_pCurrentCmd->RSSetViewports(1, &m_Viewport);
-	m_pCurrentCmd->RSSetScissorRects(1, &m_Scissor);
-
-	return m_pCurrentCmd;
-}
-
-// -------------------------------------------------------------------------------
-//		フレーム終了処理
-// -------------------------------------------------------------------------------
-void GraphicsDevice::EndFrame()
-{
-	//auto* pCmd		= m_CommandList.Reset();
-	auto* pTarget	= m_ColorTargets[m_FrameIndex]->GetResource();
-
-	// バックバッファを表示用に切り替えるバリア
-	// RENDER_TARGETのままPresentしようとするとGPUエラーになる
-	D3D12_RESOURCE_BARRIER barrier = {};
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = pTarget;
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	m_pCurrentCmd->ResourceBarrier(1, &barrier);
-
-	// コマンドリストをクローズしてGPUに投入
-	m_pCurrentCmd->Close();
-
-	ID3D12CommandList* ppLists[] = { m_pCurrentCmd };
-	m_pQueue->ExecuteCommandLists(1, ppLists);
-}
-
-// -------------------------------------------------------------------------------
-//		画面表示
-// -------------------------------------------------------------------------------
-void GraphicsDevice::Present(uint32_t _syncInterval)
-{
-	// バックバッファを画面に表示
-	m_pSwapChain->Present(_syncInterval, 0);
-
-	// GPU完了を待つ
-	// 次フレームで同じバッファに書き込む前にGPUが使い終わるのを確認
-	m_Fence.Wait(m_pQueue.Get(), INFINITE);
-
-	// フレームインデックスを更新
-	// スワップチェインが管理するバックバッファ番号に合わせる
-	m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-}
-
-// -------------------------------------------------------------------------------
 //		ゲッター
 // -------------------------------------------------------------------------------
 ID3D12Device*		GraphicsDevice::GetDevice()			const { return m_pDevice.Get(); }
 ID3D12CommandQueue* GraphicsDevice::GetQueue()			const { return m_pQueue.Get(); }
 IDXGISwapChain3*	GraphicsDevice::GetSwapChain()		const { return m_pSwapChain.Get(); }
 CommandList*		GraphicsDevice::GetCommandList()		  { return &m_CommandList; }
+Fence*				GraphicsDevice::GetFence() 				  { return &m_Fence; }
 DescriptorPool*		GraphicsDevice::GetPool(POOL_TYPE _type) const { return m_pPool[_type]; }
 DepthTarget*		GraphicsDevice::GetDepthTarget()	const { return const_cast<DepthTarget*>(&m_DepthTarget); }
 uint32_t            GraphicsDevice::GetFrameIndex()		const { return m_FrameIndex; }
@@ -196,7 +99,6 @@ ColorTarget* GraphicsDevice::GetColorTarget(uint32_t _index) const
 {
 	if (_index >= m_ColorTargets.size()) 
 	{ return nullptr; }
-	//return const_cast<ColorTarget*>(&m_ColorTargets[_index]);
 	return m_ColorTargets[_index].get();
 }
 

@@ -70,36 +70,77 @@ void Fence::Term()
 }
 
 // -------------------------------------------------------------------------------
-//		シグナル状態になるまで指定時間待機
+//		シグナルを発行し、完了フェンス値を返す
 // -------------------------------------------------------------------------------
-void Fence::Wait(ID3D12CommandQueue* _pQueue, UINT _timeout)
+UINT64 Fence::Signal(ID3D12CommandQueue* _pQueue)
 {
 	if (_pQueue == nullptr) 
-	{ return; }
+	{ return 0; }
 
-	const auto fenceValue = m_Counter;
-
-	// シグナル処理
-	auto hr = _pQueue->Signal(m_pFence.Get(), fenceValue);
+	// 現在のカウンター値を取得してシグナルを発行
+	const auto value = m_Counter;
+	// シグナル処理（GPUにシグナルを送る）
+	auto hr = _pQueue->Signal(m_pFence.Get(), value);
 	if (FAILED(hr)) 
-	{ return; }
+	{ return 0; }
 
 	// カウンターを増やす
 	m_Counter++;
 
-	// 次のフレームの描画準備がまだであれば待機
-	if (m_pFence->GetCompletedValue() < fenceValue)
+	return m_Counter;
+}
+
+// -------------------------------------------------------------------------------
+//		GPUで指定したフェンス値が完了するまで待機する
+// -------------------------------------------------------------------------------
+void Fence::WaitForValue(UINT64 _value)
+{
+	// すでに完了していれば即座に戻る
+	if (m_pFence->GetCompletedValue() < _value)
 	{
 		// 完了時にイベントを設定
-		auto hr = m_pFence->SetEventOnCompletion(fenceValue, m_Event);
+		auto hr = m_pFence->SetEventOnCompletion(_value, m_Event);
 		if (FAILED(hr)) 
 		{ return; }
 
 		// 待機処理
-		if (WAIT_OBJECT_0 != WaitForSingleObjectEx(m_Event, _timeout, FALSE)) 
-		{ return; }
+		WaitForSingleObjectEx(m_Event, INFINITE, FALSE);
 	}
 }
+
+
+
+//// -------------------------------------------------------------------------------
+////		シグナル状態になるまで指定時間待機
+//// -------------------------------------------------------------------------------
+//void Fence::Wait(ID3D12CommandQueue* _pQueue, UINT _timeout)
+//{
+//	if (_pQueue == nullptr) 
+//	{ return; }
+//
+//	const auto fenceValue = m_Counter;
+//
+//	// シグナル処理
+//	auto hr = _pQueue->Signal(m_pFence.Get(), fenceValue);
+//	if (FAILED(hr)) 
+//	{ return; }
+//
+//	// カウンターを増やす
+//	m_Counter++;
+//
+//	// 次のフレームの描画準備がまだであれば待機
+//	if (m_pFence->GetCompletedValue() < fenceValue)
+//	{
+//		// 完了時にイベントを設定
+//		auto hr = m_pFence->SetEventOnCompletion(fenceValue, m_Event);
+//		if (FAILED(hr)) 
+//		{ return; }
+//
+//		// 待機処理
+//		if (WAIT_OBJECT_0 != WaitForSingleObjectEx(m_Event, _timeout, FALSE)) 
+//		{ return; }
+//	}
+//}
 
 // -------------------------------------------------------------------------------
 //		シグナル状態になるまでずっと待機

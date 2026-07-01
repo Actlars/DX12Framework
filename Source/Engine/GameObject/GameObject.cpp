@@ -2,6 +2,7 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include "GameObject.h"
+#include <Engine/Renderer/RenderQueue/RenderQueue.h>
 
 // -------------------------------------------------------------------------------
 //		ユニークIDの生成（スレッドセーフ）
@@ -57,19 +58,31 @@ void GameObject::Update(float _deltaTime)
 // -------------------------------------------------------------------------------
 //		毎フレームの描画処理
 // -------------------------------------------------------------------------------
-void GameObject::Draw(ID3D12GraphicsCommandList* _pCmd)
+void GameObject::Submit(RenderQueue* _pQueue)
 {
-	if (!m_IsActive || _pCmd == nullptr) 
+	if (!m_IsActive || _pQueue == nullptr) 
 	{ return; }
 
-	// IRenderableを実装しているComponentだけをループする
-	// 非描画コンポーネントは（TransformComponent等）はスキップする
 	for (auto* pRenderable : m_Renderables)
 	{
 		if (pRenderable->IsVisible()) 
-		{ pRenderable->Draw(_pCmd); }
+		{ pRenderable->Submit(_pQueue); }
 	}
 }
+
+//void GameObject::Draw(ID3D12GraphicsCommandList* _pCmd)
+//{
+//	if (!m_IsActive || _pCmd == nullptr) 
+//	{ return; }
+//
+//	// IRenderableを実装しているComponentだけをループする
+//	// 非描画コンポーネントは（TransformComponent等）はスキップする
+//	for (auto* pRenderable : m_Renderables)
+//	{
+//		if (pRenderable->IsVisible()) 
+//		{ pRenderable->Draw(_pCmd); }
+//	}
+//}
 
 const std::string& GameObject::GetName() const
 {

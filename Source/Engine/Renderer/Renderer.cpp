@@ -35,7 +35,7 @@ bool Renderer::Init(GraphicsDevice* _pGraphicsDevice)
 	m_ViewPort.Width	= static_cast<float>(m_pGraphicsDevice->GetWidth());
 	m_ViewPort.Height	= static_cast<float>(m_pGraphicsDevice->GetHeight());
 	m_ViewPort.MinDepth = 0.0f;
-	m_ViewPort.MaxDepth = 0.0f;
+	m_ViewPort.MaxDepth = 1.0f;
 
 	// シザー矩形の設定
 	m_Scissor.left		= 0.0f;
@@ -51,7 +51,6 @@ bool Renderer::Init(GraphicsDevice* _pGraphicsDevice)
 // -------------------------------------------------------------------------------
 void Renderer::Term()
 {
-	m_pCurrentCmd		= nullptr;
 	m_pGraphicsDevice	= nullptr;
 }
 
@@ -63,16 +62,16 @@ ID3D12GraphicsCommandList* Renderer::BeginFrame()
 	if (m_pGraphicsDevice == nullptr) 
 	{ return nullptr; }
 
+	// 現在のフレームインデックスを取得
 	const auto frameIndex = m_pGraphicsDevice->GetFrameIndex();
 
-	// コマンドリストのリセット
-	auto* pCmd = m_pGraphicsDevice->GetCommandList()->Reset();
+	// コマンドリストのリセット（Fenceを渡して、必要な時だけ待機させる）
+	auto* pCmd = m_pGraphicsDevice->GetCommandList()->Reset(m_pGraphicsDevice->GetFence());
 	if (pCmd == nullptr)
 	{
 		ELOG("Renderer::BeginFrame() CommandList::Reset failed");
 		return nullptr;
 	}
-	m_pCurrentCmd = pCmd;
 
 	// バックバッファを描画先に切り替えるバリア
 	auto* pTarget = m_pGraphicsDevice->GetColorTarget(frameIndex)->GetResource();
@@ -105,9 +104,9 @@ ID3D12GraphicsCommandList* Renderer::BeginFrame()
 // -------------------------------------------------------------------------------
 //		フレーム終了処理
 // -------------------------------------------------------------------------------
-void Renderer::EndFrame()
+void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 {
-	if (m_pCurrentCmd == nullptr || m_pGraphicsDevice == nullptr)
+	if (_pCmd == nullptr || m_pGraphicsDevice == nullptr)
 	{
 		return;
 	}
@@ -123,15 +122,20 @@ void Renderer::EndFrame()
 	barrier.Transition.StateBefore	= D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.StateAfter	= D3D12_RESOURCE_STATE_PRESENT;
 	barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	m_pCurrentCmd->ResourceBarrier(1, &barrier);
+	_pCmd->ResourceBarrier(1, &barrier);
 
 	// コマンドリストをクローズしてGPUに投入
-	m_pCurrentCmd->Close();
+	_pCmd->Close();
 
-	ID3D12CommandList* ppLists[] = { m_pCurrentCmd };
+	ID3D12CommandList* ppLists[] = { _pCmd };
 	m_pGraphicsDevice->GetQueue()->ExecuteCommandLists(1, ppLists);
 
-	m_pCurrentCmd = nullptr;
+	// 実行直後にSignalを発行して（待たない）
+	// 今使ったアロケータの完了フェンス値として記録する
+	auto value = m_pGraphicsDevice->GetFence()->Signal(m_pGraphicsDevice->GetQueue());
+	m_pGraphicsDevice->GetCommandList()->RecordFenceValue(value);
+
+	_pCmd = nullptr;
 }
 
 // -------------------------------------------------------------------------------
@@ -144,10 +148,6 @@ void Renderer::Present(uint32_t _syncInterval)
 
 	// バックバッファを画面に表示
 	m_pGraphicsDevice->GetSwapChain()->Present(_syncInterval, 0);
-
-	// GPU完了を待つ
-	// 次フレームで同じバッファに書き込む前にGPUが使い終わるのを確認する
-	m_pGraphicsDevice->WaitForGPU();
 
 	// フレームインデックスを更新する
 	// スワップチェインが管理するバックバッファ番号に合わせる

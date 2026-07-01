@@ -2,6 +2,7 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include "CommandList.h"
+#include <Engine/Fence/Fence.h>
 
 // -------------------------------------------------------------------------------
 // CommandList class
@@ -13,6 +14,7 @@
 CommandList::CommandList()
 : m_pCmdList(nullptr)
 , m_pAllocators()
+, m_FenceValues()
 , m_Index(0)
 { /* DO_NOTHING */ }
 
@@ -32,6 +34,7 @@ bool CommandList::Init(ID3D12Device* _pDevice, D3D12_COMMAND_LIST_TYPE _type, ui
 	{ return false; }
 
 	m_pAllocators.resize(_count);
+	m_FenceValues.assign(_count, 0);	// まだGPUに送信していないので、完了フェンス値は0で初期化
 
 	for (auto i = 0u; i < _count; ++i)
 	{
@@ -70,21 +73,40 @@ void CommandList::Term()
 
 	m_pAllocators.clear();
 	m_pAllocators.shrink_to_fit();
+
+	m_FenceValues.clear();
+	m_FenceValues.shrink_to_fit();
 }
 
 // -------------------------------------------------------------------------------
-//		リセット処理
+//		リセット処理（FenceでGPU使用中か確認してからリセット）
 // -------------------------------------------------------------------------------
-ID3D12GraphicsCommandList* CommandList::Reset()
+ID3D12GraphicsCommandList* CommandList::Reset(Fence* _pFence)
 {
+	// このアロケータが前回使われたときの完了予定値が
+	// GPUの完了値より大きい場合は、まだGPUが使っているので待機する
+	if (_pFence != nullptr) 
+	{ _pFence->WaitForValue(m_FenceValues[m_Index]); }
+
+	// コマンドアロケータをリセットする
 	auto hr = m_pAllocators[m_Index]->Reset();
 	if (FAILED(hr)) 
 	{ return nullptr; }
 
+	// コマンドリストをリセットする
 	hr = m_pCmdList->Reset(m_pAllocators[m_Index].Get(), nullptr);
 	if (FAILED(hr)) 
 	{ return nullptr; }
 
-	m_Index = (m_Index + 1) % uint32_t(m_pAllocators.size());
+	// ここではインデックスを進めない
+	// 「今フレームがどのアロケータを使っているか」はRecordFenceValueが呼ばれるまで確定させる
 	return m_pCmdList.Get();
+}
+
+void CommandList::RecordFenceValue(UINT64 _value)
+{
+	// 今使ったアロケータの完了フェンス値を記録する
+	m_FenceValues[m_Index] = _value;
+	// 次のアロケータに切り替える
+	m_Index = (m_Index + 1) % uint32_t(m_pAllocators.size());
 }

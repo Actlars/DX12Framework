@@ -164,6 +164,9 @@ void Application::MainLoop()
 // -------------------------------------------------------------------------------
 void Application::Term()
 {
+    // GPUの全処理が完了するのを待機する
+    m_GraphicsDevice.WaitForGPU();
+
     // SceneManagerを先に終了する（GPUリソースを持つので、GraphicsDeviceより前）
     m_SceneManager.Term();
 
@@ -177,7 +180,7 @@ void Application::Term()
 }
 
 // -------------------------------------------------------------------------------
-// 描画処理
+// 更新処理と描画処理
 // -------------------------------------------------------------------------------
 void Application::Tick()
 {
@@ -204,7 +207,7 @@ void Application::Tick()
     if (pCmd != nullptr)
     {
         m_SceneManager.Render(pCmd);
-        m_Renderer.EndFrame();
+        m_Renderer.EndFrame(pCmd);
     }
 
     // 画面表示
