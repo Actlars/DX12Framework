@@ -3,6 +3,7 @@
 // -------------------------------------------------------------------------------
 #include "Renderer.h"
 #include <Engine/Utility/Debug/Logger/Logger.h>
+#include <Engine/Renderer/ResourceStateTracker/ResourceStateTracker.h>
 
 // -------------------------------------------------------------------------------
 //		コンストラクタ
@@ -73,16 +74,22 @@ ID3D12GraphicsCommandList* Renderer::BeginFrame()
 		return nullptr;
 	}
 
-	// バックバッファを描画先に切り替えるバリア
+	//// バックバッファを描画先に切り替えるバリア
+	//auto* pTarget = m_pGraphicsDevice->GetColorTarget(frameIndex)->GetResource();
+	//D3D12_RESOURCE_BARRIER barrier = {};
+	//barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	//barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	//barrier.Transition.pResource	= pTarget;
+	//barrier.Transition.StateBefore	= D3D12_RESOURCE_STATE_PRESENT;
+	//barrier.Transition.StateAfter	= D3D12_RESOURCE_STATE_RENDER_TARGET;
+	//barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	//pCmd->ResourceBarrier(1, &barrier);
+
 	auto* pTarget = m_pGraphicsDevice->GetColorTarget(frameIndex)->GetResource();
-	D3D12_RESOURCE_BARRIER barrier = {};
-	barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource	= pTarget;
-	barrier.Transition.StateBefore	= D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.StateAfter	= D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	pCmd->ResourceBarrier(1, &barrier);
+	// 手動バリア構築の代わりにトラッカーへ移譲
+	auto* pTracker = m_pGraphicsDevice->GetResourceStateTracker();
+	pTracker->TransitionResource(pTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	pTracker->FlushBarriers(pCmd);
 
 	// レンダーターゲットと深度バッファのクリア
 	auto handleRTV = m_pGraphicsDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
@@ -115,14 +122,18 @@ void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 
 	// バックバッファを表示用に切り替えるバリア
 	auto* pTarget = m_pGraphicsDevice->GetColorTarget(frameIndex)->GetResource();
-	D3D12_RESOURCE_BARRIER barrier = {};
+	/*D3D12_RESOURCE_BARRIER barrier = {};
 	barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	barrier.Transition.pResource	= pTarget;
 	barrier.Transition.StateBefore	= D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.StateAfter	= D3D12_RESOURCE_STATE_PRESENT;
 	barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	_pCmd->ResourceBarrier(1, &barrier);
+	_pCmd->ResourceBarrier(1, &barrier);*/
+
+	auto* pTracker = m_pGraphicsDevice->GetResourceStateTracker();
+	pTracker->TransitionResource(pTarget, D3D12_RESOURCE_STATE_PRESENT);
+	pTracker->FlushBarriers(_pCmd);
 
 	// コマンドリストをクローズしてGPUに投入
 	_pCmd->Close();

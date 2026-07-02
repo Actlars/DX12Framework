@@ -154,6 +154,9 @@
     <Filter Include="ソース ファイル\Engine\Renderer\RenderQueue">
       <UniqueIdentifier>{fa9f5df7-4b52-4daa-9cb4-7d09655ad133}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\ResourceStateTracker">
+      <UniqueIdentifier>{5b5b8057-c649-4260-95e8-234b5b76ab2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -276,6 +279,12 @@
     <ClInclude Include="Source\Engine\Renderer\RenderQueue\RenderQueue.h">
       <Filter>ソース ファイル\Engine\Renderer\RenderQueue</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Pool\TransientDescriptorAllocator.h">
+      <Filter>ソース ファイル\Engine\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\ResourceStateTracker\ResourceStateTracker.h">
+      <Filter>ソース ファイル\Engine\Renderer\ResourceStateTracker</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp">
@@ -373,6 +382,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\RenderQueue\RenderQueue.cpp">
       <Filter>ソース ファイル\Engine\Renderer\RenderQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\ResourceStateTracker\ResourceStateTracker.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\ResourceStateTracker</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

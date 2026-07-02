@@ -83,17 +83,18 @@ void GraphicsDevice::WaitForGPU()
 // -------------------------------------------------------------------------------
 //		ゲッター
 // -------------------------------------------------------------------------------
-ID3D12Device*		GraphicsDevice::GetDevice()			const { return m_pDevice.Get(); }
-ID3D12CommandQueue* GraphicsDevice::GetQueue()			const { return m_pQueue.Get(); }
-IDXGISwapChain3*	GraphicsDevice::GetSwapChain()		const { return m_pSwapChain.Get(); }
-CommandList*		GraphicsDevice::GetCommandList()		  { return &m_CommandList; }
-Fence*				GraphicsDevice::GetFence() 				  { return &m_Fence; }
-DescriptorPool*		GraphicsDevice::GetPool(POOL_TYPE _type) const { return m_pPool[_type]; }
-DepthTarget*		GraphicsDevice::GetDepthTarget()	const { return const_cast<DepthTarget*>(&m_DepthTarget); }
-uint32_t            GraphicsDevice::GetFrameIndex()		const { return m_FrameIndex; }
-uint32_t            GraphicsDevice::GetFrameCount()		const { return m_Desc.FrameCount; }
-uint32_t            GraphicsDevice::GetWidth()			const { return m_Desc.Width; }
-uint32_t            GraphicsDevice::GetHeight()			const { return m_Desc.Height; }
+ID3D12Device*			GraphicsDevice::GetDevice()			const { return m_pDevice.Get(); }
+ID3D12CommandQueue*		GraphicsDevice::GetQueue()			const { return m_pQueue.Get(); }
+IDXGISwapChain3*		GraphicsDevice::GetSwapChain()		const { return m_pSwapChain.Get(); }
+CommandList*			GraphicsDevice::GetCommandList()		  { return &m_CommandList; }
+Fence*					GraphicsDevice::GetFence() 				  { return &m_Fence; }
+ResourceStateTracker*	GraphicsDevice::GetResourceStateTracker() { return &m_ResourceStateTracker; }
+DescriptorPool*			GraphicsDevice::GetPool(POOL_TYPE _type) const { return m_pPool[_type]; }
+DepthTarget*			GraphicsDevice::GetDepthTarget()	const { return const_cast<DepthTarget*>(&m_DepthTarget); }
+uint32_t				GraphicsDevice::GetFrameIndex()		const { return m_FrameIndex; }
+uint32_t				GraphicsDevice::GetFrameCount()		const { return m_Desc.FrameCount; }
+uint32_t				GraphicsDevice::GetWidth()			const { return m_Desc.Width; }
+uint32_t				GraphicsDevice::GetHeight()			const { return m_Desc.Height; }
 
 ColorTarget* GraphicsDevice::GetColorTarget(uint32_t _index) const
 {
@@ -296,6 +297,12 @@ bool GraphicsDevice::InitColorTargets()
 		m_ColorTargets.emplace_back(std::move(ct));
 	}
 
+	// レンダーターゲットのリソースの登録
+	for (auto& ct : m_ColorTargets)
+	{
+		m_ResourceStateTracker.RegisterResource(ct->GetResource(), D3D12_RESOURCE_STATE_PRESENT);
+	}
+
 	return true;
 }
 
@@ -313,6 +320,9 @@ bool GraphicsDevice::InitDepthTarget()
 	{
 		return false;
 	}
+
+	// デプスターゲットのリソースの登録
+	m_ResourceStateTracker.RegisterResource(m_DepthTarget.GetResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 	return true;
 }

@@ -203,9 +203,11 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\Mesh\ResData.h" />
     <ClInclude Include="Source\Engine\Pool\DescriptorPool\DescriptorPool.h" />
     <ClInclude Include="Source\Engine\Pool\Pool.h" />
+    <ClInclude Include="Source\Engine\Pool\TransientDescriptorAllocator.h" />
     <ClInclude Include="Source\Engine\Renderer\DrawItem.h" />
     <ClInclude Include="Source\Engine\Renderer\Renderer.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderQueue\RenderQueue.h" />
+    <ClInclude Include="Source\Engine\Renderer\ResourceStateTracker\ResourceStateTracker.h" />
     <ClInclude Include="Source\Engine\RootSignature\RootSignatureLayout\RootSignatureLayout.h" />
     <ClInclude Include="Source\Engine\Sampler\Sampler.h" />
     <ClInclude Include="Source\Engine\Scene\IScene.h" />
@@ -242,6 +244,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\Pool\DescriptorPool\DescriptorPool.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderQueue\RenderQueue.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\ResourceStateTracker\ResourceStateTracker.cpp" />
     <ClCompile Include="Source\Engine\RootSignature\RootSignatureLayout\RootSignatureLayout.cpp" />
     <ClCompile Include="Source\Engine\Sampler\Sampler.cpp" />
     <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp" />

@@ -8,6 +8,7 @@
 #include <Engine/Target/DepthTarget/DepthTarget.h>
 #include <Engine/CommandList/CommandList.h>
 #include <Engine/Fence/Fence.h>
+#include <Engine/Renderer/ResourceStateTracker/ResourceStateTracker.h>
 
 // -------------------------------------------------------------------------------
 // GraphicsDevice クラス
@@ -129,18 +130,19 @@ public:
 	// -------------------------------------------------------------------------------
 	// ゲッター
 	// -------------------------------------------------------------------------------
-	ID3D12Device*		GetDevice()						const;
-	ID3D12CommandQueue* GetQueue()						const;
-	IDXGISwapChain3*	GetSwapChain()					const;
-	CommandList*		GetCommandList()					 ;
-	Fence*				GetFence()							 ;
-	DescriptorPool*		GetPool(POOL_TYPE _type)		const;
-	ColorTarget*		GetColorTarget(uint32_t _index)	const;
-	DepthTarget*		GetDepthTarget()				const;
-	uint32_t			GetFrameIndex()					const;
-	uint32_t			GetFrameCount()					const;
-	uint32_t			GetWidth()						const;
-	uint32_t			GetHeight()						const;
+	ID3D12Device*			GetDevice()						const;
+	ID3D12CommandQueue*		GetQueue()						const;
+	IDXGISwapChain3*		GetSwapChain()					const;
+	CommandList*			GetCommandList()					 ;
+	Fence*					GetFence()							 ;
+	ResourceStateTracker*	GetResourceStateTracker()			 ;
+	DescriptorPool*			GetPool(POOL_TYPE _type)		const;
+	ColorTarget*			GetColorTarget(uint32_t _index)	const;
+	DepthTarget*			GetDepthTarget()				const;
+	uint32_t				GetFrameIndex()					const;
+	uint32_t				GetFrameCount()					const;
+	uint32_t				GetWidth()						const;
+	uint32_t				GetHeight()						const;
 
 private:
 
@@ -169,6 +171,7 @@ private:
 	DepthTarget					m_DepthTarget;
 	CommandList					m_CommandList;
 	Fence						m_Fence;
+	ResourceStateTracker		m_ResourceStateTracker;
 
 	uint32_t					m_FrameIndex	= 0;
 
