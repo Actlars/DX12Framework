@@ -3,7 +3,7 @@
 // -------------------------------------------------------------------------------
 #include "Renderer.h"
 #include <Engine/Utility/Debug/Logger/Logger.h>
-#include <Engine/Renderer/ResourceStateTracker/ResourceStateTracker.h>
+#include <Engine/RHI/Resource/ResourceStateTracker/ResourceStateTracker.h>
 
 // -------------------------------------------------------------------------------
 //		コンストラクタ
@@ -20,7 +20,7 @@ Renderer::~Renderer()
 // -------------------------------------------------------------------------------
 //		初期化
 // -------------------------------------------------------------------------------
-bool Renderer::Init(GraphicsDevice* _pGraphicsDevice)
+bool Renderer::Init(RHI::Device* _pGraphicsDevice)
 {
 	if (_pGraphicsDevice == nullptr)
 	{

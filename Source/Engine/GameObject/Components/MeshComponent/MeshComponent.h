@@ -2,16 +2,19 @@
 // -------------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------------
-#include "Engine/GameObject/Component/Component.h"
-#include "Engine/GameObject/IRenderable.h"
-#include "Engine/Mesh/Mesh/Mesh.h"
-#include "Engine/Mesh/Material/Material.h"
-#include "Engine/Buffer/ConstantBuffer/ConstantBuffer.h"
+#include <Engine/GameObject/Component/Component.h>
+#include <Engine/GameObject/IRenderable.h>
+#include <Engine/Mesh/Mesh/Mesh.h>
+#include <Engine/Mesh/Material/Material.h>
+#include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
 
 // -------------------------------------------------------------------------------
 // 前方宣言
 // -------------------------------------------------------------------------------
-class RootSignatureLayout;
+namespace RHI
+{
+	class RootSignatureLayout;
+}
 
 // 定数バッファ（ワールド・ビュー・プロジェクション）
 // MeshComponent自身が持ち、TrnsformComponentから毎フレーム更新する
@@ -56,9 +59,9 @@ public:
 	// @retval	false	失敗
 	// -------------------------------------------------------------------------------
 	bool Init(
-		ID3D12Device*	_pDevice,
-		DescriptorPool* _pPool,
-		uint32_t		_frameCount);
+		ID3D12Device*			_pDevice,
+		RHI::DescriptorPool*	_pPool,
+		uint32_t				_frameCount);
 
 	// -------------------------------------------------------------------------------
 	// コンポーネントインターフェースの実装
@@ -99,7 +102,7 @@ public:
 	void SetFrameIndex(uint32_t _frameIndex);
 
 	// @brief	RootSignatureLayoutを設定する
-	void SetRootLayout(const RootSignatureLayout* _pRootLayout);
+	void SetRootLayout(const RHI::RootSignatureLayout* _pRootLayout);
 
 	// -------------------------------------------------------------------------------
 	// @brief	カメラの View / Proj行列を設定する
@@ -125,8 +128,8 @@ private:
 	Material*	m_pMaterial = nullptr;
 
 	// 定数バッファ
-	std::vector<std::unique_ptr<ConstantBuffer>>	m_TransformCBs;
-	uint32_t										m_FrameIndex;
+	std::vector<std::unique_ptr<RHI::ConstantBuffer>>	m_TransformCBs;
+	uint32_t											m_FrameIndex;
 
 	// カメラ行列（GameSceneから毎フレーム更新）
 	DirectX::XMMATRIX m_View = DirectX::XMMatrixIdentity();

@@ -2,7 +2,7 @@
 // -------------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------------
-#include <Engine/GraphicsDevice/GraphicsDevice.h>
+#include <Engine/RHI/Core/Device/Device.h>
 
 // -------------------------------------------------------------------------------
 // IScene インターフェース（純粋仮想基底）
@@ -39,7 +39,7 @@ public :
 	// @retval	true	初期化成功
 	// @retval	false	初期化失敗
 	// -------------------------------------------------------------------------------
-	virtual bool OnInit(GraphicsDevice* _pGraphicsDevice) = 0;
+	virtual bool OnInit(RHI::Device* _pGraphicsDevice) = 0;
 
 	// -------------------------------------------------------------------------------
 	// @brief	シーンの終了
@@ -93,7 +93,7 @@ protected:
 	// -------------------------------------------------------------------------------
 	// 派生クラスから参照できる共通リソース
 	// -------------------------------------------------------------------------------
-	GraphicsDevice*				m_pGraphicsDevice	= nullptr;	// 所有権なし
+	RHI::Device*				m_pDevice			= nullptr;	// 所有権なし
 	ComPtr<ID3D12RootSignature> m_pRootSignature;				// シーン固有
 	ComPtr<ID3D12PipelineState> m_pPSO;							// シーン固有
 	bool						m_IsInitialized		= false;	

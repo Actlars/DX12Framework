@@ -3,8 +3,7 @@
 // -------------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------------
-#include <Engine/GraphicsDevice/GraphicsDevice.h>
-#include <Engine/Renderer/Renderer.h>
+#include <Engine/Renderer/GraphicsView/GraphicsView.h>
 #include <Engine/Scene/SceneManager/SceneManager.h>
 
 // -------------------------------------------------------------------------------
@@ -96,9 +95,8 @@ private:
 	uint32_t	m_Height	= 0;		// ウィンドウの縦幅
 
 	// DX12基盤
-	GraphicsDevice	m_GraphicsDevice;	// デバイス・スワップチェーン等
-	Renderer		m_Renderer;			// フレーム描画フロー
-	SceneManager	m_SceneManager;		// シーン管理
+	GraphicsView	m_GraphicsView;	// DX12のデバイスとRendererの管理
+	SceneManager	m_SceneManager;	// シーン管理
 
 	// タイマー（デルタタイム計算用）
 	LARGE_INTEGER m_PrevTime	= {};

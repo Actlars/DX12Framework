@@ -2,7 +2,7 @@
 // -------------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------------
-#include <Engine/GraphicsDevice/GraphicsDevice.h>
+#include <Engine/RHI/Core/Device/Device.h>
 
 // -------------------------------------------------------------------------------
 // Renderer class
@@ -45,7 +45,7 @@ public:
 	// @retval	true	ê¨å˜
 	// @retval	false	é∏îs
 	// -------------------------------------------------------------------------------
-	bool Init(GraphicsDevice* _pGraphicsDevice);
+	bool Init(RHI::Device* _pGraphicsDevice);
 
 	// -------------------------------------------------------------------------------
 	// @brief	èIóπèàóù
@@ -97,7 +97,7 @@ private:
 	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
-	GraphicsDevice*				m_pGraphicsDevice	= nullptr;	// èäóLå†Ç»Çµ
+	RHI::Device*				m_pGraphicsDevice	= nullptr;	// èäóLå†Ç»Çµ
 
 	D3D12_VIEWPORT	m_ViewPort	= {};
 	D3D12_RECT		m_Scissor	= {};

@@ -21,10 +21,10 @@ Material::~Material()
 //      初期化
 // -------------------------------------------------------------------------------
 bool Material::Init(
-    ID3D12Device* _pDevice,
-    ID3D12CommandQueue* _pQueue,
-    DescriptorPool* _pPool,
-    const ResMaterial& _resMat)
+    ID3D12Device*           _pDevice,
+    ID3D12CommandQueue*     _pQueue,
+    RHI::DescriptorPool*    _pPool,
+    const ResMaterial&      _resMat)
 {
     if (_pDevice == nullptr || _pQueue == nullptr || _pPool == nullptr)
     {
@@ -206,10 +206,10 @@ MaterialCB* Material::GetCBPtr() const
 //      ダミーテクスチャの生成（1x1 白）
 // -------------------------------------------------------------------------------
 bool Material::CreateDummyTexture(
-    ID3D12Device*       _pDevice,
-    ID3D12CommandQueue* _pQueue,
-    DescriptorPool*     _pPool,
-    Texture&            _outTexture)
+    ID3D12Device*           _pDevice,
+    ID3D12CommandQueue*     _pQueue,
+    RHI::DescriptorPool*     _pPool,
+    RHI::Texture&            _outTexture)
 {
     // テクスチャが存在しないスロットにダミーを差し込む
     // シェーダー側で if(hasTexture) のような分岐なしに

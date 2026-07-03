@@ -59,40 +59,29 @@ bool Application::Init()
 
     // ─── GraphicsDevice 初期化 ───
     // DX12 の低レベル処理は全て GraphicsDevice に委譲する
-    GraphicsDevice::Desc gfxDesc;
+    /*RHI::Device::Desc gfxDesc;
     gfxDesc.hWnd        = m_hWnd;
     gfxDesc.Width       = m_Width;
     gfxDesc.Height      = m_Height;
     gfxDesc.Format      = DXGI_FORMAT_R8G8B8A8_UNORM;
     gfxDesc.DepthFormat = DXGI_FORMAT_D32_FLOAT;
-    gfxDesc.FrameCount  = 2;
+    gfxDesc.FrameCount  = 2;*/
 
-    if (!m_GraphicsDevice.Init(gfxDesc))
-    {
-        ELOG("GraphicsDevice::Init() failed.");
-        return false;
-    }
-
-    // Rendererの初期化
-    if (!m_Renderer.Init(&m_GraphicsDevice))
-    {
-        ELOG("Renderer::Init() failed");
-        return false;
-    }
+    m_GraphicsView.Init(m_hWnd, m_Width, m_Height);
 
     // SceneManagerの初期化
-    m_SceneManager.Init(&m_GraphicsDevice);
+    m_SceneManager.Init(m_GraphicsView.GetDevice());
 
     // ─── 最初のシーンを登録して即時切り替え ───
     // 遅延切り替えだが最初のシーンは即時適用する
     GameScene::Desc sceneDesc;
-    sceneDesc.ModelPath = L"C:/DX12NextPlay/DX12Framework/Assets/Model/Elinyaa/Elinyaa.fbx";
-    sceneDesc.CameraPosition = { 0.0f, 1.0f, -5.0f };
-    sceneDesc.CameraMoveSpeed = 10.0f;
-    sceneDesc.CameraRotSpeed = 0.2f;
-    sceneDesc.CameraFov = 60.0f;
-    sceneDesc.CameraNear = 0.1f;
-    sceneDesc.CameraFar = 10000.0f;
+    sceneDesc.ModelPath         = L"C:/DX12NextPlay/DX12Framework/Assets/Model/Elinyaa/Elinyaa.fbx";
+    sceneDesc.CameraPosition    = { 0.0f, 1.0f, -5.0f };
+    sceneDesc.CameraMoveSpeed   = 10.0f;
+    sceneDesc.CameraRotSpeed    = 0.2f;
+    sceneDesc.CameraFov         = 60.0f;
+    sceneDesc.CameraNear        = 0.1f;
+    sceneDesc.CameraFar         = 10000.0f;
 
     m_SceneManager.ChangeScene(std::make_unique<GameScene>(sceneDesc));
     m_SceneManager.ProcessSceneChange(); // 最初のシーンは即時切り替え
@@ -103,27 +92,27 @@ bool Application::Init()
 
     // シーン初期化中にテクスチャアップロードでキューを使うため
     // フレームインデックスを最新状態に同期する
-    m_GraphicsDevice.UpdateFrameIndex();
+    m_GraphicsView.UpdateFrameIndexAfterSceneChange();
 
-    D3D12_FEATURE_DATA_SHADER_MODEL sm = {};
-    sm.HighestShaderModel = D3D_SHADER_MODEL_6_9;   // 聞きたい上限を入れる
-    m_GraphicsDevice.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm, sizeof(sm));
+    //D3D12_FEATURE_DATA_SHADER_MODEL sm = {};
+    //sm.HighestShaderModel = D3D_SHADER_MODEL_6_9;   // 聞きたい上限を入れる
+    //m_GraphicsView.GetImpl()->Device.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm, sizeof(sm));
 
-    static const D3D_SHADER_MODEL kModels[] = {
-    D3D_SHADER_MODEL_6_9, D3D_SHADER_MODEL_6_8,
-    D3D_SHADER_MODEL_6_7, D3D_SHADER_MODEL_6_6,
-    };
+    //static const D3D_SHADER_MODEL kModels[] = {
+    //D3D_SHADER_MODEL_6_9, D3D_SHADER_MODEL_6_8,
+    //D3D_SHADER_MODEL_6_7, D3D_SHADER_MODEL_6_6,
+    //};
 
-    D3D_SHADER_MODEL highest = D3D_SHADER_MODEL_6_6;
-    for (auto req : kModels)
-    {
-        D3D12_FEATURE_DATA_SHADER_MODEL sm{ req };
-        HRESULT hr = m_GraphicsDevice.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm, sizeof(sm));
-        if (hr == E_INVALIDARG) continue;            // ランタイムがreqを知らない→下げる
-        if (SUCCEEDED(hr)) { highest = sm.HighestShaderModel; break; }
-    }
+    //D3D_SHADER_MODEL highest = D3D_SHADER_MODEL_6_6;
+    //for (auto req : kModels)
+    //{
+    //    D3D12_FEATURE_DATA_SHADER_MODEL sm{ req };
+    //    HRESULT hr = m_GraphicsView.GetImpl()->Device.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm, sizeof(sm));
+    //    if (hr == E_INVALIDARG) continue;            // ランタイムがreqを知らない→下げる
+    //    if (SUCCEEDED(hr)) { highest = sm.HighestShaderModel; break; }
+    //}
 
-    ELOG("Highest Shader Model = 0x%X", highest);
+    //ELOG("Highest Shader Model = 0x%X", highest);
 
     // 返ってきた sm.HighestShaderModel = 実際に対応してる最高値(要求値で頭打ち)
     //if (sm.HighestShaderModel >= D3D_SHADER_MODEL_6_9) {
@@ -165,16 +154,13 @@ void Application::MainLoop()
 void Application::Term()
 {
     // GPUの全処理が完了するのを待機する
-    m_GraphicsDevice.WaitForGPU();
+    m_GraphicsView.WaitForGPU();
 
     // SceneManagerを先に終了する（GPUリソースを持つので、GraphicsDeviceより前）
     m_SceneManager.Term();
 
-    // Rendererを終了する
-    m_Renderer.Term();
-
-    // GraphicsDevice は GPU 完了を待ってから解放する（内部で Fence::Sync）
-    m_GraphicsDevice.Term();
+    // RendererとDeviceの終了を内部で行う
+    m_GraphicsView.Term();
 
     TermWnd();
 }
@@ -203,15 +189,17 @@ void Application::Tick()
     m_SceneManager.Update(deltaTime);
 
     // 描画
-    auto* pCmd = m_Renderer.BeginFrame();
-    if (pCmd != nullptr)
+    auto* pCmdVoid = m_GraphicsView.BeginFrame();
+    if (pCmdVoid != nullptr)
     {
+        // SceneManagerにvoid型を渡しても使えないので、ここでだけキャストする
+        auto* pCmd = static_cast<ID3D12GraphicsCommandList*>(pCmdVoid);
         m_SceneManager.Render(pCmd);
-        m_Renderer.EndFrame(pCmd);
+        m_GraphicsView.EndFrame(pCmdVoid);
     }
 
     // 画面表示
-    m_Renderer.Present(1);
+    m_GraphicsView.Present(1);
 
     // シーン切り替え処理（遅延）
     m_SceneManager.ProcessSceneChange();
@@ -229,14 +217,14 @@ bool Application::InitWnd()
     }
 
     WNDCLASSEX wc = {};
-    wc.cbSize = sizeof(WNDCLASSEX);
-    wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = WndProc;
-    wc.hIcon = LoadIcon(hInst, IDI_APPLICATION);
-    wc.hCursor = LoadCursor(hInst, IDC_ARROW);
-    wc.hbrBackground = GetSysColorBrush(COLOR_BACKGROUND);
-    wc.lpszClassName = WindowClassName;
-    wc.hIconSm = LoadIcon(hInst, IDI_APPLICATION);
+    wc.cbSize           = sizeof(WNDCLASSEX);
+    wc.style            = CS_HREDRAW | CS_VREDRAW;
+    wc.lpfnWndProc      = WndProc;
+    wc.hIcon            = LoadIcon(hInst, IDI_APPLICATION);
+    wc.hCursor          = LoadCursor(hInst, IDC_ARROW);
+    wc.hbrBackground    = GetSysColorBrush(COLOR_BACKGROUND);
+    wc.lpszClassName    = WindowClassName;
+    wc.hIconSm          = LoadIcon(hInst, IDI_APPLICATION);
 
     if (!RegisterClassEx(&wc))
     {

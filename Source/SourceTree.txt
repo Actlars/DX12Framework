@@ -1,0 +1,172 @@
+フォルダー パスの一覧:  ボリューム Windows
+ボリューム シリアル番号は 000000EC 28A9:1C84 です
+C:.
+│  main.cpp
+│  Pch.cpp
+│  Pch.h
+│  SourceTree.txt
+│  
+├─Application
+│      Application.cpp
+│      Application.h
+│      
+├─Engine
+│  ├─Buffer
+│  │  ├─ConstantBuffer
+│  │  │      ConstantBuffer.cpp
+│  │  │      ConstantBuffer.h
+│  │  │      
+│  │  ├─IndexBuffer
+│  │  │      IndexBuffer.cpp
+│  │  │      IndexBuffer.h
+│  │  │      
+│  │  └─VertexBuffer
+│  │          VertexBuffer.cpp
+│  │          VertexBuffer.h
+│  │          
+│  ├─Camera
+│  │  │  CameraBase.cpp
+│  │  │  CameraBase.h
+│  │  │  
+│  │  └─FPSCamera
+│  │          FPSCamera.cpp
+│  │          FPSCamera.h
+│  │          
+│  ├─CommandList
+│  │      CommandList.cpp
+│  │      CommandList.h
+│  │      
+│  ├─Fence
+│  │      Fence.cpp
+│  │      Fence.h
+│  │      
+│  ├─GameObject
+│  │  │  GameObject.cpp
+│  │  │  GameObject.h
+│  │  │  GameObjectManager.cpp
+│  │  │  GameObjectManager.h
+│  │  │  IRenderable.h
+│  │  │  
+│  │  ├─Component
+│  │  │      Component.h
+│  │  │      
+│  │  └─Components
+│  │      ├─MeshComponent
+│  │      │      MeshComponent.cpp
+│  │      │      MeshComponent.h
+│  │      │      
+│  │      └─TransformComponent
+│  │              TransformComponent.cpp
+│  │              TransformComponent.h
+│  │              
+│  ├─GraphicsDevice
+│  │      GraphicsDevice.cpp
+│  │      GraphicsDevice.h
+│  │      
+│  ├─Mesh
+│  │  │  MeshResource.h
+│  │  │  ResData.h
+│  │  │  
+│  │  ├─Material
+│  │  │      Material.cpp
+│  │  │      Material.h
+│  │  │      
+│  │  ├─Mesh
+│  │  │      Mesh.cpp
+│  │  │      Mesh.h
+│  │  │      
+│  │  ├─MeshLoader
+│  │  │      MeshLoader.cpp
+│  │  │      MeshLoader.h
+│  │  │      
+│  │  └─PolygonMeshResource
+│  │          PolygonMeshResource.cpp
+│  │          PolygonMeshResource.h
+│  │          
+│  ├─Pool
+│  │  │  Pool.h
+│  │  │  TransientDescriptorAllocator.h
+│  │  │  
+│  │  └─DescriptorPool
+│  │          DescriptorPool.cpp
+│  │          DescriptorPool.h
+│  │          
+│  ├─Renderer
+│  │  │  DrawItem.h
+│  │  │  Renderer.cpp
+│  │  │  Renderer.h
+│  │  │  
+│  │  ├─RenderQueue
+│  │  │      RenderQueue.cpp
+│  │  │      RenderQueue.h
+│  │  │      
+│  │  └─ResourceStateTracker
+│  │          ResourceStateTracker.cpp
+│  │          ResourceStateTracker.h
+│  │          
+│  ├─RootSignature
+│  │  └─RootSignatureLayout
+│  │          RootSignatureLayout.cpp
+│  │          RootSignatureLayout.h
+│  │          
+│  ├─Sampler
+│  │      Sampler.cpp
+│  │      Sampler.h
+│  │      
+│  ├─Scene
+│  │  │  IScene.h
+│  │  │  
+│  │  └─SceneManager
+│  │          SceneManager.cpp
+│  │          SceneManager.h
+│  │          
+│  ├─Shader
+│  │  ├─MeshShader
+│  │  │      MeshShaderInc.hlsli
+│  │  │      MeshShaderPS.hlsl
+│  │  │      MeshShaderVS.hlsl
+│  │  │      
+│  │  └─SimpleShader
+│  │          SimpleInc.hlsli
+│  │          SimplePS.hlsl
+│  │          SimpleVS.hlsl
+│  │          
+│  ├─Target
+│  │  ├─ColorTarget
+│  │  │      ColorTarget.cpp
+│  │  │      ColorTarget.h
+│  │  │      
+│  │  └─DepthTarget
+│  │          DepthTarget.cpp
+│  │          DepthTarget.h
+│  │          
+│  ├─Texture
+│  │  │  Texture.cpp
+│  │  │  Texture.h
+│  │  │  
+│  │  └─TextureManager
+│  │          TextureManager.cpp
+│  │          TextureManager.h
+│  │          
+│  └─Utility
+│      ├─ComPtr
+│      │      ComPtr.h
+│      │      
+│      ├─Debug
+│      │  └─Logger
+│      │          Logger.cpp
+│      │          Logger.h
+│      │          
+│      ├─FileUtil
+│      │      FileUtil.cpp
+│      │      FileUtil.h
+│      │      
+│      └─InlineUtil
+│              InlineUTil.h
+│              
+└─Game
+    └─Scene
+        └─GameScene
+                GameScene.cpp
+                GameScene.h
+                

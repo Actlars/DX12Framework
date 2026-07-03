@@ -19,7 +19,7 @@ SceneManager::~SceneManager()
 // -------------------------------------------------------------------------------
 //		èâä˙âª
 // -------------------------------------------------------------------------------
-void SceneManager::Init(GraphicsDevice* _pGraphicsDevice)
+void SceneManager::Init(RHI::Device* _pGraphicsDevice)
 {
 	assert(_pGraphicsDevice);
 	m_pGraphicsDevice = _pGraphicsDevice;

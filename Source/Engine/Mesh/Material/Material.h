@@ -2,9 +2,8 @@
 
 // -------------------------------------------------------------------------------
 // Includes
-// -------------------------------------------------------------------------------
-#include <Engine/Pool/DescriptorPool/DescriptorPool.h>
-#include <Engine/Texture/Texture.h>
+#include <Engine/RHI/Resource/DescriptorHeap/DescriptorPool/DescriptorPool.h>
+#include <Engine/RHI/Resource/Texture/Texture.h>
 #include "../ResData.h"
 
 // -------------------------------------------------------------------------------
@@ -77,10 +76,10 @@ public:
 	// @retval	false	初期化に失敗
 	// -------------------------------------------------------------------------------
 	bool Init(
-		ID3D12Device*		_pDevice,
-		ID3D12CommandQueue* _pQueue,
-		DescriptorPool*		_pPool,
-		const ResMaterial&	_resMat);
+		ID3D12Device*			_pDevice,
+		ID3D12CommandQueue*		_pQueue,
+		RHI::DescriptorPool*	_pPool,
+		const ResMaterial&		_resMat);
 
 	// -------------------------------------------------------------------------------
 	// @brief	終了処理を行う
@@ -113,21 +112,21 @@ private:
 	//			テクスチャが存在しないスロットに差し込む
 	// -------------------------------------------------------------------------------
 	bool CreateDummyTexture(
-		ID3D12Device*		_pDevice,
-		ID3D12CommandQueue* _pQueue,
-		DescriptorPool*		_pPool,
-		Texture&			_outTexture);
+		ID3D12Device*			_pDevice,
+		ID3D12CommandQueue*		_pQueue,
+		RHI::DescriptorPool*	_pPool,
+		RHI::Texture&			_outTexture);
 
 	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
 	ComPtr<ID3D12Resource>		m_pCB;						// 定数バッファ
-	DescriptorHandle*			m_pCBHandle		= nullptr;	// CBVハンドル
-	DescriptorPool*				m_pPool			= nullptr;	// プール
+	RHI::DescriptorHandle*		m_pCBHandle		= nullptr;	// CBVハンドル
+	RHI::DescriptorPool*		m_pPool			= nullptr;	// プール
 	MaterialCB*					m_pMappedPtr	= nullptr;	// Map済みポインタ
 	
-	Texture		m_Textures[TEXTURE_COUNT];			// テクスチャ[4]
-	bool		m_HasTexture[TEXTURE_COUNT] = {};	// テクスチャが存在するか
+	RHI::Texture	m_Textures[TEXTURE_COUNT];			// テクスチャ[4]
+	bool			m_HasTexture[TEXTURE_COUNT] = {};	// テクスチャが存在するか
 
 
 	Material		(const Material&) = delete;

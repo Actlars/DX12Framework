@@ -5,7 +5,7 @@
 #include <Engine/GameObject/GameObject.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
 #include <Engine/Utility/Debug/Logger/Logger.h>
-#include <Engine/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
+#include <Engine/RHI/Pipeline/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
 
 // -------------------------------------------------------------------------------
@@ -24,9 +24,9 @@ MeshComponent::~MeshComponent()
 //		定数バッファの初期化
 // -------------------------------------------------------------------------------
 bool MeshComponent::Init(
-	ID3D12Device* _pDevice,
-	DescriptorPool* _pPool,
-	uint32_t _frameCount)
+	ID3D12Device*			_pDevice,
+	RHI::DescriptorPool*	_pPool,
+	uint32_t				_frameCount)
 {
 	if (_pDevice == nullptr || _pPool == nullptr || _frameCount == 0)
 	{ return false; }
@@ -35,7 +35,7 @@ bool MeshComponent::Init(
 	m_TransformCBs.reserve(_frameCount);
 	for (auto i = 0u; i < _frameCount; ++i)
 	{
-		auto cb = std::make_unique<ConstantBuffer>();
+		auto cb = std::make_unique<RHI::ConstantBuffer>();
 		if (!cb->Init(_pDevice, _pPool, sizeof(TransformCB)))
 		{
 			ELOG("MeshComponent::Init() ConstantBuffer[%u] failed", i);
@@ -102,7 +102,7 @@ void MeshComponent::SetFrameIndex(uint32_t _frameIndex)
 // -------------------------------------------------------------------------------
 //		RootSignatureLayoutを設定
 // -------------------------------------------------------------------------------
-void MeshComponent::SetRootLayout(const RootSignatureLayout* _pRootLayout)
+void MeshComponent::SetRootLayout(const RHI::RootSignatureLayout* _pRootLayout)
 {
 	if (_pRootLayout == nullptr) 
 	{ return; }

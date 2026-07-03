@@ -20,12 +20,12 @@ GameScene::GameScene(const Desc& _desc)
 // -------------------------------------------------------------------------------
 // 初期化
 // -------------------------------------------------------------------------------
-bool GameScene::OnInit(GraphicsDevice* _pGraphicsDevice)
+bool GameScene::OnInit(RHI::Device* _pDevice)
 {
-    assert(_pGraphicsDevice != nullptr);
-    m_pGraphicsDevice = _pGraphicsDevice;
+    assert(_pDevice != nullptr);
+    m_pDevice = _pDevice;
 
-    auto* pDevice = m_pGraphicsDevice->GetDevice();
+    auto* pDevice = m_pDevice->GetDevice();
 
     if (!InitRootSignature(pDevice)) { ELOG("InitRootSignature() failed."); return false; }
     if (!InitPipelineState(pDevice)) { ELOG("InitPipelineState() failed."); return false; }
@@ -57,10 +57,7 @@ void GameScene::OnTerm()
     m_Materials.clear();
     m_Meshes.clear();
 
-    m_pPSO.Reset();
-    m_pRootSignature.Reset();
-
-    m_pGraphicsDevice   = nullptr;
+    m_pDevice   = nullptr;
     m_IsInitialized     = false;
 }
 
@@ -84,35 +81,77 @@ void GameScene::OnUpdate(float _deltaTime)
 // -------------------------------------------------------------------------------
 void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
 {
-    if (_pCmd == nullptr) { return; }
+    //if (_pCmd == nullptr) { return; }
 
-    // ─── RootSignature / PSO のセット ───
-    _pCmd->SetGraphicsRootSignature(m_RootSignatureLayout.GetRootSignature());
-    _pCmd->SetPipelineState(m_pPSO.Get());
+    //// ─── RootSignature / PSO のセット ───
+    //_pCmd->SetGraphicsRootSignature(m_RootSignatureLayout.GetRootSignature());
+    //_pCmd->SetPipelineState(m_pPSO.Get());
 
-    // ─── DescriptorHeap のセット ───
-    // RES（CBV/SRV）と SMP（Sampler）の両方を設定する必要がある
-    ID3D12DescriptorHeap* heaps[] =
-    {
-        m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_RES)->GetHeap(),
-        m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_SMP)->GetHeap(),
-    };
-    _pCmd->SetDescriptorHeaps(_countof(heaps), heaps);
+    //// ─── DescriptorHeap のセット ───
+    //// RES（CBV/SRV）と SMP（Sampler）の両方を設定する必要がある
+    //ID3D12DescriptorHeap* heaps[] =
+    //{
+    //    m_pGraphicsDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap(),
+    //    m_pGraphicsDevice->GetPool(RHI::Device::POOL_TYPE_SMP)->GetHeap(),
+    //};
+    //_pCmd->SetDescriptorHeaps(_countof(heaps), heaps);
 
-    // ─── サンプラーのバインド ───
-    // サンプラーは全メッシュ共通なのでループの外でバインドする
-    _pCmd->SetGraphicsRootDescriptorTable(
-        m_RootSignatureLayout.GetSlot("Sampler"),
-        m_Sampler.GetHandleGPU());
+    //// ─── サンプラーのバインド ───
+    //// サンプラーは全メッシュ共通なのでループの外でバインドする
+    //_pCmd->SetGraphicsRootDescriptorTable(
+    //    m_RootSignatureLayout.GetSlot("Sampler"),
+    //    m_Sampler.GetHandleGPU());
 
-    // 描画用データ収集フェーズ（マルチスレッド可）
-    m_ObjectManager.Submit(&m_RenderQueue);
+    //// 描画用データ収集フェーズ（マルチスレッド可）
+    //m_ObjectManager.Submit(&m_RenderQueue);
 
-    // コマンド発行フェーズ（単一スレッド）
-    m_RenderQueue.Execute(_pCmd);
+    //// コマンド発行フェーズ（単一スレッド）
+    //m_RenderQueue.Execute(_pCmd);
 
-    // ─── フレーム末の削除処理 ───
-    m_ObjectManager.FlushPendingRemoves();
+    //// ─── フレーム末の削除処理 ───
+    //m_ObjectManager.FlushPendingRemoves();
+
+    auto* pTracker = m_pDevice->GetResourceStateTracker();
+    
+    // フレームの最初に、外部リソース（バックバッファ・DepthTarget）をグラフに取り込む
+    const auto frameIndex = m_pDevice->GetFrameIndex();
+    auto colorHandle = m_RenderGraph.ImportResource(
+        "BackBuffer", m_pDevice->GetColorTarget(frameIndex)->GetResource());
+    auto depthHandle = m_RenderGraph.ImportResource(
+        "DepthBuffer", m_pDevice->GetDepthTarget()->GetResource());
+    
+    m_RenderGraph.AddPass(
+        "MainPass",
+        // Setup : このパスが使用するリソースとステートを宣言する
+        [colorHandle, depthHandle](RG::PassBuilder& _builder)
+        {
+            _builder.Use(colorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);
+            _builder.Use(depthHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+        },
+        // Execute : 実際の描画。ここに来た時点でバリアは解決済み
+        [this](ID3D12GraphicsCommandList* cmd)
+        {
+            cmd->SetGraphicsRootSignature(m_RootSignatureLayout.GetRootSignature());
+            cmd->SetPipelineState(m_pPSO.Get());
+
+            ID3D12DescriptorHeap* heaps[] =
+            {
+                m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap(),
+                m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP)->GetHeap(),
+            };
+
+            cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+
+            cmd->SetGraphicsRootDescriptorTable(
+                m_RootSignatureLayout.GetSlot("Sampler"), m_Sampler.GetHandleGPU());
+
+            m_ObjectManager.Submit(&m_RenderQueue);
+
+            m_RenderQueue.Execute(cmd);
+
+            m_ObjectManager.FlushPendingRemoves();
+        });
+    m_RenderGraph.Execute(_pCmd, pTracker);
 }
 
 // ===============================================================================
@@ -213,8 +252,8 @@ void GameScene::InitCamera()
 
     m_Camera.SetFov(m_Desc.CameraFov);
     m_Camera.SetAspect(
-        static_cast<float>(m_pGraphicsDevice->GetWidth()) /
-        static_cast<float>(m_pGraphicsDevice->GetHeight()));
+        static_cast<float>(m_pDevice->GetWidth()) /
+        static_cast<float>(m_pDevice->GetHeight()));
     m_Camera.SetNearFar(m_Desc.CameraNear, m_Desc.CameraFar);
     m_Camera.Update();
 }
@@ -224,9 +263,9 @@ void GameScene::InitCamera()
 // -------------------------------------------------------------------------------
 bool GameScene::InitMeshes()
 {
-    auto* pDevice   = m_pGraphicsDevice->GetDevice();
-    auto* pQueue    = m_pGraphicsDevice->GetQueue();
-    auto* pPool     = m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_RES);
+    auto* pDevice   = m_pDevice->GetDevice();
+    auto* pQueue    = m_pDevice->GetQueue();
+    auto* pPool     = m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES);
 
     std::vector<ResMesh>     resMeshes;
     std::vector<ResMaterial> resMaterials;
@@ -269,10 +308,10 @@ bool GameScene::InitMeshes()
 // -------------------------------------------------------------------------------
 bool GameScene::InitSampler()
 {
-    auto* pDevice   = m_pGraphicsDevice->GetDevice();
-    auto* pSmpPool  = m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_SMP);
+    auto* pDevice   = m_pDevice->GetDevice();
+    auto* pSmpPool  = m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP);
 
-    if (!m_Sampler.Init(pDevice, pSmpPool, Sampler::CreateLinearWrap()))
+    if (!m_Sampler.Init(pDevice, pSmpPool, RHI::Sampler::CreateLinearWrap()))
     {
         ELOG("Sampler::Init() failed."); return false;
     }
@@ -285,9 +324,9 @@ bool GameScene::InitSampler()
 // -------------------------------------------------------------------------------
 bool GameScene::InitGameObjects()
 {
-    auto* pDevice   = m_pGraphicsDevice->GetDevice();
-    auto* pPool     = m_pGraphicsDevice->GetPool(GraphicsDevice::POOL_TYPE_RES);
-    const auto fc   = m_pGraphicsDevice->GetFrameCount();
+    auto* pDevice   = m_pDevice->GetDevice();
+    auto* pPool     = m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES);
+    const auto fc   = m_pDevice->GetFrameCount();
 
     // 各メッシュに対して GameObject を1つ生成する
     for (auto i = 0u; i < m_Meshes.size(); ++i)
@@ -377,7 +416,7 @@ void GameScene::UpdateInput(float _deltaTime)
 // -------------------------------------------------------------------------------
 void GameScene::UpdateViewProj()
 {
-    const auto frameIndex = m_pGraphicsDevice->GetFrameIndex();
+    const auto frameIndex = m_pDevice->GetFrameIndex();
     const auto view = m_Camera.GetView();
     const auto proj = m_Camera.GetProj();
 

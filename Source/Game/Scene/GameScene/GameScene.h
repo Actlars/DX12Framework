@@ -4,17 +4,18 @@
 // -------------------------------------------------------------------------------
 #include "Engine/Scene/IScene.h"
 #include <Engine/Camera/FPSCamera/FPSCamera.h>
-#include <Engine/Sampler/Sampler.h>
+#include <Engine/RHI/Resource/Sampler/Sampler.h>
 #include <Engine/Mesh/Mesh/Mesh.h>
 #include <Engine/Mesh/Material/Material.h>
-#include <Engine/Buffer/ConstantBuffer/ConstantBuffer.h>
+#include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
 #include <Engine/GameObject/GameObject.h>
 #include <Engine/GameObject/GameObjectManager.h>
 #include <Engine/GameObject/Components/MeshComponent/MeshComponent.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
 #include <Engine/Mesh/ResData.h>
-#include <Engine/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
+#include <Engine//RHI/Pipeline/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
+#include <Engine/Renderer/RenderGraph/RenderGraph.h>
 
 // -------------------------------------------------------------------------------
 // GameScene クラス
@@ -58,10 +59,10 @@ public:
     // -------------------------------------------------------------------------------
     // IScene インターフェースの実装
     // -------------------------------------------------------------------------------
-    bool OnInit(GraphicsDevice* _pGraphicsDevice)           override;
-    void OnTerm()                                           override;
-    void OnUpdate(float _deltaTime)                         override;
-    void OnRender(ID3D12GraphicsCommandList* _pCmd)         override;
+    bool OnInit(RHI::Device* _pDevice)                  override;
+    void OnTerm()                                       override;
+    void OnUpdate(float _deltaTime)                     override;
+    void OnRender(ID3D12GraphicsCommandList* _pCmd)     override;
 
 private:
 
@@ -86,39 +87,34 @@ private:
     void UpdateViewProj();      // 全 MeshComponent にカメラ行列を渡す
 
     // -------------------------------------------------------------------------------
-    // RootParameter スロット番号（RootSignature と対応）
-    // -------------------------------------------------------------------------------
-    static constexpr uint32_t ROOT_PARAM_CBV_TRANSFORM  = 0; // b0: 変換行列（VS）
-    static constexpr uint32_t ROOT_PARAM_CBV_MATERIAL   = 1; // b1: マテリアル（PS）
-    static constexpr uint32_t ROOT_PARAM_SRV_DIFFUSE    = 2; // t0: ディフューズ（PS）
-    static constexpr uint32_t ROOT_PARAM_SMP            = 3; // s0: サンプラー（PS）
-
-    // -------------------------------------------------------------------------------
     // private variables
     // -------------------------------------------------------------------------------
     Desc                m_Desc;
 
-    // カメラ 
-    FPSCamera           m_Camera;
-
     // サンプラー
-    Sampler             m_Sampler;
+    RHI::Sampler        m_Sampler;
 
     // GPU リソース（GameObjectManager の MeshComponent が参照する）
     std::vector<std::unique_ptr<Mesh>>      m_Meshes;
     std::vector<std::unique_ptr<Material>>  m_Materials;
 
-    // GameObject 管理
-    GameObjectManager   m_ObjectManager;
-
     // 描画管理
     RenderQueue         m_RenderQueue;
 
     // JSONから構築されたRootSignature + スロット対応表
-    RootSignatureLayout m_RootSignatureLayout;
+    RHI::RootSignatureLayout m_RootSignatureLayout;
 
     // MeshComponent への参照（UpdateViewProj() で使う）
     // GameObjectManager から毎回 GetComponent() するのではなく
     // 初期化時にキャッシュしておく
     std::vector<MeshComponent*>     m_MeshComponents;
+
+    // レンダーグラフ
+    RG::RenderGraph     m_RenderGraph;
+
+    // カメラ 
+    FPSCamera           m_Camera;
+
+    // GameObject 管理
+    GameObjectManager   m_ObjectManager;
 };

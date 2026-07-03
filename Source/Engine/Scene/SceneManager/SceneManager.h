@@ -3,7 +3,7 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include <Engine/Scene/IScene.h>
-#include "Engine/GraphicsDevice/GraphicsDevice.h"
+#include <Engine/RHI/Core/Device/Device.h>
 
 // -------------------------------------------------------------------------------
 // SceneManager class
@@ -58,7 +58,7 @@ public:
 	// 
 	// @param[in]	_pGraphicsDevice	GraphicsDeviceへのポインタ
 	// -------------------------------------------------------------------------------
-	void Init(GraphicsDevice* _pGrahicsDevice);
+	void Init(RHI::Device* _pGrahicsDevice);
 
 	// -------------------------------------------------------------------------------
 	// @brief	終了処理	現在のシーンを終了させて解放する
@@ -111,7 +111,7 @@ private:
 	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
-	GraphicsDevice*			m_pGraphicsDevice = nullptr;	// 所有権なし
+	RHI::Device*			m_pGraphicsDevice = nullptr;	// 所有権なし
 	std::unique_ptr<IScene> m_pCurrentScene;				// 現在のシーン
 	std::unique_ptr<IScene> m_pNextScene;					// 予約済みの次のシーン
 
