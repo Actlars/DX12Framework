@@ -28,21 +28,21 @@ bool Renderer::Init(RHI::Device* _pGraphicsDevice)
 		return false;
 	}
 
-	m_pGraphicsDevice = _pGraphicsDevice;
+	m_pDevice = _pGraphicsDevice;
 
 	// ビューポートの設定
 	m_ViewPort.TopLeftX = 0.0f;
 	m_ViewPort.TopLeftY = 0.0f;
-	m_ViewPort.Width	= static_cast<float>(m_pGraphicsDevice->GetWidth());
-	m_ViewPort.Height	= static_cast<float>(m_pGraphicsDevice->GetHeight());
+	m_ViewPort.Width	= static_cast<float>(m_pDevice->GetWidth());
+	m_ViewPort.Height	= static_cast<float>(m_pDevice->GetHeight());
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
 
 	// シザー矩形の設定
 	m_Scissor.left		= 0.0f;
 	m_Scissor.top		= 0.0f;
-	m_Scissor.right		= static_cast<LONG>(m_pGraphicsDevice->GetWidth());
-	m_Scissor.bottom	= static_cast<LONG>(m_pGraphicsDevice->GetHeight());
+	m_Scissor.right		= static_cast<LONG>(m_pDevice->GetWidth());
+	m_Scissor.bottom	= static_cast<LONG>(m_pDevice->GetHeight());
 
 	return true;
 }
@@ -52,7 +52,7 @@ bool Renderer::Init(RHI::Device* _pGraphicsDevice)
 // -------------------------------------------------------------------------------
 void Renderer::Term()
 {
-	m_pGraphicsDevice	= nullptr;
+	m_pDevice	= nullptr;
 }
 
 // -------------------------------------------------------------------------------
@@ -60,14 +60,14 @@ void Renderer::Term()
 // -------------------------------------------------------------------------------
 ID3D12GraphicsCommandList* Renderer::BeginFrame()
 {
-	if (m_pGraphicsDevice == nullptr) 
+	if (m_pDevice == nullptr) 
 	{ return nullptr; }
 
 	// 現在のフレームインデックスを取得
-	const auto frameIndex = m_pGraphicsDevice->GetFrameIndex();
+	const auto frameIndex = m_pDevice->GetFrameIndex();
 
 	// コマンドリストのリセット（Fenceを渡して、必要な時だけ待機させる）
-	auto* pCmd = m_pGraphicsDevice->GetCommandList()->Reset(m_pGraphicsDevice->GetFence());
+	auto* pCmd = m_pDevice->GetCommandList()->Reset(m_pDevice->GetFence());
 	if (pCmd == nullptr)
 	{
 		ELOG("Renderer::BeginFrame() CommandList::Reset failed");
@@ -75,7 +75,7 @@ ID3D12GraphicsCommandList* Renderer::BeginFrame()
 	}
 
 	//// バックバッファを描画先に切り替えるバリア
-	//auto* pTarget = m_pGraphicsDevice->GetColorTarget(frameIndex)->GetResource();
+	//auto* pTarget = m_pDevice->GetColorTarget(frameIndex)->GetResource();
 	//D3D12_RESOURCE_BARRIER barrier = {};
 	//barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	//barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -85,15 +85,15 @@ ID3D12GraphicsCommandList* Renderer::BeginFrame()
 	//barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	//pCmd->ResourceBarrier(1, &barrier);
 
-	auto* pTarget = m_pGraphicsDevice->GetColorTarget(frameIndex)->GetResource();
+	auto* pTarget = m_pDevice->GetColorTarget(frameIndex)->GetResource();
 	// 手動バリア構築の代わりにトラッカーへ移譲
-	auto* pTracker = m_pGraphicsDevice->GetResourceStateTracker();
+	auto* pTracker = m_pDevice->GetResourceStateTracker();
 	pTracker->TransitionResource(pTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	pTracker->FlushBarriers(pCmd);
 
 	// レンダーターゲットと深度バッファのクリア
-	auto handleRTV = m_pGraphicsDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
-	auto handleDSV = m_pGraphicsDevice->GetDepthTarget()->GetHandleDSV()->HandleCPU;
+	auto handleRTV = m_pDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
+	auto handleDSV = m_pDevice->GetDepthTarget()->GetHandleDSV()->HandleCPU;
 
 	pCmd->ClearRenderTargetView(handleRTV, CLEAR_COLOR, 0, nullptr);
 	pCmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
@@ -113,15 +113,15 @@ ID3D12GraphicsCommandList* Renderer::BeginFrame()
 // -------------------------------------------------------------------------------
 void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 {
-	if (_pCmd == nullptr || m_pGraphicsDevice == nullptr)
+	if (_pCmd == nullptr || m_pDevice == nullptr)
 	{
 		return;
 	}
 
-	const auto frameIndex = m_pGraphicsDevice->GetFrameIndex();
+	const auto frameIndex = m_pDevice->GetFrameIndex();
 
 	// バックバッファを表示用に切り替えるバリア
-	auto* pTarget = m_pGraphicsDevice->GetColorTarget(frameIndex)->GetResource();
+	auto* pTarget = m_pDevice->GetColorTarget(frameIndex)->GetResource();
 	/*D3D12_RESOURCE_BARRIER barrier = {};
 	barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -131,7 +131,7 @@ void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 	barrier.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	_pCmd->ResourceBarrier(1, &barrier);*/
 
-	auto* pTracker = m_pGraphicsDevice->GetResourceStateTracker();
+	auto* pTracker = m_pDevice->GetResourceStateTracker();
 	pTracker->TransitionResource(pTarget, D3D12_RESOURCE_STATE_PRESENT);
 	pTracker->FlushBarriers(_pCmd);
 
@@ -139,12 +139,12 @@ void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 	_pCmd->Close();
 
 	ID3D12CommandList* ppLists[] = { _pCmd };
-	m_pGraphicsDevice->GetQueue()->ExecuteCommandLists(1, ppLists);
+	m_pDevice->GetQueue()->ExecuteCommandLists(1, ppLists);
 
 	// 実行直後にSignalを発行して（待たない）
 	// 今使ったアロケータの完了フェンス値として記録する
-	auto value = m_pGraphicsDevice->GetFence()->Signal(m_pGraphicsDevice->GetQueue());
-	m_pGraphicsDevice->GetCommandList()->RecordFenceValue(value);
+	auto value = m_pDevice->GetFence()->Signal(m_pDevice->GetQueue());
+	m_pDevice->GetCommandList()->RecordFenceValue(value);
 
 	_pCmd = nullptr;
 }
@@ -154,11 +154,11 @@ void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 // -------------------------------------------------------------------------------
 void Renderer::Present(uint32_t _syncInterval)
 {
-	if (m_pGraphicsDevice == nullptr) 
+	if (m_pDevice == nullptr) 
 	{ return; }
 
 	// バックバッファを画面に表示
-	m_pGraphicsDevice->GetSwapChain()->Present(_syncInterval, 0);
+	m_pDevice->GetSwapChain()->Present(_syncInterval, 0);
 
 	// フレームインデックスを更新する
 	// スワップチェインが管理するバックバッファ番号に合わせる
@@ -166,7 +166,8 @@ void Renderer::Present(uint32_t _syncInterval)
 	//   ここでは直接変更できない。GraphicsDevice に UpdateFrameIndex() を追加するか、
 	//   Present 後に GetCurrentBackBufferIndex() を呼ぶ必要がある。
 	// 現状は GraphicsDevice::Present() を分離したので GraphicsDevice 側で管理する。
-	m_pGraphicsDevice->UpdateFrameIndex();
+	m_pDevice->UpdateFrameIndex();
+	m_pDevice->GetTransientResourcePool()->ReleaseAll();
 }
 
 // -------------------------------------------------------------------------------
@@ -174,8 +175,8 @@ void Renderer::Present(uint32_t _syncInterval)
 // -------------------------------------------------------------------------------
 uint32_t Renderer::GetFrameIndex() const
 {
-	if (m_pGraphicsDevice == nullptr) 
+	if (m_pDevice == nullptr) 
 	{ return 0; }
 
-	return m_pGraphicsDevice->GetFrameIndex();
+	return m_pDevice->GetFrameIndex();
 }

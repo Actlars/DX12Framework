@@ -7,6 +7,11 @@
 namespace RG
 {
 	// -------------------------------------------------------------------------------
+	// 前方宣言
+	// -------------------------------------------------------------------------------
+	class ResourceRegistry;
+
+	// -------------------------------------------------------------------------------
 	// RenderPass
 	// 
 	// 概要 : 
@@ -20,7 +25,7 @@ namespace RG
 		std::function<void(PassBuilder&)> Setup;
 
 		// 実際の描画コマンドを積むフェーズ。バリアはRenderGraphが解決済みの状態で呼ばれる
-		std::function<void(ID3D12GraphicsCommandList*)> Execute;
+		std::function<void(ID3D12GraphicsCommandList*, const ResourceRegistry&)> Execute;
 	};
 
 }

@@ -9,6 +9,8 @@
 #include <Engine/RHI/Core/CommandList/CommandList.h>
 #include <Engine/RHI/Core/Fence/Fence.h>
 #include <Engine/RHI/Resource/ResourceStateTracker/ResourceStateTracker.h>
+#include <Engine/RHI/Resource/Texture/TransientResourcePool/TransientResourcePool.h>
+#include <Engine/RHI/Pipeline/PipelineState/PipelineStateCache/PipelineStateCache.h>
 
 namespace RHI
 {
@@ -138,6 +140,8 @@ namespace RHI
 		RHI::CommandList*			GetCommandList();
 		RHI::Fence*					GetFence();
 		RHI::ResourceStateTracker*	GetResourceStateTracker();
+		RHI::TransientResourcePool* GetTransientResourcePool();
+		RHI::PipelineCache*			GetPipelineCache();
 		RHI::DescriptorPool*		GetPool(POOL_TYPE _type)		const;
 		RHI::ColorTarget*			GetColorTarget(uint32_t _index)	const;
 		RHI::DepthTarget*			GetDepthTarget()				const;
@@ -159,6 +163,7 @@ namespace RHI
 		bool InitDepthTarget();
 		bool InitCommandList();
 		bool InitFence();
+		bool InitTransientResourcePool();
 
 		// -------------------------------------------------------------------------------
 		// private variables
@@ -174,6 +179,8 @@ namespace RHI
 		RHI::CommandList							m_CommandList;
 		RHI::Fence									m_Fence;
 		RHI::ResourceStateTracker					m_ResourceStateTracker;
+		RHI::TransientResourcePool					m_TransientResourcePool;
+		RHI::PipelineCache							m_PipelineCache;
 
 		uint32_t					m_FrameIndex = 0;
 

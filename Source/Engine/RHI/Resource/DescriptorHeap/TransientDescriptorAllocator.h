@@ -31,10 +31,10 @@ namespace RHI
 		bool Init(ID3D12Device* _pDevice, D3D12_DESCRIPTOR_HEAP_TYPE _type, uint32_t _capacity)
 		{
 			D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-			desc.Type = _type;
+			desc.Type			= _type;
 			desc.NumDescriptors = _capacity;
-			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-			desc.NodeMask = 0;
+			desc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+			desc.NodeMask		= 0;
 
 			auto hr = _pDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pHeap.GetAddressOf()));
 			if (FAILED(hr)) { return false; }
@@ -83,8 +83,8 @@ namespace RHI
 
 	private:
 		ComPtr<ID3D12DescriptorHeap> m_pHeap;
-		uint32_t m_DescriptorSize = 0;
-		uint32_t m_Capacity = 0;
-		uint32_t m_CurrentOffset = 0;
+		uint32_t m_DescriptorSize	= 0;
+		uint32_t m_Capacity			= 0;
+		uint32_t m_CurrentOffset	= 0;
 	};
 }

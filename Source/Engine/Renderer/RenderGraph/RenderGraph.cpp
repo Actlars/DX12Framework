@@ -10,7 +10,10 @@ RG::Handle RG::RenderGraph::ImportResource(const std::string& _name, ID3D12Resou
 // -------------------------------------------------------------------------------
 //		パスを登録する
 // -------------------------------------------------------------------------------
-void RG::RenderGraph::AddPass(const std::string& _name, std::function<void(PassBuilder&)> _setup, std::function<void(ID3D12GraphicsCommandList*)> _execute)
+void RG::RenderGraph::AddPass(
+	const std::string& _name, 
+	std::function<void(PassBuilder&)> _setup,
+	std::function<void(ID3D12GraphicsCommandList*, const ResourceRegistry&)> _execute)
 {
 	RenderPass pass;
 	pass.Name		= _name;
@@ -42,12 +45,17 @@ void RG::RenderGraph::Execute(ID3D12GraphicsCommandList* _pCmd, RHI::ResourceSta
 					pass.Name.c_str(), m_ResourceRegistry.GetName(usage.resourceHandle).c_str());
 				continue;
 			}
+
+			// Transientリソースは生成直後、まだトラッカーに登録されていない可能性がある
+			// 未登録なら、生成時の既知の初期ステート（RENDER_TARGET）として登録してから遷移させる
+			_pTracker->RegisterResourceIfNeeded(pResource, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			_pTracker->TransitionResource(pResource, usage.requiredState);
 		}
 		_pTracker->FlushBarriers(_pCmd);
 
 		// Executeフェーズ : 実際の描画コマンドを積む
-		if (pass.Execute) { pass.Execute(_pCmd); }
+		// パスの中からGetRTV/GetSRVでハンドルを引ける
+		if (pass.Execute) { pass.Execute(_pCmd, m_ResourceRegistry); }
 	}
 
 	// フレーム末にクリアし、次フレームは新規に組み立てなおす

@@ -12,4 +12,18 @@ namespace RG
 
 	using	Handle = uint32_t;
 	constexpr	Handle InvalidHandle = UINT32_MAX;
+
+	// -------------------------------------------------------------------------------
+	// TransientResourceDesc
+	// 
+	// 概要 : 
+	//	パスがCreateTransientで生成を要求する際に渡すリソースの仕様
+	// -------------------------------------------------------------------------------
+	struct TransientResourceDesc
+	{
+		uint32_t	Width			= 0;
+		uint32_t	Height			= 0;
+		DXGI_FORMAT	Format			= DXGI_FORMAT_R8G8B8A8_UNORM;
+		float		ClearColor[4]	= { 0.0f,0.0f,0.0f,0.0f };
+	};
 }

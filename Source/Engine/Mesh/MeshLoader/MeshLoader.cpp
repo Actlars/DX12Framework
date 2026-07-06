@@ -6,7 +6,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-
+#include <Engine/Utility/StringUtil/StringUtil.h>
 #include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
@@ -39,39 +39,6 @@ const D3D12_INPUT_LAYOUT_DESC ResMeshVertex::InputLayout =
 #undef VERTEX
 
 namespace {
-	// -------------------------------------------------------------------------------
-	// wchar_t → UTF-8変換
-	// AssimpのReadFileはchar*(UTF-8)を要求するため
-	// -------------------------------------------------------------------------------
-	std::string ToUTF8(const std::wstring& _value)
-	{
-		const int len = WideCharToMultiByte(
-			CP_UTF8, 0, _value.data(), -1,
-			nullptr, 0, nullptr, nullptr);
-
-		std::string result(len, '\0');
-		WideCharToMultiByte(
-			CP_UTF8, 0, _value.data(), -1,
-			result.data(), len, nullptr, nullptr);
-
-		return result;
-	}
-
-	// -------------------------------------------------------------------------------
-	// char*(UTF-8) → wstring変換
-	// テクスチャパスをwstringで保持するために使う
-	// -------------------------------------------------------------------------------
-	std::wstring ToWString(const char* _value)
-	{
-		const int len = MultiByteToWideChar(
-			CP_UTF8, 0, _value, -1, nullptr, 0);
-
-		std::wstring result(len, L'\0');
-		MultiByteToWideChar(
-			CP_UTF8, 0, _value, -1, result.data(), len);
-
-		return result;
-	}
 
 	// -------------------------------------------------------------------------------
 	// aiMesh → ResMesh変換
@@ -242,7 +209,7 @@ namespace {
 					}
 
 					// 区切り文字を'/'に正規化
-					std::wstring rel = ToWString(raw.C_Str());
+					std::wstring rel = StringUtil::ToWString(raw.C_Str());
 					for (auto& c : rel) { if (c == L'\\') { c = '/'; } }
 					std::filesystem::path p(rel);
 
@@ -312,7 +279,7 @@ bool MeshLoader::Load(
 		|	aiProcess_OptimizeMeshes			// メッシュを最小化
 		|	aiProcess_JoinIdenticalVertices;	// 重複頂点をマージしてインデックスを最適化
 	
-	const auto* pScene = importer.ReadFile(ToUTF8(_path), flags);
+	const auto* pScene = importer.ReadFile(StringUtil::ToUTF8(_path), flags);
 	if (pScene == nullptr)
 	{
 		ELOG("MeshLoader::Load() Assimp error : %s", importer.GetErrorString());

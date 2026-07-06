@@ -178,6 +178,21 @@
     <Filter Include="ソース ファイル\Engine\Renderer\RenderGraph">
       <UniqueIdentifier>{e8a92595-8452-489f-9652-e3fc4e204f8c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\RHI\Resource\Texture\TransientResourcePool">
+      <UniqueIdentifier>{d4d22d09-0cea-4e64-9a4d-3d9db8ae7ee4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\RHI\Pipeline\PipelineState">
+      <UniqueIdentifier>{420c6a73-6d4b-4c61-806a-41d5fdb9d978}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\RHI\Pipeline\PipelineState\PipelineStateCache">
+      <UniqueIdentifier>{0ad54d57-bb0d-4555-bbf7-f811e0e4a156}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Utility\StringUtil">
+      <UniqueIdentifier>{d6584887-a20f-4403-b92f-25f4371eec45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Shader\PostProcessShader">
+      <UniqueIdentifier>{cb99ec4a-8757-49c7-b509-2763b5a3b46f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -324,6 +339,21 @@
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGTypes.h">
       <Filter>ソース ファイル\Engine\Renderer\RenderGraph</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\RHI\Resource\Texture\TransientResourcePool\TransientResourcePool.h">
+      <Filter>ソース ファイル\Engine\RHI\Resource\Texture\TransientResourcePool</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStateDesc.h">
+      <Filter>ソース ファイル\Engine\RHI\Pipeline\PipelineState</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStateCache\PipelineStateCache.h">
+      <Filter>ソース ファイル\Engine\RHI\Pipeline\PipelineState\PipelineStateCache</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineState.h">
+      <Filter>ソース ファイル\Engine\RHI\Pipeline\PipelineState</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\StringUtil\StringUtil.h">
+      <Filter>ソース ファイル\Engine\Utility\StringUtil</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp">
@@ -434,6 +464,15 @@
     <ClCompile Include="Source\Engine\Renderer\RenderGraph\RGResourceRegistry.cpp">
       <Filter>ソース ファイル\Engine\Renderer\RenderGraph</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\RHI\Resource\Texture\TransientResourcePool\TransientResourcePool.cpp">
+      <Filter>ソース ファイル\Engine\RHI\Resource\Texture\TransientResourcePool</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineState.cpp">
+      <Filter>ソース ファイル\Engine\RHI\Pipeline\PipelineState</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\StringUtil\StringUtil.cpp">
+      <Filter>ソース ファイル\Engine\Utility\StringUtil</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli">
@@ -455,6 +494,18 @@
     </FxCompile>
     <FxCompile Include="Source\Engine\Shader\SimpleShader\SimpleVS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\PostProcessShader\FullScreenVS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\PostProcessShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\PostProcessShader\BloomExtractPS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\PostProcessShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\PostProcessShader\BloomCompositePS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\PostProcessShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\PostProcessShader\BloomBlurPS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\PostProcessShader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

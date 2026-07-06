@@ -28,6 +28,21 @@ void RHI::ResourceStateTracker::RegisterResource(ID3D12Resource* _pResource, D3D
 }
 
 // -------------------------------------------------------------------------------
+//		未登録の場合のみ初期ステートを登録
+// -------------------------------------------------------------------------------
+void RHI::ResourceStateTracker::RegisterResourceIfNeeded(ID3D12Resource* _pResource, D3D12_RESOURCE_STATES _initialState)
+{
+	if (_pResource == nullptr) 
+	{ return; }
+
+	std::lock_guard<std::mutex> lock(m_Mutex);
+	if (m_ResourceStates.find(_pResource) == m_ResourceStates.end())
+	{
+		m_ResourceStates[_pResource] = _initialState;
+	}
+}
+
+// -------------------------------------------------------------------------------
 //		リソースを新しいステートに遷移させる要求を行う
 // -------------------------------------------------------------------------------
 void RHI::ResourceStateTracker::TransitionResource(ID3D12Resource* _pResource, D3D12_RESOURCE_STATES _newState, UINT _subResource)

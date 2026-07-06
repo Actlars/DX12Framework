@@ -26,14 +26,15 @@ bool RHI::Device::Init(const Desc& _desc)
 
 	// 各サブシステムを順番に初期化
 	// 失敗した時点で終了処理を呼んで安全に抜ける
-	if (!InitDevice())			{ Term(); return false; }
-	if (!InitCommandQueue())	{ Term(); return false; }
-	if (!InitSwapChain())		{ Term(); return false; }
-	if (!InitDescriptorPools()) { Term(); return false; }
-	if (!InitColorTargets())	{ Term(); return false; }
-	if (!InitDepthTarget())		{ Term(); return false; }
-	if (!InitCommandList())		{ Term(); return false; }
-	if (!InitFence())			{ Term(); return false; }
+	if (!InitDevice())					{ Term(); return false; }
+	if (!InitCommandQueue())			{ Term(); return false; }
+	if (!InitSwapChain())				{ Term(); return false; }
+	if (!InitDescriptorPools())			{ Term(); return false; }
+	if (!InitColorTargets())			{ Term(); return false; }
+	if (!InitDepthTarget())				{ Term(); return false; }
+	if (!InitCommandList())				{ Term(); return false; }
+	if (!InitFence())					{ Term(); return false; }
+	if (!InitTransientResourcePool())	{ Term(); return false; }
 
 	return true;
 }
@@ -88,6 +89,8 @@ IDXGISwapChain3*			RHI::Device::GetSwapChain()				const { return m_pSwapChain.Ge
 RHI::CommandList*			RHI::Device::GetCommandList()				  { return &m_CommandList; }
 RHI::Fence*					RHI::Device::GetFence() 					  { return &m_Fence; }
 RHI::ResourceStateTracker*	RHI::Device::GetResourceStateTracker()		  { return &m_ResourceStateTracker; }
+RHI::TransientResourcePool* RHI::Device::GetTransientResourcePool()		  { return &m_TransientResourcePool; }
+RHI::PipelineCache*			RHI::Device::GetPipelineCache()				  { return &m_PipelineCache; }
 RHI::DescriptorPool*		RHI::Device::GetPool(POOL_TYPE _type)	const { return m_pPool[_type]; }
 RHI::DepthTarget*			RHI::Device::GetDepthTarget()			const { return const_cast<RHI::DepthTarget*>(&m_DepthTarget); }
 uint32_t					RHI::Device::GetFrameIndex()			const { return m_FrameIndex; }
@@ -351,6 +354,16 @@ bool RHI::Device::InitCommandList()
 bool RHI::Device::InitFence()
 {
 	if (!m_Fence.Init(m_pDevice.Get()))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool RHI::Device::InitTransientResourcePool()
+{
+	if (!m_TransientResourcePool.Init(m_pDevice.Get()))
 	{
 		return false;
 	}

@@ -1,0 +1,9 @@
+{
+  "VS": "FullScreenVS.cso",
+  "PS": "BloomBlurPS.cso",
+  "CullMode": "NONE",
+  "DepthEnable": false,
+  "BlendEnable": false,
+  "RTVFormat": "R16G16B16A16_FLOAT",
+  "DSVFormat": "UNKNOWN"
+}

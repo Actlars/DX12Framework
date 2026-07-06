@@ -1,0 +1,9 @@
+{
+  "vs": "FullScreenVS.cso",
+  "ps": "BloomExtractPS.cso",
+  "cullMode": "NONE",
+  "depthEnable": false,
+  "blendEnable": false,
+  "rtvFormat": "R16G16B16A16_FLOAT",
+  "dsvFormat": "UNKNOWN"
+}

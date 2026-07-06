@@ -31,7 +31,7 @@ namespace RG
 		void AddPass(
 			const std::string& _name,
 			std::function<void(PassBuilder&)> _setup,
-			std::function<void(ID3D12GraphicsCommandList*)> _execute);
+			std::function<void(ID3D12GraphicsCommandList*, const ResourceRegistry&)> _execute);
 
 		// -------------------------------------------------------------------------------
 		// @brief	登録されたパスを順番に実行する
@@ -41,6 +41,9 @@ namespace RG
 		// @param[in]	_pTracker	リソースステート管理者（Deviceが持つもの）
 		// -------------------------------------------------------------------------------
 		void Execute(ID3D12GraphicsCommandList* _pCmd, RHI::ResourceStateTracker* _pTracker);
+
+
+		ResourceRegistry& GetRegistry() { return m_ResourceRegistry; }
 
 	private:
 

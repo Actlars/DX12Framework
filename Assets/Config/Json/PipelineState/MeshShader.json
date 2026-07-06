@@ -1,0 +1,13 @@
+{
+  "VS": "MeshShaderVS.cso",
+  "PS": "MeshShaderPS.cso",
+  "CullMode": "BACK",
+  "FillMode": "SOLID",
+  "DepthEnable": true,
+  "DepthWriteMask": "ALL",
+  "DepthFunc": "LESS_EQUAL",
+  "BlendEnable": false,
+  "RTVFormat": "R8G8B8A8_UNORM",
+  "DSVFormat": "D32_FLOAT",
+  "PrimitiveTopologyType": "TRIANGLE"
+}

@@ -207,6 +207,9 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\RHI\Core\CommandList\CommandList.h" />
     <ClInclude Include="Source\Engine\RHI\Core\Device\Device.h" />
     <ClInclude Include="Source\Engine\RHI\Core\Fence\Fence.h" />
+    <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineState.h" />
+    <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStateCache\PipelineStateCache.h" />
+    <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStateDesc.h" />
     <ClInclude Include="Source\Engine\RHI\Pipeline\RootSignature\RootSignatureLayout\RootSignatureLayout.h" />
     <ClInclude Include="Source\Engine\RHI\Resource\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\RHI\Resource\Buffer\IndexBuffer\IndexBuffer.h" />
@@ -220,12 +223,14 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\RHI\Resource\Target\DepthTarget\DepthTarget.h" />
     <ClInclude Include="Source\Engine\RHI\Resource\Texture\Texture.h" />
     <ClInclude Include="Source\Engine\RHI\Resource\Texture\TextureManager\TextureManager.h" />
+    <ClInclude Include="Source\Engine\RHI\Resource\Texture\TransientResourcePool\TransientResourcePool.h" />
     <ClInclude Include="Source\Engine\Scene\IScene.h" />
     <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h" />
     <ClInclude Include="Source\Engine\Utility\ComPtr\ComPtr.h" />
     <ClInclude Include="Source\Engine\Utility\Debug\Logger\Logger.h" />
     <ClInclude Include="Source\Engine\Utility\FileUtil\FileUtil.h" />
     <ClInclude Include="Source\Engine\Utility\InlineUtil\InlineUTil.h" />
+    <ClInclude Include="Source\Engine\Utility\StringUtil\StringUtil.h" />
     <ClInclude Include="Source\Game\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Source\Pch.h" />
   </ItemGroup>
@@ -249,6 +254,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\RHI\Core\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\Engine\RHI\Core\Device\Device.cpp" />
     <ClCompile Include="Source\Engine\RHI\Core\Fence\Fence.cpp" />
+    <ClCompile Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineState.cpp" />
     <ClCompile Include="Source\Engine\RHI\Pipeline\RootSignature\RootSignatureLayout\RootSignatureLayout.cpp" />
     <ClCompile Include="Source\Engine\RHI\Resource\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Engine\RHI\Resource\Buffer\IndexBuffer\IndexBuffer.cpp" />
@@ -260,9 +266,11 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\RHI\Resource\Target\DepthTarget\DepthTarget.cpp" />
     <ClCompile Include="Source\Engine\RHI\Resource\Texture\Texture.cpp" />
     <ClCompile Include="Source\Engine\RHI\Resource\Texture\TextureManager\TextureManager.cpp" />
+    <ClCompile Include="Source\Engine\RHI\Resource\Texture\TransientResourcePool\TransientResourcePool.cpp" />
     <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Source\Engine\Utility\Debug\Logger\Logger.cpp" />
     <ClCompile Include="Source\Engine\Utility\FileUtil\FileUtil.cpp" />
+    <ClCompile Include="Source\Engine\Utility\StringUtil\StringUtil.cpp" />
     <ClCompile Include="Source\Game\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Pch.cpp">
@@ -297,6 +305,30 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">6.8</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.8</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\PostProcessShader\BloomBlurPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\PostProcessShader\BloomCompositePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\PostProcessShader\BloomExtractPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\PostProcessShader\FullScreenVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Source\Engine\Shader\SimpleShader\SimplePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

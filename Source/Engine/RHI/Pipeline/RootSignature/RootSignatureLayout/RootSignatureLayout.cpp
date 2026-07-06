@@ -28,7 +28,7 @@ namespace
 		D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 		for (auto& n : _names)
 		{
-			if (n == "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT")			{ flags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;	}
+			if		(n == "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT")		{ flags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;	}
 			else if (n == "DENY_VERTEX_SHADER_ROOT_ACCESS")			{ flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_VERTEX_SHADER_ROOT_ACCESS;		}
 			else if (n == "DENY_PIXEL_SHADER_ROOT_ACCESS")			{ flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;			}
 			else if (n == "DENY_GEOMETRY_SHADER_ROOT_ACCESS")		{ flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;		}
@@ -41,6 +41,25 @@ namespace
 			else { ELOG("RootSignatureLayout::ToFlags : unknown flag string : %s", n.c_str()); }
 		}
 		return flags;
+	}
+
+	D3D12_FILTER ToFilter(const std::string& _s)
+	{
+		if (_s == "POINT")			{ return D3D12_FILTER_MIN_MAG_MIP_POINT; }
+		if (_s == "LINEAR")			{ return D3D12_FILTER_MIN_MAG_MIP_LINEAR; }
+		if (_s == "ANISOTROPIC")	{ return D3D12_FILTER_ANISOTROPIC; }
+		ELOG("RootSignatureLayout::ToFilter : unknown value : %s", _s.c_str());
+		return D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	}
+
+	D3D12_TEXTURE_ADDRESS_MODE ToAddressMode(const std::string& _s)
+	{
+		if (_s == "WRAP")	{ return D3D12_TEXTURE_ADDRESS_MODE_WRAP; }
+		if (_s == "CLAMP")	{ return D3D12_TEXTURE_ADDRESS_MODE_CLAMP; }
+		if (_s == "MIRROR") { return D3D12_TEXTURE_ADDRESS_MODE_MIRROR; }
+		if (_s == "BORDER") { return D3D12_TEXTURE_ADDRESS_MODE_BORDER; }
+		ELOG("RootSignatureLayout::ToAddressMode : unknon value : %s", _s.c_str());
+		return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	}
 }
 
@@ -133,10 +152,37 @@ bool RHI::RootSignatureLayout::LoadFromJson(ID3D12Device * _pDevice, const std::
 		m_SlotMap[name] = static_cast<uint32_t>(i);	// 配列の並び順 = スロット番号
 	}
 
+	// Sampler設定
+	std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers;
+
+	if (json.contains("StaticSamplers"))
+	{
+		for (const auto& s : json.at("StaticSamplers"))
+		{
+			D3D12_STATIC_SAMPLER_DESC sampleDesc = {};
+			sampleDesc.Filter			= ToFilter(s.value("Filter", std::string("LINEAR")));
+			sampleDesc.AddressU			= ToAddressMode(s.value("AddressMode", std::string("WRAP")));
+			sampleDesc.AddressV			= sampleDesc.AddressU;
+			sampleDesc.AddressW			= sampleDesc.AddressU;
+			sampleDesc.MipLODBias		= 0.0f;
+			sampleDesc.MaxAnisotropy	= 16;
+			sampleDesc.ComparisonFunc	= D3D12_COMPARISON_FUNC_NEVER;
+			sampleDesc.BorderColor		= D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+			sampleDesc.MinLOD			= 0.0f;
+			sampleDesc.MaxLOD			= D3D12_FLOAT32_MAX;
+			sampleDesc.ShaderRegister	= s.at("ShaderRegister").get<uint32_t>();
+			sampleDesc.RegisterSpace	= s.value("RegisterSpace", 0u);
+			sampleDesc.ShaderVisibility = ToVisibility(s.at("Visibility").get<std::string>());
+
+			staticSamplers.emplace_back(sampleDesc);
+		}
+	}
+
 	D3D12_ROOT_SIGNATURE_DESC desc = {};
 	desc.NumParameters = static_cast<uint32_t>(rootParams.size());
 	desc.pParameters = rootParams.data();
-	desc.pStaticSamplers = nullptr;
+	desc.NumStaticSamplers = static_cast<uint32_t>(staticSamplers.size());
+	desc.pStaticSamplers = staticSamplers.empty() ? nullptr : staticSamplers.data();
 	desc.Flags = ToFlags(json.value("Flags", std::vector<std::string>{}));
 
 	ComPtr<ID3DBlob> pBlob, pError;

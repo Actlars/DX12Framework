@@ -97,7 +97,7 @@ private:
 	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
-	RHI::Device*				m_pGraphicsDevice	= nullptr;	// èäóLå†Ç»Çµ
+	RHI::Device*				m_pDevice	= nullptr;	// èäóLå†Ç»Çµ
 
 	D3D12_VIEWPORT	m_ViewPort	= {};
 	D3D12_RECT		m_Scissor	= {};
