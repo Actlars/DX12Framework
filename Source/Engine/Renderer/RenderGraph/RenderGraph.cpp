@@ -1,5 +1,6 @@
 ﻿#include "RenderGraph.h"
 #include <Engine/Utility/Debug/Logger/Logger.h>
+#include <pix3.h>
 
 // -------------------------------------------------------------------------------
 //		外部リソースをレンダーグラフに取り込む
@@ -53,9 +54,14 @@ void RG::RenderGraph::Execute(ID3D12GraphicsCommandList* _pCmd, RHI::ResourceSta
 		}
 		_pTracker->FlushBarriers(_pCmd);
 
+		// ── PIXマーカー：このパスの区間を名前付きでタイムラインに表示させる ──
+		PIXBeginEvent(_pCmd, PIX_COLOR_DEFAULT, pass.Name.c_str());
+
 		// Executeフェーズ : 実際の描画コマンドを積む
 		// パスの中からGetRTV/GetSRVでハンドルを引ける
 		if (pass.Execute) { pass.Execute(_pCmd, m_ResourceRegistry); }
+
+		PIXEndEvent(_pCmd);
 	}
 
 	// フレーム末にクリアし、次フレームは新規に組み立てなおす

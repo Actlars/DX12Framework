@@ -519,29 +519,31 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\Engine\Shader\MeshShader\MeshShaderPS.hlsl">
-      <Filter>ソース ファイル\Engine\Shader\MeshShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Engine\Shader\MeshShader\MeshShaderVS.hlsl">
-      <Filter>ソース ファイル\Engine\Shader\MeshShader</Filter>
-    </FxCompile>
     <FxCompile Include="Source\Engine\Shader\SimpleShader\SimplePS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
     </FxCompile>
     <FxCompile Include="Source\Engine\Shader\SimpleShader\SimpleVS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
     </FxCompile>
-    <FxCompile Include="Source\Engine\Shader\PostProcessShader\FullScreenVS.hlsl">
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Source\Engine\Shader\MeshShader\MeshShaderPS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\MeshShader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\MeshShader\MeshShaderVS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\MeshShader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\PostProcessShader\BloomBlurPS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\PostProcessShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Engine\Shader\PostProcessShader\BloomExtractPS.hlsl">
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\PostProcessShader\BloomCompositePS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\PostProcessShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Engine\Shader\PostProcessShader\BloomCompositePS.hlsl">
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\PostProcessShader\BloomExtractPS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\PostProcessShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Engine\Shader\PostProcessShader\BloomBlurPS.hlsl">
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\PostProcessShader\FullScreenVS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\PostProcessShader</Filter>
-    </FxCompile>
+    </CustomBuild>
   </ItemGroup>
 </Project>

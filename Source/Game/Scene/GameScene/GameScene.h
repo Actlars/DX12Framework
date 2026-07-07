@@ -4,20 +4,13 @@
 // -------------------------------------------------------------------------------
 #include "Engine/Scene/IScene.h"
 #include <Engine/Camera/FPSCamera/FPSCamera.h>
-#include <Engine/RHI/Resource/Sampler/Sampler.h>
 #include <Engine/Mesh/Mesh/Mesh.h>
 #include <Engine/Mesh/Material/Material.h>
-#include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
 #include <Engine/GameObject/GameObject.h>
 #include <Engine/GameObject/GameObjectManager.h>
 #include <Engine/GameObject/Components/MeshComponent/MeshComponent.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
 #include <Engine/Mesh/ResData.h>
-#include <Engine//RHI/Pipeline/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
-#include <Engine/Renderer/RenderQueue/RenderQueue.h>
-#include <Engine/Renderer/RenderGraph/RenderGraph.h>
-#include <Engine/RHI/Pipeline/PipelineState/PipelineState.h>
-#include <Engine/Renderer/PostProcess/PostProcessStack/PostProcessStack.h>
 #include <Engine/Renderer/SceneRenderer/SceneRenderer.h>
 
 // -------------------------------------------------------------------------------
@@ -74,7 +67,6 @@ private:
     // -------------------------------------------------------------------------------
     void InitCamera();
     bool InitMeshes();
-    bool InitSampler();
     bool InitGameObjects();     // GameObjectManager にオブジェクトを登録
 
     // -------------------------------------------------------------------------------
@@ -88,40 +80,15 @@ private:
     // -------------------------------------------------------------------------------
     Desc                m_Desc;
 
-    // サンプラー
-    RHI::Sampler        m_Sampler;
-
     // GPU リソース（GameObjectManager の MeshComponent が参照する）
     std::vector<std::unique_ptr<Mesh>>      m_Meshes;
     std::vector<std::unique_ptr<Material>>  m_Materials;
 
-    // 定数バッファ
-    std::unique_ptr<RHI::ConstantBuffer> m_BlurParams;
-
-    struct BlurParamsCB
-    {
-        DirectX::XMFLOAT2 TexelSize;
-        DirectX::XMFLOAT2 Padding;
-    };
-
-    // 描画管理
-    RenderQueue         m_RenderQueue;
-
-    // JSONから構築されたRootSignature + スロット対応表
-    RHI::RootSignatureLayout m_RootSignatureLayout;
-
-    RHI::RootSignatureLayout m_PostProcessRootSignatureLayout;
-
-    // RHI::PipelineState m_PSOの代わりに、キャッシュから取得したポインタだけ持つ
-    ID3D12PipelineState* m_pPSO = nullptr;
 
     // MeshComponent への参照（UpdateViewProj() で使う）
     // GameObjectManager から毎回 GetComponent() するのではなく
     // 初期化時にキャッシュしておく
     std::vector<MeshComponent*>     m_MeshComponents;
-
-    // レンダーグラフ
-    RG::RenderGraph     m_RenderGraph;
 
     // カメラ 
     FPSCamera           m_Camera;

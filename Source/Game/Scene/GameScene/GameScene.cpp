@@ -38,7 +38,6 @@ bool GameScene::OnInit(RHI::Device* _pDevice)
     InitCamera();
 
     if (!InitMeshes()) { ELOG("InitMeshes() failed."); return false; }
-    if (!InitSampler()) { ELOG("InitSampler() failed."); return false; }
     if (!InitGameObjects()) { ELOG("InitGameObjects() failed."); return false; }
 
     ShowCursor(FALSE);
@@ -58,7 +57,6 @@ void GameScene::OnTerm()
     m_MeshComponents.clear();
     m_ObjectManager.Clear();
 
-    m_Sampler.Term();
     m_Materials.clear();
     m_Meshes.clear();
 
@@ -153,22 +151,6 @@ bool GameScene::InitMeshes()
             ELOG("Material::Init() failed."); return false;
         }
         m_Materials.emplace_back(std::move(mat));
-    }
-
-    return true;
-}
-
-// -------------------------------------------------------------------------------
-// ƒTƒ“ƒvƒ‰[‰Šú‰»
-// -------------------------------------------------------------------------------
-bool GameScene::InitSampler()
-{
-    auto* pDevice   = m_pDevice->GetDevice();
-    auto* pSmpPool  = m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP);
-
-    if (!m_Sampler.Init(pDevice, pSmpPool, RHI::Sampler::CreateLinearWrap()))
-    {
-        ELOG("Sampler::Init() failed."); return false;
     }
 
     return true;

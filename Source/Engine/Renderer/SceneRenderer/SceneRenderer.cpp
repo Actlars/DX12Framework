@@ -89,8 +89,8 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
     sceneColorDesc.Width = m_pDevice->GetWidth();
     sceneColorDesc.Height = m_pDevice->GetHeight();
     sceneColorDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-    sceneColorDesc.ClearColor[0] = sceneColorDesc.ClearColor[1] = sceneColorDesc.ClearColor[2] = 0.0f;
-    sceneColorDesc.ClearColor[3] = 1.0f;
+    sceneColorDesc.ClearColor[0] = sceneColorDesc.ClearColor[1] = 0.0f;
+    sceneColorDesc.ClearColor[2] = sceneColorDesc.ClearColor[3] = 1.0f;
 
     auto sceneColorHandle = m_RenderGraph.GetRegistry().CreateTransient(
         m_pDevice->GetDevice(), "SceneColor", sceneColorDesc,
