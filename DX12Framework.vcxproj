@@ -197,6 +197,9 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\Mesh\ResData.h" />
     <ClInclude Include="Source\Engine\Renderer\DrawItem.h" />
     <ClInclude Include="Source\Engine\Renderer\GraphicsView\GraphicsView.h" />
+    <ClInclude Include="Source\Engine\Renderer\PostProcess\IPostProcessEffect.h" />
+    <ClInclude Include="Source\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect\BloomEffect.h" />
+    <ClInclude Include="Source\Engine\Renderer\PostProcess\PostProcessStack\PostProcessStack.h" />
     <ClInclude Include="Source\Engine\Renderer\Renderer.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGPassBuilder.h" />
@@ -204,6 +207,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGResourceRegistry.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGTypes.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderQueue\RenderQueue.h" />
+    <ClInclude Include="Source\Engine\Renderer\SceneRenderer\SceneRenderer.h" />
     <ClInclude Include="Source\Engine\RHI\Core\CommandList\CommandList.h" />
     <ClInclude Include="Source\Engine\RHI\Core\Device\Device.h" />
     <ClInclude Include="Source\Engine\RHI\Core\Fence\Fence.h" />
@@ -247,10 +251,13 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\Mesh\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Engine\Mesh\PolygonMeshResource\PolygonMeshResource.cpp" />
     <ClCompile Include="Source\Engine\Renderer\GraphicsView\GraphicsView.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect\BloomEffect.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\PostProcess\PostProcessStack\PostProcessStack.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderGraph\RGResourceRegistry.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderQueue\RenderQueue.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\SceneRenderer\SceneRenderer.cpp" />
     <ClCompile Include="Source\Engine\RHI\Core\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\Engine\RHI\Core\Device\Device.cpp" />
     <ClCompile Include="Source\Engine\RHI\Core\Fence\Fence.cpp" />

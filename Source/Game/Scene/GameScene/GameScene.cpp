@@ -6,6 +6,7 @@
 #include <Engine/Utility/FileUtil/FileUtil.h>
 #include <Engine/Mesh/MeshLoader/MeshLoader.h>
 #include <d3dcompiler.h>
+#include <Engine/Renderer/PostProcess/PostProcessEffects/BloomEffect/BloomEffect.h>
 
 #pragma comment(lib, "d3dcompiler.lib")
 
@@ -27,8 +28,12 @@ bool GameScene::OnInit(RHI::Device* _pDevice)
 
     auto* pDevice = m_pDevice->GetDevice();
 
-    if (!InitRootSignature(pDevice)) { ELOG("InitRootSignature() failed."); return false; }
-    if (!InitPipelineState(pDevice)) { ELOG("InitPipelineState() failed."); return false; }
+    m_SceneRenderer.AddPostProcessEffect(std::make_unique<BloomEffect>());
+    if (!m_SceneRenderer.Init(m_pDevice))
+    {
+        ELOG("SceneRenderer::Init() failed");
+        return false;
+    }
 
     InitCamera();
 
@@ -81,271 +86,13 @@ void GameScene::OnUpdate(float _deltaTime)
 // -------------------------------------------------------------------------------
 void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
 {
-    auto* pTracker = m_pDevice->GetResourceStateTracker();
-
-    // フレームの最初に、外部リソース（バックバッファ・DepthTarget）をグラフに取り込む
-    const auto frameIndex = m_pDevice->GetFrameIndex();
-    auto colorHandle = m_RenderGraph.ImportResource(
-        "BackBuffer", m_pDevice->GetColorTarget(frameIndex)->GetResource());
-    auto depthHandle = m_RenderGraph.ImportResource(
-        "DepthBuffer", m_pDevice->GetDepthTarget()->GetResource());
-
-    RG::TransientResourceDesc sceneColorDesc;
-    sceneColorDesc.Width = m_pDevice->GetWidth();
-    sceneColorDesc.Height = m_pDevice->GetHeight();
-    sceneColorDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-    sceneColorDesc.ClearColor[0] = sceneColorDesc.ClearColor[1] = sceneColorDesc.ClearColor[2] = 0.0f;
-    sceneColorDesc.ClearColor[3] = 1.0f;
-
-    auto sceneColorHandle = m_RenderGraph.GetRegistry().CreateTransient(
-        m_pDevice->GetDevice(), "SceneColor", sceneColorDesc,
-        m_pDevice->GetTransientResourcePool(),
-        m_pDevice->GetPool(RHI::Device::POOL_TYPE_RTV),
-        m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES));
-
-    m_RenderGraph.AddPass(
-        "MainPass",
-        // Setup : このパスが使用するリソースとステートを宣言する
-        [sceneColorHandle, depthHandle](RG::PassBuilder& _builder)
-        {
-            _builder.Use(sceneColorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);
-            _builder.Use(depthHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-        },
-        // Execute : 実際の描画。ここに来た時点でバリアは解決済み
-        [this, sceneColorHandle](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
-        {
-            auto* pRTV = res.GetRTV(sceneColorHandle);
-            auto handleDSV = m_pDevice->GetDepthTarget()->GetHandleDSV()->HandleCPU;
-            cmd->OMSetRenderTargets(1, &pRTV->HandleCPU, FALSE, &handleDSV);
-
-            // クリア処理
-            const float clearColor[4] = { 0.0f,0.0f,1.0f,1.0f };
-            cmd->ClearRenderTargetView(pRTV->HandleCPU, clearColor, 0, nullptr);
-            cmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-            cmd->SetGraphicsRootSignature(m_RootSignatureLayout.GetRootSignature());
-            cmd->SetPipelineState(m_pPSO);
-
-            ID3D12DescriptorHeap* heaps[] =
-            {
-                m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap(),
-                m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP)->GetHeap(),
-            };
-
-            cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-
-            cmd->SetGraphicsRootDescriptorTable(
-                m_RootSignatureLayout.GetSlot("Sampler"), m_Sampler.GetHandleGPU());
-
-            m_ObjectManager.Submit(&m_RenderQueue);
-
-            m_RenderQueue.Execute(cmd);
-
-            m_ObjectManager.FlushPendingRemoves();
-        });
-
-    // ExtractとComposite用のRootSignatureとPSOをキャッシュから取得
-    auto* pPostProcessRS = m_PostProcessRootSignatureLayout.GetRootSignature();
-    auto* pExtractPSO = m_pDevice->GetPipelineCache()->GetOrCreate(
-        m_pDevice->GetDevice(), L"Assets/Config/Json/PipelineState/BloomExtract.json",
-        pPostProcessRS, D3D12_INPUT_LAYOUT_DESC{ nullptr,0 });  // 頂点レイアウトなしなのでレイアウトは空
-    auto* pCompositePSO = m_pDevice->GetPipelineCache()->GetOrCreate(
-        m_pDevice->GetDevice(), L"Assets/Config/Json/PipelineState/BloomComposite.json",
-        pPostProcessRS, D3D12_INPUT_LAYOUT_DESC{ nullptr,0 });
-    auto* pBlurPSO = m_pDevice->GetPipelineCache()->GetOrCreate(
-        m_pDevice->GetDevice(), L"Assets/Config/Json/PipelineState/BloomBlur.json",
-        pPostProcessRS, D3D12_INPUT_LAYOUT_DESC{ nullptr,0 });
-
-    // Transientバッファを確保（画面の半分サイズ、ブルーム用）
-    RG::TransientResourceDesc bloomDesc;
-    bloomDesc.Width = m_pDevice->GetWidth() / 2;
-    bloomDesc.Height = m_pDevice->GetHeight() / 2;
-    bloomDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-    bloomDesc.ClearColor[0] = bloomDesc.ClearColor[1] = bloomDesc.ClearColor[2] = 0.0f;
-    bloomDesc.ClearColor[3] = 1.0f;
-
-    // A: Extractの出力先、Blurの入力元として使う
-    auto bloomHandle = m_RenderGraph.GetRegistry().CreateTransient(
-        m_pDevice->GetDevice(), "BloomBuffer", bloomDesc,
-        m_pDevice->GetTransientResourcePool(),
-        m_pDevice->GetPool(RHI::Device::POOL_TYPE_RTV),
-        m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES));    // RTV + SRV 両方発行
-
-    // B: Blurの出力先、Compositeの入力元として使う
-    auto bloomHandleB = m_RenderGraph.GetRegistry().CreateTransient(
-        m_pDevice->GetDevice(), "BloomBufferB", bloomDesc,
-        m_pDevice->GetTransientResourcePool(),
-        m_pDevice->GetPool(RHI::Device::POOL_TYPE_RTV),
-        m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES));
-
-    // -------------------------------------------------------------------------------
-    // Extractパス : sceneColorHandleを読み、明るい部分だけをBloomHandle（A）に書き込む
-    // -------------------------------------------------------------------------------
-    m_RenderGraph.AddPass("BloomExtract", [bloomHandle, sceneColorHandle](RG::PassBuilder& b)
-        {
-            // Setup : このパスが使うリソースと要求ステートを宣言する
-            b.Use(sceneColorHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-            b.Use(bloomHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        },
-        // Execute : Setupの宣言に基づき、RenderGraphがバリア解決済みの状態で呼ばれる
-        [this,sceneColorHandle, bloomHandle, pExtractPSO](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
-        {
-            // 描画先をbloomHandle(A)に切り替える
-            // DX12はOMSetRenderTargetsを呼びなおさない限り前のパスの設定が残り続けるため、
-            // パスが変わるたびに毎回明示する
-            auto* pRTV = res.GetRTV(bloomHandle);
-            cmd->OMSetRenderTargets(1, &pRTV->HandleCPU, FALSE, nullptr);
-
-            // bloomHandleは画面の半分のサイズで確保する
-            // フルサイズのビューポートだと、描画範囲がずれるため、TexelSizeに合わせておく
-            SetFullViewport(cmd, m_pDevice->GetWidth() / 2, m_pDevice->GetHeight() / 2);
-
-            cmd->SetGraphicsRootSignature(m_PostProcessRootSignatureLayout.GetRootSignature());
-            cmd->SetPipelineState(pExtractPSO);
-
-            ID3D12DescriptorHeap* heaps[] = { m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap() };
-            cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-
-            // MainPassが描いた絵（sceneColorHandle）をSRVとしてシェーダーに渡す
-            auto* pSrcSRV = res.GetSRV(sceneColorHandle);
-            cmd->SetGraphicsRootDescriptorTable(
-                m_PostProcessRootSignatureLayout.GetSlot("SourceTexture"), pSrcSRV->HandleGPU);
-
-            // 頂点バッファ・インデックスバッファなしで、頂点IDだけから
-            // 画面全体を覆う三角形を1枚生成する
-            cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-            cmd->DrawInstanced(3, 1, 0, 0);
-        });
-
-    // -------------------------------------------------------------------------------
-    // Blurパス : bloomHandle(A)に5x5ガウシアンブラーをかけて、bloomHandleB(B)に書く
-    // -------------------------------------------------------------------------------
-    m_RenderGraph.AddPass("BloomBlur", [bloomHandle, bloomHandleB](RG::PassBuilder& b)
-        {
-            b.Use(bloomHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE); // A : 読む
-            b.Use(bloomHandleB, D3D12_RESOURCE_STATE_RENDER_TARGET);        // B : 書く
-        },
-        [this, bloomHandle, bloomHandleB, pBlurPSO](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
-        {
-            auto* pRTV = res.GetRTV(bloomHandleB);
-            cmd->OMSetRenderTargets(1, &pRTV->HandleCPU, FALSE, nullptr);
-
-            // bloomHandleBもbloomHandleと同じ半分サイズなので、同じビューポートを使う
-            SetFullViewport(cmd, m_pDevice->GetWidth() / 2, m_pDevice->GetHeight() / 2);
-
-            cmd->SetGraphicsRootSignature(m_PostProcessRootSignatureLayout.GetRootSignature());
-            cmd->SetPipelineState(pBlurPSO);
-
-            ID3D12DescriptorHeap* heaps[] = { m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap() };
-            cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-
-            // ぼかす対象はExtractの結果(A)BlurPS.hlsl側で
-            // 5x5ガウシアンカーネルを（重みの合計 = 1.0になるように正規化済み）適用する
-            auto* pSrcSRV = res.GetSRV(bloomHandle);
-            cmd->SetGraphicsRootDescriptorTable(
-                m_PostProcessRootSignatureLayout.GetSlot("SourceTexture"), pSrcSRV->HandleGPU);
-
-            // TexelSize(1 / バッファ幅、1 / バッファ高さ)をシェーダーに渡す
-            // これがないと、シェーダー内でサンプリング位置を何ピクセルずらせばいいのかわからない
-            cmd->SetGraphicsRootConstantBufferView(
-                m_PostProcessRootSignatureLayout.GetSlot("BlurParams"), m_BlurParams->GetAddress());
-
-            cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-            cmd->DrawInstanced(3, 1, 0, 0);
-        });
-    
-    // -------------------------------------------------------------------------------
-    // Compositeパス : sceneColorHandle(元の絵) + bloomHandleB(ぼかし済みブルーム)を
-    //                 加算合成し、colorHandle(バックバッファ)に書き込む
-    // -------------------------------------------------------------------------------
-    m_RenderGraph.AddPass("BloomComposite", [sceneColorHandle, bloomHandleB, colorHandle](RG::PassBuilder& b)
-        {
-            b.Use(sceneColorHandle, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 元の絵を読む
-            b.Use(bloomHandleB, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);        // ぼかし済みを読む
-            b.Use(colorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);                 // バックバッファに書く
-        },
-        [this, sceneColorHandle, bloomHandleB, colorHandle, pCompositePSO](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
-        {
-            // colorHandleはImportリソース（バックバッファ）なので、Transientのように
-            // ResourceRegistry::GetRTV()では取得できない。GraphicsDevice側から直接取得する
-            const auto frameIndex = m_pDevice->GetFrameIndex();
-            auto handleRTV = m_pDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
-            cmd->OMSetRenderTargets(1, &handleRTV, FALSE, nullptr);
-
-            // バックバッファはフルサイズなので、直前のBlurパス（半分）から
-            // ビューポートをフルサイズに戻す
-            SetFullViewport(cmd, m_pDevice->GetWidth(),m_pDevice->GetHeight());
-
-            cmd->SetGraphicsRootSignature(m_PostProcessRootSignatureLayout.GetRootSignature());
-            cmd->SetPipelineState(pCompositePSO);
-
-            ID3D12DescriptorHeap* heaps[] = { m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap() };
-            cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-
-            // t0 : 元のシーンの絵
-            auto* pSrcSRV = res.GetSRV(sceneColorHandle);
-            cmd->SetGraphicsRootDescriptorTable(
-                m_PostProcessRootSignatureLayout.GetSlot("SourceTexture"), pSrcSRV->HandleGPU);
-
-            // t1 : ぼかし済みのブルーム結果（Blurパスの出力 = B）
-            auto* pBloomSRV = res.GetSRV(bloomHandleB);
-            cmd->SetGraphicsRootDescriptorTable(
-                m_PostProcessRootSignatureLayout.GetSlot("BloomTexture"), pBloomSRV->HandleGPU);
-
-            cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-            cmd->DrawInstanced(3, 1, 0, 0);
-        });
-
-    m_RenderGraph.Execute(_pCmd, pTracker);
+    m_SceneRenderer.Render(_pCmd, m_ObjectManager, m_Camera);
 }
 
 // ===============================================================================
 // private
 // ===============================================================================
 
-// -------------------------------------------------------------------------------
-// RootSignature 生成
-// -------------------------------------------------------------------------------
-bool GameScene::InitRootSignature(ID3D12Device* _pDevice)
-{
-    if (!m_RootSignatureLayout.LoadFromJson(_pDevice, L"Assets/Config/Json/RootSignature/MeshShader.json"))
-    {
-        ELOG("RootSignatureLayout::LoadFromJson failed");
-        return false;
-    }
-
-    if (!m_PostProcessRootSignatureLayout.LoadFromJson(_pDevice, L"Assets/Config/Json/RootSignature/PostProcess.json"))
-    {
-        return false;
-    }
-    
-    return true;
-}
-
-// -------------------------------------------------------------------------------
-// PSO 生成
-// -------------------------------------------------------------------------------
-bool GameScene::InitPipelineState(ID3D12Device* _pDevice)
-{
-    m_pPSO = m_pDevice->GetPipelineCache()->GetOrCreate(
-        _pDevice,
-        L"Assets/Config/Json/PipelineState/MeshShader.json",
-        m_RootSignatureLayout.GetRootSignature(),
-        ResMeshVertex::InputLayout);
-
-    if (m_pPSO == nullptr)
-    {
-        ELOG("InitPipelineState() failed");
-        return false;
-    }
-
-    m_BlurParams = std::make_unique<RHI::ConstantBuffer>();
-    m_BlurParams->Init(_pDevice, m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES), sizeof(BlurParamsCB));
-    auto* pU = m_BlurParams->GetPtr<BlurParamsCB>();
-    pU->TexelSize = { 1.0f / (m_pDevice->GetWidth() / 2.0f) , 1.0f / (m_pDevice->GetHeight() / 2.0f)  };
-
-    return true;
-}
 
 // -------------------------------------------------------------------------------
 // カメラ初期化
@@ -478,7 +225,7 @@ bool GameScene::InitGameObjects()
         }
 
         // RootSignature のスロット番号を設定（GameScene の定義と合わせる）
-        pMeshComp->SetRootLayout(&m_RootSignatureLayout);
+        pMeshComp->SetRootLayout(m_SceneRenderer.GetMeshRootSignatureLayout());
 
         // UpdateViewProj() で使うためにキャッシュしておく
         m_MeshComponents.emplace_back(pMeshComp);
@@ -534,12 +281,4 @@ void GameScene::UpdateViewProj()
         pMeshComp->SetFrameIndex(frameIndex);
         pMeshComp->SetViewProj(view, proj);
     }
-}
-
-void GameScene::SetFullViewport(ID3D12GraphicsCommandList* _pCmd, uint32_t _width, uint32_t _height)
-{
-    D3D12_VIEWPORT vp = { 0.0f,0.0f,static_cast<float>(_width), static_cast<float>(_height) };
-    D3D12_RECT scissor = { 0,0,static_cast<LONG>(_width), static_cast<LONG>(_height) };
-    _pCmd->RSSetViewports(1, &vp);
-    _pCmd->RSSetScissorRects(1, &scissor);
 }

@@ -193,6 +193,21 @@
     <Filter Include="ソース ファイル\Engine\Shader\PostProcessShader">
       <UniqueIdentifier>{cb99ec4a-8757-49c7-b509-2763b5a3b46f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\PostProcess">
+      <UniqueIdentifier>{c0f3f50c-0be8-4171-919e-f84828ff197d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\PostProcess\PostProcessStack">
+      <UniqueIdentifier>{2aa78773-6749-4da1-a23c-f064a8ddeeef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\SceneRenderer">
+      <UniqueIdentifier>{660b2361-86e6-43dd-be2a-b3fd7009de74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\PostProcess\PostProcessEffects">
+      <UniqueIdentifier>{a14a3594-43e3-4016-927a-3cb4a0fb2a8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect">
+      <UniqueIdentifier>{efee9608-29d5-475f-99e4-4dcd939adfe6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -354,6 +369,18 @@
     <ClInclude Include="Source\Engine\Utility\StringUtil\StringUtil.h">
       <Filter>ソース ファイル\Engine\Utility\StringUtil</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\PostProcess\IPostProcessEffect.h">
+      <Filter>ソース ファイル\Engine\Renderer\PostProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\PostProcess\PostProcessStack\PostProcessStack.h">
+      <Filter>ソース ファイル\Engine\Renderer\PostProcess\PostProcessStack</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\SceneRenderer\SceneRenderer.h">
+      <Filter>ソース ファイル\Engine\Renderer\SceneRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect\BloomEffect.h">
+      <Filter>ソース ファイル\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp">
@@ -472,6 +499,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\StringUtil\StringUtil.cpp">
       <Filter>ソース ファイル\Engine\Utility\StringUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\PostProcess\PostProcessStack\PostProcessStack.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\PostProcess\PostProcessStack</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\SceneRenderer\SceneRenderer.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\SceneRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect\BloomEffect.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

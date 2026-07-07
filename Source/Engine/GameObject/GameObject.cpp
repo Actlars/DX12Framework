@@ -70,20 +70,6 @@ void GameObject::Submit(RenderQueue* _pQueue)
 	}
 }
 
-//void GameObject::Draw(ID3D12GraphicsCommandList* _pCmd)
-//{
-//	if (!m_IsActive || _pCmd == nullptr) 
-//	{ return; }
-//
-//	// IRenderableを実装しているComponentだけをループする
-//	// 非描画コンポーネントは（TransformComponent等）はスキップする
-//	for (auto* pRenderable : m_Renderables)
-//	{
-//		if (pRenderable->IsVisible()) 
-//		{ pRenderable->Draw(_pCmd); }
-//	}
-//}
-
 const std::string& GameObject::GetName() const
 {
 	return m_Name;

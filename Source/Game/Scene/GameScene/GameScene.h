@@ -17,6 +17,8 @@
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
 #include <Engine/Renderer/RenderGraph/RenderGraph.h>
 #include <Engine/RHI/Pipeline/PipelineState/PipelineState.h>
+#include <Engine/Renderer/PostProcess/PostProcessStack/PostProcessStack.h>
+#include <Engine/Renderer/SceneRenderer/SceneRenderer.h>
 
 // -------------------------------------------------------------------------------
 // GameScene クラス
@@ -68,12 +70,6 @@ public:
 private:
 
     // -------------------------------------------------------------------------------
-    // IScene の protected メソッドの実装
-    // -------------------------------------------------------------------------------
-    bool InitRootSignature(ID3D12Device* _pDevice) override;
-    bool InitPipelineState(ID3D12Device* _pDevice) override;
-
-    // -------------------------------------------------------------------------------
     // シーン固有の初期化
     // -------------------------------------------------------------------------------
     void InitCamera();
@@ -86,8 +82,6 @@ private:
     // -------------------------------------------------------------------------------
     void UpdateInput(float _deltaTime);
     void UpdateViewProj();      // 全 MeshComponent にカメラ行列を渡す
-
-    void SetFullViewport(ID3D12GraphicsCommandList* _pCmd, uint32_t _width, uint32_t _height);
 
     // -------------------------------------------------------------------------------
     // private variables
@@ -134,4 +128,8 @@ private:
 
     // GameObject 管理
     GameObjectManager   m_ObjectManager;
+
+    PostProcessStack    m_PostProcessStack;
+
+    SceneRenderer       m_SceneRenderer;
 };

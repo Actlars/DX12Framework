@@ -79,7 +79,7 @@ protected:
 	// @retval	true	成功
 	// @retval	false	失敗
 	// -------------------------------------------------------------------------------
-	virtual bool InitRootSignature(ID3D12Device* _pDevice) = 0;
+	//virtual bool InitRootSignature(ID3D12Device* _pDevice) = 0;
 
 	// -------------------------------------------------------------------------------
 	// @brief	PSOを生成する（派生クラスがOnInit()内で呼ぶ）
@@ -88,7 +88,7 @@ protected:
 	// @retval	true	成功
 	// @retval	false	失敗
 	// -------------------------------------------------------------------------------
-	virtual bool InitPipelineState(ID3D12Device* _pDevice) = 0;
+	//virtual bool InitPipelineState(ID3D12Device* _pDevice) = 0;
 
 	// -------------------------------------------------------------------------------
 	// 派生クラスから参照できる共通リソース
