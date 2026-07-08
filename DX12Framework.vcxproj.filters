@@ -208,6 +208,12 @@
     <Filter Include="ソース ファイル\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect">
       <UniqueIdentifier>{efee9608-29d5-475f-99e4-4dcd939adfe6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\Shader\Mesh">
+      <UniqueIdentifier>{1fbd4e3f-684b-452e-a6b6-611b5ad08cf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Shader\Mesh\StandardMesh">
+      <UniqueIdentifier>{0228de88-c76f-47c8-85ac-7f806b9f437e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -517,6 +523,9 @@
     <None Include="Source\Engine\Shader\SimpleShader\SimpleInc.hlsli">
       <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
     </None>
+    <None Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShader.hlsli">
+      <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Engine\Shader\SimpleShader\SimplePS.hlsl">
@@ -524,6 +533,9 @@
     </FxCompile>
     <FxCompile Include="Source\Engine\Shader\SimpleShader\SimpleVS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Engine\Shader\Mesh\StandardMesh\BindlessTestPS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -544,6 +556,12 @@
     </CustomBuild>
     <CustomBuild Include="Source\Engine\Shader\PostProcessShader\FullScreenVS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\PostProcessShader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShaderPS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShaderVS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

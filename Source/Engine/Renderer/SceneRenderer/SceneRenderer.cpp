@@ -45,6 +45,23 @@ bool SceneRenderer::Init(RHI::Device* _pDevice)
         return false;
     }
 
+    /*if (!m_MeshBindlessRootSignatureLayout.LoadFromJson(pDevice, L"Assetss/Config/Json/RootSignature/MeshShaderBindless.json"))
+    {
+        ELOG("SceneRenderer::Init() : MeshRootSignatureLayout MeshShaderBindless load failed");
+        return false;
+    }
+
+    m_pMeshBindlessPSO = m_pDevice->GetPipelineCache()->GetOrCreate(
+        pDevice, L"Assets/Config/Json/PipelinState/MeshShaderBindless.json",
+        m_MeshBindlessRootSignatureLayout.GetRootSignature(),
+        ResMeshVertex::InputLayout);
+
+    if (m_pMeshBindlessPSO == nullptr)
+    {
+        ELOG("InitPipelineState() failed");
+        return false;
+    }*/
+
     auto* pSmpPool = m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP);
 
     if (!m_Sampler.Init(pDevice, pSmpPool, RHI::Sampler::CreateLinearWrap()))
@@ -59,6 +76,9 @@ bool SceneRenderer::Init(RHI::Device* _pDevice)
         ELOG("PostProcessStack::InitAllEffect() failed");
         return false;
     }
+
+
+    testIndexCB.Init(m_pDevice->GetDevice(), m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES), sizeof(uint32_t) * 4);
 
     return true;
 }
@@ -86,9 +106,9 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
 
     // MainPass出力先のTransientバッファー
     RG::TransientResourceDesc sceneColorDesc;
-    sceneColorDesc.Width = m_pDevice->GetWidth();
-    sceneColorDesc.Height = m_pDevice->GetHeight();
-    sceneColorDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+    sceneColorDesc.Width    = m_pDevice->GetWidth();
+    sceneColorDesc.Height   = m_pDevice->GetHeight();
+    sceneColorDesc.Format   = DXGI_FORMAT_R16G16B16A16_FLOAT;
     sceneColorDesc.ClearColor[0] = sceneColorDesc.ClearColor[1] = 0.0f;
     sceneColorDesc.ClearColor[2] = sceneColorDesc.ClearColor[3] = 1.0f;
 
@@ -138,17 +158,68 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
             _objects.FlushPendingRemoves();
         });
 
+    // SceneRenderer::Render() の末尾、m_RenderGraph.Execute()の直前に一時追加
+// ── Bindlessテスト（動作確認用、確認後は削除する） ──
+    static RHI::RootSignatureLayout s_BindlessTestRS; // static: 毎フレーム再ロードしないための簡易措置
+    static bool s_BindlessTestInitialized = false;
+
+    if (!s_BindlessTestInitialized)
+    {
+        s_BindlessTestRS.LoadFromJson(m_pDevice->GetDevice(), L"Assets/Config/Json/RootSignature/MeshShaderBindless.json");
+        s_pBindlessTestPSO = m_pDevice->GetPipelineCache()->GetOrCreate(
+            m_pDevice->GetDevice(), L"Assets/Config/Json/PipelineState/BindlessTest.json",
+            s_BindlessTestRS.GetRootSignature(), D3D12_INPUT_LAYOUT_DESC{ nullptr, 0 });
+        s_BindlessTestInitialized = true;
+    }
+
+    // テストに使うインデックス（今回はSceneColorのSRVインデックスをそのまま使う）
+    auto* pSceneColorSRV = m_RenderGraph.GetRegistry().GetSRV(sceneColorHandle);
+
+
+    *testIndexCB.GetPtr<uint32_t>() = pSceneColorSRV->Index; // ← ここがBindlessの核心。IndexをそのままCBVに渡すだけ
+
+    m_RenderGraph.AddPass("BindlessTestPS",
+        [colorHandle](RG::PassBuilder& b) { b.Use(colorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET); },
+        [this, colorHandle](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
+        {
+            const auto frameIndex = m_pDevice->GetFrameIndex();
+            auto handleRTV = m_pDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
+            cmd->OMSetRenderTargets(1, &handleRTV, FALSE, nullptr);
+
+            SetFullViewport(cmd, m_pDevice->GetWidth(), m_pDevice->GetHeight());
+
+            cmd->SetGraphicsRootSignature(s_BindlessTestRS.GetRootSignature());
+            cmd->SetPipelineState(s_pBindlessTestPSO);
+
+            ID3D12DescriptorHeap* heaps[] = { m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap() };
+            cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+
+            cmd->SetGraphicsRootConstantBufferView(0, testIndexCB.GetAddress());
+
+            cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            cmd->DrawInstanced(3, 1, 0, 0);
+        });
+
     // ポストエフェクトを実行
     m_PostProcessStack.Execute(m_RenderGraph, sceneColorHandle, colorHandle);
 
     // RenderGraph本体実行
     m_RenderGraph.Execute(_pCmd, pTracker);
 }
-
+    
 // -------------------------------------------------------------------------------
 //      ポストエフェクトの追加
 // -------------------------------------------------------------------------------
 void SceneRenderer::AddPostProcessEffect(std::unique_ptr<IPostProcessEffect> _effect)
 {
     m_PostProcessStack.AddEffect(std::move(_effect));
+}
+
+
+void SceneRenderer::SetFullViewport(ID3D12GraphicsCommandList* _pCmd, uint32_t _width, uint32_t _height)
+{
+    D3D12_VIEWPORT  vp = { 0.0f,0.0f,static_cast<float>(_width), static_cast<float>(_height) };
+    D3D12_RECT      scissor = { 0,0,static_cast<LONG>(_width), static_cast<LONG>(_height) };
+    _pCmd->RSSetViewports(1, &vp);
+    _pCmd->RSSetScissorRects(1, &scissor);
 }

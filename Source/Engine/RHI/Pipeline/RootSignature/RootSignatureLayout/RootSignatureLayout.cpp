@@ -38,6 +38,8 @@ namespace
 			else if (n == "LOCAL_ROOT_SIGNATURE")					{ flags |= D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;					}
 			else if (n == "DENY_AMPLIFICATION_SHADER_ROOT_ACCESS")	{ flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS; }
 			else if (n == "DENY_MESH_SHADER_ROOT_ACCESS")			{ flags |= D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS;			}
+			else if (n == "CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED")		{ flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;		}	// このRootSignatureを使うシェーダーはディスクリプタヒープを直接インデックスアクセスするという宣言（バインドレス化に必要）
+			else if (n == "SAMPLER_HEAP_DIRECTLY_INDEXED")			{ flags |= D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;			}
 			else { ELOG("RootSignatureLayout::ToFlags : unknown flag string : %s", n.c_str()); }
 		}
 		return flags;

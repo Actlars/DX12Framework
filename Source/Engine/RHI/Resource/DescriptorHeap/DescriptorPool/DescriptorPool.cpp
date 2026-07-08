@@ -80,6 +80,8 @@ RHI::DescriptorHandle* RHI::DescriptorPool::AllocHandle()
 			{
 				_pHandle->HandleGPU = { 0 };
 			}
+
+			_pHandle->Index = _index;	// Bindless用
 		};
 
 	// 初期化関数を実行してからハンドルを返却

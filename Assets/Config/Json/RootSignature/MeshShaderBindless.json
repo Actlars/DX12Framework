@@ -1,0 +1,24 @@
+{
+  "Name": "MeshShaderRootSignatureBindless",
+  "Parameters": [
+    {
+      "Name": "MaterialIndices",
+      "Type": "CBV",
+      "ShaderRegister": 1,
+      "RegisterSpace": 0,
+      "Visibility": "PS"
+    }
+  ],
+  "StaticSamplers": [
+    {
+      "ShaderRegister": 0,
+      "Filter": "LINEAR",
+      "AddressMode": "WRAP",
+      "Visibility": "PS"
+    }
+  ],
+  "Flags": [
+    "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT",
+    "CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED"
+  ]
+}

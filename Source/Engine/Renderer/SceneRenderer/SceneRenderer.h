@@ -7,6 +7,7 @@
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
 #include <Engine/RHI/Pipeline/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
 #include <Engine/RHI/Resource/Sampler/Sampler.h>
+#include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
 #include <Engine/Mesh/ResData.h>
 
 namespace RHI { class Device; }
@@ -40,6 +41,8 @@ public:
 	// -------------------------------------------------------------------------------
 	void AddPostProcessEffect(std::unique_ptr<IPostProcessEffect> _effect);
 
+	void SetFullViewport(ID3D12GraphicsCommandList* _pCmd, uint32_t _width, uint32_t _height);
+
 	// -------------------------------------------------------------------------------
 	// @brief	描画エンジンとして必要な基盤の初期化
 	// -------------------------------------------------------------------------------
@@ -70,9 +73,13 @@ private:
 	RHI::Device*				m_pDevice = nullptr;
 	RHI::RootSignatureLayout	m_MeshRootSignatureLayout;
 	ID3D12PipelineState*		m_pMeshPSO = nullptr;
+	RHI::RootSignatureLayout	m_MeshBindlessRootSignatureLayout;
+	ID3D12PipelineState*		m_pMeshBindlessPSO = nullptr;
+	ID3D12PipelineState*		s_pBindlessTestPSO = nullptr;
 	RG::RenderGraph				m_RenderGraph;
 	PostProcessStack			m_PostProcessStack;
 	RenderQueue					m_RenderQueue;
 	RHI::Sampler				m_Sampler;
+	RHI::ConstantBuffer testIndexCB;
 
 };
