@@ -3,6 +3,7 @@
 // -------------------------------------------------------------------------------
 #include "RenderQueue.h"
 #include <Engine/Mesh/Mesh/Mesh.h>
+#include <Engine/Renderer/SceneRenderer/SceneRenderer.h>
 
 // -------------------------------------------------------------------------------
 //		コンストラクタ
@@ -28,7 +29,7 @@ void RenderQueue::Submit(const DrawItem& _item)
 // -------------------------------------------------------------------------------
 //		積まれたDrawItemを順にコマンドリストは発行
 // -------------------------------------------------------------------------------
-void RenderQueue::Execute(ID3D12GraphicsCommandList* _pCmd)
+void RenderQueue::Execute(ID3D12GraphicsCommandList* _pCmd, RenderMode _mode)
 {
 	if (_pCmd == nullptr) 
 	{ return; }
@@ -39,11 +40,21 @@ void RenderQueue::Execute(ID3D12GraphicsCommandList* _pCmd)
 		{ continue; }
 
 		_pCmd->SetGraphicsRootConstantBufferView(item.TransformSlot, item.TransformCBAddress);
-		_pCmd->SetGraphicsRootConstantBufferView(item.MaterialSlot, item.MaterialCBAddress);
 
-		if (item.HasTexture)
+		if (_mode == RenderMode::Bindless)
 		{
-			_pCmd->SetGraphicsRootDescriptorTable(item.TextureSlot, item.TextureHandle);
+			_pCmd->SetGraphicsRootConstantBufferView(item.MaterialIndicesSlot, item.MaterialIndicesCBAddress);
+		}
+		else
+		{
+			_pCmd->SetGraphicsRootConstantBufferView(item.MaterialSlot, item.MaterialCBAddress);
+
+			// TextureTableはTraditionalのみ
+			// BindlessにはRootSignatureにTextureテーブルが存在しないので呼んではいけない
+			if (item.HasTexture)
+			{
+				_pCmd->SetGraphicsRootDescriptorTable(item.TextureSlot, item.TextureHandle);
+			}
 		}
 
 		item.pMesh->Draw(_pCmd);

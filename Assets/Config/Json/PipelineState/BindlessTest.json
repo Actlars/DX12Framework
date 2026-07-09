@@ -1,9 +1,0 @@
-{
-  "VS": "FullScreenVS.cso",
-  "PS": "BindlessTestPS.cso",
-  "CullMode": "NONE",
-  "DepthEnable": false,
-  "BlendEnable": false,
-  "RTVFormat": "R8G8B8A8_UNORM",
-  "DSVFormat": "UNKNOWN"
-}

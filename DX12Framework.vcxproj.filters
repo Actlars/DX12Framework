@@ -214,6 +214,15 @@
     <Filter Include="ソース ファイル\Engine\Shader\Mesh\StandardMesh">
       <UniqueIdentifier>{0228de88-c76f-47c8-85ac-7f806b9f437e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\RHI\Pipeline\PipelineState\PipelineStream">
+      <UniqueIdentifier>{196e87ed-4c1a-4214-b5a8-c0b17f9a398b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Utility\JsonLoader">
+      <UniqueIdentifier>{9ed1bdb0-adb1-4906-932e-37e0efdc6b79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Mesh\MeshletResource">
+      <UniqueIdentifier>{9b9466e4-c917-420f-9821-9d5e33c15c63}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -387,6 +396,15 @@
     <ClInclude Include="Source\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect\BloomEffect.h">
       <Filter>ソース ファイル\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStream\PipelineStream.h">
+      <Filter>ソース ファイル\Engine\RHI\Pipeline\PipelineState\PipelineStream</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Utility\JsonLoader\JsonLoader.h">
+      <Filter>ソース ファイル\Engine\Utility\JsonLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Mesh\MeshletResource\MeshletResource.h">
+      <Filter>ソース ファイル\Engine\Mesh\MeshletResource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp">
@@ -515,6 +533,12 @@
     <ClCompile Include="Source\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect\BloomEffect.cpp">
       <Filter>ソース ファイル\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Utility\JsonLoader\JsonLoader.cpp">
+      <Filter>ソース ファイル\Engine\Utility\JsonLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Mesh\MeshletResource\MeshletResource.cpp">
+      <Filter>ソース ファイル\Engine\Mesh\MeshletResource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli">
@@ -561,6 +585,12 @@
       <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
     </CustomBuild>
     <CustomBuild Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShaderVS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\Mesh\StandardMesh\SimpleMS.hlsl">
+      <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\Mesh\StandardMesh\SimplePS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
     </CustomBuild>
   </ItemGroup>

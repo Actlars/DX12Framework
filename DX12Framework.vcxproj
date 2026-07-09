@@ -190,6 +190,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager.h" />
     <ClInclude Include="Source\Engine\GameObject\IRenderable.h" />
     <ClInclude Include="Source\Engine\Mesh\Material\Material.h" />
+    <ClInclude Include="Source\Engine\Mesh\MeshletResource\MeshletResource.h" />
     <ClInclude Include="Source\Engine\Mesh\MeshLoader\MeshLoader.h" />
     <ClInclude Include="Source\Engine\Mesh\MeshResource.h" />
     <ClInclude Include="Source\Engine\Mesh\Mesh\Mesh.h" />
@@ -214,6 +215,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineState.h" />
     <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStateCache\PipelineStateCache.h" />
     <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStateDesc.h" />
+    <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStream\PipelineStream.h" />
     <ClInclude Include="Source\Engine\RHI\Pipeline\RootSignature\RootSignatureLayout\RootSignatureLayout.h" />
     <ClInclude Include="Source\Engine\RHI\Resource\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\RHI\Resource\Buffer\IndexBuffer\IndexBuffer.h" />
@@ -234,6 +236,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\Utility\Debug\Logger\Logger.h" />
     <ClInclude Include="Source\Engine\Utility\FileUtil\FileUtil.h" />
     <ClInclude Include="Source\Engine\Utility\InlineUtil\InlineUTil.h" />
+    <ClInclude Include="Source\Engine\Utility\JsonLoader\JsonLoader.h" />
     <ClInclude Include="Source\Engine\Utility\StringUtil\StringUtil.h" />
     <ClInclude Include="Source\Game\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Source\Pch.h" />
@@ -247,6 +250,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager.cpp" />
     <ClCompile Include="Source\Engine\Mesh\Material\Material.cpp" />
+    <ClCompile Include="Source\Engine\Mesh\MeshletResource\MeshletResource.cpp" />
     <ClCompile Include="Source\Engine\Mesh\MeshLoader\MeshLoader.cpp" />
     <ClCompile Include="Source\Engine\Mesh\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Engine\Mesh\PolygonMeshResource\PolygonMeshResource.cpp" />
@@ -277,6 +281,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Source\Engine\Utility\Debug\Logger\Logger.cpp" />
     <ClCompile Include="Source\Engine\Utility\FileUtil\FileUtil.cpp" />
+    <ClCompile Include="Source\Engine\Utility\JsonLoader\JsonLoader.cpp" />
     <ClCompile Include="Source\Engine\Utility\StringUtil\StringUtil.cpp" />
     <ClCompile Include="Source\Game\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\main.cpp" />
@@ -508,6 +513,40 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <CustomBuild Include="Source\Engine\Shader\Mesh\StandardMesh\SimpleMS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).cso</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).cso</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).cso</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).cso</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\Mesh\StandardMesh\SimplePS.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).cso</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).cso</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).cso</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).cso</Outputs>
+    </CustomBuild>
     <FxCompile Include="Source\Engine\Shader\SimpleShader\SimplePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

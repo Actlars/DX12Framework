@@ -33,6 +33,8 @@ struct alignas(256) MaterialCB
 struct MaterialIndicesCB
 {
 	uint32_t DiffuseTextureIndex;
+	uint32_t NormalTextureIndex;
+	uint32_t SpecularTextureIndex;
 	uint32_t Padding[3];
 };
 
@@ -112,6 +114,12 @@ public:
 	// @param[in]	_type	テクスチャの種類
 	// -------------------------------------------------------------------------------
 	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureHandle(TextureType _type) const;
+
+
+	// -------------------------------------------------------------------------------
+	// @brief	SRVハンドルからIndexを取得
+	// -------------------------------------------------------------------------------
+	uint32_t GetTextureIndex(TextureType _type) const;
 
 	// -------------------------------------------------------------------------------
 	// @brief	定数バッファのマップ済みポインタを返す（CPU側から書き換える場合）

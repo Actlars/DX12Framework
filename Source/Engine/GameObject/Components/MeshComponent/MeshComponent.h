@@ -104,6 +104,9 @@ public:
 	// @brief	RootSignatureLayoutを設定する
 	void SetRootLayout(const RHI::RootSignatureLayout* _pRootLayout);
 
+	// @brief	RootSignatureLayoutを設定する（BIndless）
+	void SetRootLayoutBindless(const RHI::RootSignatureLayout* _pRootLayout);
+
 	// -------------------------------------------------------------------------------
 	// @brief	カメラの View / Proj行列を設定する
 	//			GameSceneから毎フレーム渡す
@@ -129,6 +132,7 @@ private:
 
 	// 定数バッファ
 	std::vector<std::unique_ptr<RHI::ConstantBuffer>>	m_TransformCBs;
+	std::vector<std::unique_ptr<RHI::ConstantBuffer>>	m_MaterialIndicesCBs;
 	uint32_t											m_FrameIndex;
 
 	// カメラ行列（GameSceneから毎フレーム更新）
@@ -139,6 +143,8 @@ private:
 	uint32_t m_TransformSlot	= UINT32_MAX;
 	uint32_t m_MaterialSlot		= UINT32_MAX;
 	uint32_t m_TextureSlot		= UINT32_MAX;
+
+	uint32_t m_MaterialIndicesSlot = UINT32_MAX;	// Bindless用
 
 	bool m_IsValiable = true;
 };

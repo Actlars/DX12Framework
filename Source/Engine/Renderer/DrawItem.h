@@ -14,13 +14,16 @@ class Mesh;
 struct DrawItem
 {
 	Mesh* pMesh = nullptr;
-	D3D12_GPU_VIRTUAL_ADDRESS	TransformCBAddress	= 0;
-	D3D12_GPU_VIRTUAL_ADDRESS	MaterialCBAddress	= 0;
-	D3D12_GPU_DESCRIPTOR_HANDLE TextureHandle		= {};
-	bool						HasTexture			= false;
+	D3D12_GPU_VIRTUAL_ADDRESS	TransformCBAddress			= 0;
+	D3D12_GPU_VIRTUAL_ADDRESS	MaterialCBAddress			= 0;		// 従来のマテリアル方式
+	D3D12_GPU_VIRTUAL_ADDRESS	MaterialIndicesCBAddress	= 0;		// バインド方式のインデックス定数
+	D3D12_GPU_DESCRIPTOR_HANDLE TextureHandle				= {};
+	bool						HasTexture					= false;
 
 	// RootParameterのスロット番号
 	uint32_t TransformSlot	= UINT32_MAX;
 	uint32_t MaterialSlot	= UINT32_MAX;
 	uint32_t TextureSlot	= UINT32_MAX;
+
+	uint32_t MaterialIndicesSlot = UINT32_MAX;
 };

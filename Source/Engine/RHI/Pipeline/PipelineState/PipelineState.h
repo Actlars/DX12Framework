@@ -35,6 +35,24 @@ namespace RHI
 
 	private:
 
+		// -------------------------------------------------------------------------------
+		// @brief	VS + PS 用のPSO生成
+		// -------------------------------------------------------------------------------
+		bool LoadFromJsonGraphics(
+			ID3D12Device*					_pDevice,
+			const nlohmann::json&			_json,
+			ID3D12RootSignature*			_pRootSignature,
+			const D3D12_INPUT_LAYOUT_DESC&	_inputLayout);
+
+		// -------------------------------------------------------------------------------
+		// @brief	MeshShaderパイプライン用のPSO生成
+		//			PipelineStateStream経由で生成
+		// -------------------------------------------------------------------------------
+		bool LoadFromJsonMeshShader(
+			ID3D12Device*			_pDevice,
+			const nlohmann::json&	_json,
+			ID3D12RootSignature*	_pRootSignature);
+
 		ComPtr<ID3D12PipelineState> m_pPSO;
 	};
 }

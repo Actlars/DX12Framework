@@ -8,11 +8,18 @@
 #include <Engine/RHI/Pipeline/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
 #include <Engine/RHI/Resource/Sampler/Sampler.h>
 #include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
+#include <Engine/Mesh/MeshletResource/MeshletResource.h>
 #include <Engine/Mesh/ResData.h>
 
 namespace RHI { class Device; }
 class GameObjectManager;
 class FPSCamera;
+
+enum class RenderMode
+{
+	Traditional,	// CPUが呼ぶ方式 : CPUがDrawごとにSetGraphicsRootDescriptorTableでバインド
+	Bindless,		// Bindless方式 : ResourceDescriptorHeap[]でシェーダーが自身でリソースを入手
+};
 
 // -------------------------------------------------------------------------------
 // SceneRenderer
@@ -63,23 +70,46 @@ public:
 	void Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& _objects, FPSCamera& _camera);
 
 	// -------------------------------------------------------------------------------
+	// @brief	描画で使うパイプラインの切り替え
+	// -------------------------------------------------------------------------------
+	void SetRenderMode(RenderMode _mode) { m_RenderMode = _mode; }
+
+	// -------------------------------------------------------------------------------
 	// @brief	メッシュ描画用のRootSignatureを取得
 	//			MeshComponent::SetRootLayoutに渡すため、GameSceneから参照される
 	// -------------------------------------------------------------------------------
-	RHI::RootSignatureLayout* GetMeshRootSignatureLayout() { return &m_MeshRootSignatureLayout; }
+	RHI::RootSignatureLayout*	GetMeshRootSignatureLayout()	{ return &m_MeshRootSignatureLayout; }
+
+	// -------------------------------------------------------------------------------
+	// @brief	メッシュ描画用のRootSignatureを取得
+	//			MeshComponent::SetRootLayoutBindlessに渡すため、GameSceneから参照される
+	// -------------------------------------------------------------------------------
+	RHI::RootSignatureLayout*	GetMeshRootSignatureLayoutBIndless() { return &m_MeshRootSignatureLayoutBindless; }
+
+	// -------------------------------------------------------------------------------
+	// @brief	現在の描画で使っているパイプラインのモードを取得
+	// -------------------------------------------------------------------------------
+	RenderMode					GetRenderMode()					{ return m_RenderMode; }
 
 private:
 
+	RenderMode					m_RenderMode	= RenderMode::Bindless;	// 描画モード
+
 	RHI::Device*				m_pDevice = nullptr;
 	RHI::RootSignatureLayout	m_MeshRootSignatureLayout;
-	ID3D12PipelineState*		m_pMeshPSO = nullptr;
-	RHI::RootSignatureLayout	m_MeshBindlessRootSignatureLayout;
-	ID3D12PipelineState*		m_pMeshBindlessPSO = nullptr;
-	ID3D12PipelineState*		s_pBindlessTestPSO = nullptr;
+	RHI::RootSignatureLayout	m_MeshRootSignatureLayoutBindless;
+	ID3D12PipelineState*		m_pMeshPSO			= nullptr;
+	ID3D12PipelineState*		m_pMeshPSOBindless	= nullptr;
 	RG::RenderGraph				m_RenderGraph;
 	PostProcessStack			m_PostProcessStack;
 	RenderQueue					m_RenderQueue;
 	RHI::Sampler				m_Sampler;
-	RHI::ConstantBuffer testIndexCB;
+	RHI::ConstantBuffer			testIndexCB;
+
+	// MeshShader三角形テスト
+	RHI::RootSignatureLayout	m_TriangleRootSignatureLayout;
+	ID3D12PipelineState*		m_pTrianglePSO = nullptr;
+	MeshletResource				m_TriangleMesh;
+	RHI::ConstantBuffer			m_TriangleTransformCB;
 
 };

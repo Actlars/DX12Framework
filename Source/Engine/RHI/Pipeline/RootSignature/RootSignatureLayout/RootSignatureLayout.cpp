@@ -1,6 +1,7 @@
 ﻿#include "RootSignatureLayout.h"
 #include <Engine/Utility/Debug/Logger/Logger.h>
 #include <Engine/Utility/FileUtil/FileUtil.h>
+#include <Engine/Utility/JsonLoader/JsonLoader.h>
 
 namespace
 {
@@ -82,18 +83,10 @@ bool RHI::RootSignatureLayout::LoadFromJson(ID3D12Device * _pDevice, const std::
 	if (_pDevice == nullptr) 
 	{ return false; }
 
-	std::ifstream ifs(_jsonPath);
-	if (!ifs.is_open())
-	{
-		ELOG("RootSignatureLayout::LoadFromJson : not implemented yet : %ls", _jsonPath.c_str());
-		return false;
-	}
-
 	nlohmann::json json;
-	try { ifs >> json; }
-	catch (const std::exception& e)
+	if (!JsonLoader::Load(_jsonPath, json))
 	{
-		ELOG("RootSignature: Json parse error : %s", e.what());
+		ELOG("RootSignatureLayout::LoadFromJson : JsonLoader::Load failed path = %ls", _jsonPath.c_str());
 		return false;
 	}
 
@@ -126,6 +119,18 @@ bool RHI::RootSignatureLayout::LoadFromJson(ID3D12Device * _pDevice, const std::
 			param.ParameterType				= D3D12_ROOT_PARAMETER_TYPE_CBV;
 			param.Descriptor.ShaderRegister = reg;
 			param.Descriptor.RegisterSpace	= space;
+		}
+		else if (type == "SRV")	// Root Descriptor形式のSRV
+		{
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			param.Descriptor.ShaderRegister = reg;
+			param.Descriptor.RegisterSpace = space;
+		}
+		else if (type == "UAV")	// ComputeShader用
+		{
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
+			param.Descriptor.ShaderRegister = reg;
+			param.Descriptor.RegisterSpace = space;
 		}
 		else if (type == "SRV_Table" || type == "Sampler_Table")
 		{

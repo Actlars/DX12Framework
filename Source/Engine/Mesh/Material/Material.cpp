@@ -177,7 +177,6 @@ void Material::Term()
     }
 }
 
-
 D3D12_GPU_VIRTUAL_ADDRESS Material::GetCBAddress() const
 {
     if (m_pCB == nullptr)
@@ -195,6 +194,11 @@ D3D12_GPU_DESCRIPTOR_HANDLE Material::GetTextureHandle(TextureType _type) const
     }
 
     return m_Textures[_type].GetHandleGPU();
+}
+
+uint32_t Material::GetTextureIndex(TextureType _type) const
+{
+    return m_Textures[_type].GetIndex();
 }
 
 MaterialCB* Material::GetCBPtr() const

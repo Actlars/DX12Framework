@@ -5,6 +5,7 @@
 #include <Engine/RHI/Core/Device/Device.h>
 #include <Engine/GameObject/GameObjectManager.h>
 #include <Engine/Camera/FPSCamera/FPSCamera.h>
+#include <Engine/GameObject/Components/MeshComponent/MeshComponent.h>
 #include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
@@ -45,22 +46,83 @@ bool SceneRenderer::Init(RHI::Device* _pDevice)
         return false;
     }
 
-    /*if (!m_MeshBindlessRootSignatureLayout.LoadFromJson(pDevice, L"Assetss/Config/Json/RootSignature/MeshShaderBindless.json"))
+    if (!m_MeshRootSignatureLayoutBindless.LoadFromJson(pDevice, L"Assets/Config/Json/RootSignature/MeshStandardShaderBindless.json"))
     {
-        ELOG("SceneRenderer::Init() : MeshRootSignatureLayout MeshShaderBindless load failed");
+        ELOG("SceneRenderer::Init() : MeshRootSignatureLayoutBindless load failed");
         return false;
     }
 
-    m_pMeshBindlessPSO = m_pDevice->GetPipelineCache()->GetOrCreate(
-        pDevice, L"Assets/Config/Json/PipelinState/MeshShaderBindless.json",
-        m_MeshBindlessRootSignatureLayout.GetRootSignature(),
-        ResMeshVertex::InputLayout);
+    m_pMeshPSOBindless = m_pDevice->GetPipelineCache()->GetOrCreate(
+        pDevice, L"Assets/Config/Json/PipelineState/MeshStandardShaderBindless.json",
+        m_MeshRootSignatureLayoutBindless.GetRootSignature(), ResMeshVertex::InputLayout);
 
-    if (m_pMeshBindlessPSO == nullptr)
+    if (m_pMeshPSOBindless == nullptr)
     {
         ELOG("InitPipelineState() failed");
         return false;
-    }*/
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // ─── Mesh Shader 三角形テスト ───
+    if (!m_TriangleRootSignatureLayout.LoadFromJson(pDevice, L"Assets/Config/Json/RootSignature/TriangleMeshShaderRootSignature.json"))
+    {
+        ELOG("SceneRenderer::Init() : TriangleRootSignatureLayout load failed");
+        return false;
+    }
+
+    m_pTrianglePSO = m_pDevice->GetPipelineCache()->GetOrCreate(
+        pDevice, L"Assets/Config/Json/PipelineState/Triangle.json",
+        m_TriangleRootSignatureLayout.GetRootSignature(),
+        D3D12_INPUT_LAYOUT_DESC{ nullptr, 0 });   // Mesh ShaderはInputLayout不要
+
+    if (m_pTrianglePSO == nullptr)
+    {
+        ELOG("SceneRenderer::Init() : Triangle PSO creation failed");
+        return false;
+    }
+
+    // 三角形データ
+    struct TriangleVertex
+    {
+        DirectX::XMFLOAT3 Position;
+        DirectX::XMFLOAT4 Color;
+    };
+
+    static const TriangleVertex kVertices[3] =
+    {
+        { {  0.0f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+        { {  0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+        { { -0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+    };
+    static const uint32_t kIndices[3] = { 0, 1, 2 };
+
+    MeshletResource::MeshletVertexData vertices{ kVertices, sizeof(TriangleVertex), 3 };
+    MeshletResource::MeshletIndexData  indices{ kIndices, 3 };
+
+    if (!m_TriangleMesh.Init(pDevice, vertices, indices))
+    {
+        ELOG("SceneRenderer::Init() : TriangleMesh Init failed");
+        return false;
+    }
+
+    m_TriangleMesh.SetRootSlots(
+        m_TriangleRootSignatureLayout.GetSlot("Vertices"),
+        m_TriangleRootSignatureLayout.GetSlot("Indices"));
+
+    // Transform用CB（単位行列でクリップ空間にそのまま置く）
+    if (!m_TriangleTransformCB.Init(pDevice, m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES), sizeof(TransformCB)))
+    {
+        ELOG("SceneRenderer::Init() : TriangleTransformCB Init failed");
+        return false;
+    }
+
+    auto* pTransform = m_TriangleTransformCB.GetPtr<TransformCB>();
+    pTransform->World = DirectX::XMMatrixIdentity();
+    pTransform->View = DirectX::XMMatrixIdentity();
+    pTransform->Proj = DirectX::XMMatrixIdentity();
+
+    //////////////////////////////////////////////////////////////////////////////////////////
 
     auto* pSmpPool = m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP);
 
@@ -137,48 +199,36 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
             cmd->ClearRenderTargetView(pRTV->HandleCPU, clearColor, 0, nullptr);
             cmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-            cmd->SetGraphicsRootSignature(m_MeshRootSignatureLayout.GetRootSignature());
-            cmd->SetPipelineState(m_pMeshPSO);
-
             ID3D12DescriptorHeap* heaps[] =
             {
                 m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap(),
                 m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP)->GetHeap(),
             };
-
             cmd->SetDescriptorHeaps(_countof(heaps), heaps);
 
-            cmd->SetGraphicsRootDescriptorTable(
-                m_MeshRootSignatureLayout.GetSlot("Sampler"), m_Sampler.GetHandleGPU());
+            // GraphicsRootSignatureの設定
+            if (m_RenderMode == RenderMode::Traditional)
+            {
+                cmd->SetGraphicsRootSignature(m_MeshRootSignatureLayout.GetRootSignature());
+                cmd->SetPipelineState(m_pMeshPSO);
+                cmd->SetGraphicsRootDescriptorTable(
+                    m_MeshRootSignatureLayout.GetSlot("Sampler"), m_Sampler.GetHandleGPU());
+            }
+            else
+            {
+                cmd->SetGraphicsRootSignature(m_MeshRootSignatureLayoutBindless.GetRootSignature());
+                cmd->SetPipelineState(m_pMeshPSOBindless);
+            }
 
             _objects.Submit(&m_RenderQueue);
-
-            m_RenderQueue.Execute(cmd);
-
+            m_RenderQueue.Execute(cmd, m_RenderMode);
             _objects.FlushPendingRemoves();
         });
 
-    // SceneRenderer::Render() の末尾、m_RenderGraph.Execute()の直前に一時追加
-// ── Bindlessテスト（動作確認用、確認後は削除する） ──
-    static RHI::RootSignatureLayout s_BindlessTestRS; // static: 毎フレーム再ロードしないための簡易措置
-    static bool s_BindlessTestInitialized = false;
+    // ポストエフェクトを実行
+    m_PostProcessStack.Execute(m_RenderGraph, sceneColorHandle, colorHandle);
 
-    if (!s_BindlessTestInitialized)
-    {
-        s_BindlessTestRS.LoadFromJson(m_pDevice->GetDevice(), L"Assets/Config/Json/RootSignature/MeshShaderBindless.json");
-        s_pBindlessTestPSO = m_pDevice->GetPipelineCache()->GetOrCreate(
-            m_pDevice->GetDevice(), L"Assets/Config/Json/PipelineState/BindlessTest.json",
-            s_BindlessTestRS.GetRootSignature(), D3D12_INPUT_LAYOUT_DESC{ nullptr, 0 });
-        s_BindlessTestInitialized = true;
-    }
-
-    // テストに使うインデックス（今回はSceneColorのSRVインデックスをそのまま使う）
-    auto* pSceneColorSRV = m_RenderGraph.GetRegistry().GetSRV(sceneColorHandle);
-
-
-    *testIndexCB.GetPtr<uint32_t>() = pSceneColorSRV->Index; // ← ここがBindlessの核心。IndexをそのままCBVに渡すだけ
-
-    m_RenderGraph.AddPass("BindlessTestPS",
+    m_RenderGraph.AddPass("TrianglePass",
         [colorHandle](RG::PassBuilder& b) { b.Use(colorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET); },
         [this, colorHandle](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
         {
@@ -188,20 +238,14 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
 
             SetFullViewport(cmd, m_pDevice->GetWidth(), m_pDevice->GetHeight());
 
-            cmd->SetGraphicsRootSignature(s_BindlessTestRS.GetRootSignature());
-            cmd->SetPipelineState(s_pBindlessTestPSO);
+            cmd->SetGraphicsRootSignature(m_TriangleRootSignatureLayout.GetRootSignature());
+            cmd->SetPipelineState(m_pTrianglePSO);
 
-            ID3D12DescriptorHeap* heaps[] = { m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap() };
-            cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+            cmd->SetGraphicsRootConstantBufferView(
+                m_TriangleRootSignatureLayout.GetSlot("Transform"), m_TriangleTransformCB.GetAddress());
 
-            cmd->SetGraphicsRootConstantBufferView(0, testIndexCB.GetAddress());
-
-            cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-            cmd->DrawInstanced(3, 1, 0, 0);
+            m_TriangleMesh.Draw(cmd);
         });
-
-    // ポストエフェクトを実行
-    m_PostProcessStack.Execute(m_RenderGraph, sceneColorHandle, colorHandle);
 
     // RenderGraph本体実行
     m_RenderGraph.Execute(_pCmd, pTracker);

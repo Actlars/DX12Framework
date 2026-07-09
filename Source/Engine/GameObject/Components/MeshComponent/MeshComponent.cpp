@@ -44,6 +44,18 @@ bool MeshComponent::Init(
 		m_TransformCBs.emplace_back(std::move(cb));
 	}
 
+	m_MaterialIndicesCBs.reserve(_frameCount);
+	for (auto i = 0u; i < _frameCount; ++i)
+	{
+		auto cb = std::make_unique<RHI::ConstantBuffer>();
+		if (!cb->Init(_pDevice, _pPool, sizeof(MaterialIndicesCB)))
+		{
+			ELOG("MeshComponent::Init() MaterialIndicesCB ConstantBuffer[%u] failed", i);
+			return false;
+		}
+		m_MaterialIndicesCBs.emplace_back(std::move(cb));
+	}
+
 	return true;
 }
 
@@ -53,6 +65,7 @@ bool MeshComponent::Init(
 void MeshComponent::OnDetach()
 {
 	m_TransformCBs.clear();
+	m_MaterialIndicesCBs.clear();
 	m_pMesh		= nullptr;
 	m_pMaterial = nullptr;
 }
@@ -113,6 +126,14 @@ void MeshComponent::SetRootLayout(const RHI::RootSignatureLayout* _pRootLayout)
 	m_TextureSlot	= _pRootLayout->GetSlot("Texture");
 }
 
+void MeshComponent::SetRootLayoutBindless(const RHI::RootSignatureLayout* _pRootLayout)
+{
+	if (_pRootLayout == nullptr) 
+	{ return; }
+
+	m_MaterialIndicesSlot = _pRootLayout->GetSlot("MaterialIndices");
+}
+
 void MeshComponent::SetVisible(bool _visible)
 {
 	m_IsValiable = _visible;
@@ -139,6 +160,7 @@ void MeshComponent::Submit(RenderQueue* _pQueue)
 	item.TransformSlot	= m_TransformSlot;
 	item.MaterialSlot	= m_MaterialSlot;
 	item.TextureSlot	= m_TextureSlot;
+	item.MaterialIndicesSlot = m_MaterialIndicesSlot;
 
 	// TransformCBへの書き込み memcpyなのでDX12APIではないので安全に並列化できる
 	if (m_FrameIndex < m_TransformCBs.size() && m_TransformCBs[m_FrameIndex])
@@ -160,6 +182,17 @@ void MeshComponent::Submit(RenderQueue* _pQueue)
 		{
 			item.TextureHandle	= texHandle;
 			item.HasTexture		= true;
+		}
+
+		// Bindless用 : マテリアルのテクスチャIndexをCBへ書き込む
+		if (m_FrameIndex < m_MaterialIndicesCBs.size() && m_MaterialIndicesCBs[m_FrameIndex])
+		{
+			auto* pIndicesCB = m_MaterialIndicesCBs[m_FrameIndex]->GetPtr<MaterialIndicesCB>();
+			pIndicesCB->DiffuseTextureIndex = m_pMaterial->GetTextureIndex(Material::TEXTURE_DIFFUSE);
+			pIndicesCB->NormalTextureIndex = m_pMaterial->GetTextureIndex(Material::TEXTURE_NORMAL);
+			pIndicesCB->SpecularTextureIndex = m_pMaterial->GetTextureIndex(Material::TEXTURE_SPECULAR);
+
+			item.MaterialIndicesCBAddress = m_MaterialIndicesCBs[m_FrameIndex]->GetAddress();
 		}
 	}
 

@@ -1,0 +1,27 @@
+{
+  "Name": "TriangleMeshShaderRootSignature",
+  "Parameters": [
+    {
+      "Name": "Transform",
+      "Type": "CBV",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "MS"
+    },
+    {
+      "Name": "Vertices",
+      "Type": "SRV",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "MS"
+    },
+    {
+      "Name": "Indices",
+      "Type": "SRV",
+      "ShaderRegister": 1,
+      "RegisterSpace": 0,
+      "Visibility": "MS"
+    }
+  ],
+  "Flags": []
+}

@@ -5,6 +5,8 @@
 // -------------------------------------------------------------------------------
 #include "../DrawItem.h"
 
+enum class RenderMode;
+
 // -------------------------------------------------------------------------------
 // RenderQueue class
 // 
@@ -36,7 +38,7 @@ public:
 	// @brief	蓄積したDrawItemを順にコマンドリストへ発行する
 	//			GameScene::OnRenderから呼ぶ
 	// -------------------------------------------------------------------------------
-	void Execute(ID3D12GraphicsCommandList* _pCmd);
+	void Execute(ID3D12GraphicsCommandList* _pCmd, RenderMode _mode);
 
 	size_t GetItemCount() const;
 

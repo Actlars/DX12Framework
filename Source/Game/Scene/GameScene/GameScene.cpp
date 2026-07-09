@@ -206,8 +206,15 @@ bool GameScene::InitGameObjects()
             cb->Diffuse = kDebug[matId % 6];
         }
 
-        // RootSignature のスロット番号を設定（GameScene の定義と合わせる）
-        pMeshComp->SetRootLayout(m_SceneRenderer.GetMeshRootSignatureLayout());
+       // if (m_SceneRenderer.GetRenderMode() == RenderMode::Traditional)
+        {
+            // RootSignature のスロット番号を設定（GameScene の定義と合わせる）
+            pMeshComp->SetRootLayout(m_SceneRenderer.GetMeshRootSignatureLayout());
+        }
+        //else
+        {
+            pMeshComp->SetRootLayoutBindless(m_SceneRenderer.GetMeshRootSignatureLayoutBIndless());
+        }
 
         // UpdateViewProj() で使うためにキャッシュしておく
         m_MeshComponents.emplace_back(pMeshComp);
