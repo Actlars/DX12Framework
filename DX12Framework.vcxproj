@@ -79,7 +79,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(Solution)External\meshoptimizer\src\$(Configuration)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -108,7 +108,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(Solution)External\meshoptimizer\src\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -132,7 +132,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)External\DXC_2026_02\include;$(SolutionDir)External\DXC_2026_02\bin\x64;$(SolutionDir)External\Agility_1.619\include;$(SolutionDir)External\Agility_1.619\bin\64;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;$(SolutionDir)External\DXC_2026_02\include;$(SolutionDir)External\DXC_2026_02\bin\x64;$(SolutionDir)External\Agility_1.619\include;$(SolutionDir)External\Agility_1.619\bin\64;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(Solution)External\meshoptimizer\src\$(Configuration)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -164,7 +164,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(Solution)External\meshoptimizer\src\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
