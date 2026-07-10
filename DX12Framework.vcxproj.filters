@@ -58,9 +58,6 @@
     <Filter Include="ソース ファイル\Engine\Shader\MeshShader">
       <UniqueIdentifier>{adf6a884-3e3e-4757-a09a-bf911adec62a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Engine\Shader\SimpleShader">
-      <UniqueIdentifier>{4cd90d35-7899-4d62-8ef7-105f360de9a9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Engine\Utility\ComPtr">
       <UniqueIdentifier>{9571d911-2675-4e24-8e15-2a0e0181f22d}</UniqueIdentifier>
     </Filter>
@@ -544,20 +541,11 @@
     <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli">
       <Filter>ソース ファイル\Engine\Shader\MeshShader</Filter>
     </None>
-    <None Include="Source\Engine\Shader\SimpleShader\SimpleInc.hlsli">
-      <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
-    </None>
     <None Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShader.hlsli">
       <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\Engine\Shader\SimpleShader\SimplePS.hlsl">
-      <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Engine\Shader\SimpleShader\SimpleVS.hlsl">
-      <Filter>ソース ファイル\Engine\Shader\SimpleShader</Filter>
-    </FxCompile>
     <FxCompile Include="Source\Engine\Shader\Mesh\StandardMesh\BindlessTestPS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
     </FxCompile>

@@ -4,7 +4,10 @@
 struct MSInput
 {
     float3 Position;    // 頂点座標
-    float4 Color;       // 頂点カラー
+    float3 Normal;      // 法線
+    float2 TexCoord;    // UV
+    float3 Tangent;     // タンジェント
+    float3 Bitangent;
 };
 
 // -------------------------------------------------------------------------------
@@ -12,8 +15,21 @@ struct MSInput
 // -------------------------------------------------------------------------------
 struct MSOutput
 {
-    float4 Position : SV_Position;  // 頂点座標
-    float4 Color    : COLOR;        // 頂点カラー
+    float4 Position     : SV_Position;  // 頂点座標
+    float3 Normal       : NORMAL;
+    float2 TexCoord     : TEXCOORD;
+    float3 MeshletColor : COLOR1;
+};
+
+// -------------------------------------------------------------------------------
+// MeshletDesc structure
+// -------------------------------------------------------------------------------
+struct MeshletDesc
+{
+    uint VertexOffset;
+    uint VertexCount;
+    uint PrimitiveOffset;
+    uint PrimitiveCount;
 };
 
 // -------------------------------------------------------------------------------
@@ -29,45 +45,69 @@ struct TransformParam
 // -------------------------------------------------------------------------------
 // Resources
 // -------------------------------------------------------------------------------
-StructuredBuffer<MSInput>       Vertices    : register(t0);
-StructuredBuffer<uint3>         Indices     : register(t1);
-ConstantBuffer<TransformParam>  Transform   : register(b0);
+StructuredBuffer<MSInput>       Vertices                : register(t0);
+StructuredBuffer<uint>          MeshletVertexIndices    : register(t1); // ローカル→グローバル頂点インデックス
+StructuredBuffer<uint>          PackedPrimitiveIndices  : register(t2); // 3バイトパック済み三角形
+StructuredBuffer<MeshletDesc>   Meshlets                : register(t3);
+ConstantBuffer<TransformParam>  Transform               : register(b0);
+
+// packedから3頂点分のローカルインデックスを取り出す
+uint3 UnpackTriangle(uint packed)
+{
+    return uint3(packed & 0xFF, (packed >> 8) & 0xFF, (packed >> 16) & 0xFF);
+}
+
+// メッシュレットIDから疑似ランダムな色を作る
+float3 HashColor(uint id)
+{
+    uint    h = id * 2654435761u;
+    float   r = ((h >> 0) & 0xFF)   / 255.0f;
+    float   g = ((h >> 8) & 0xFF)   / 255.0f;
+    float   b = ((h >> 16) & 0xFF)  / 255.0f;
+    return float3(r, g, b);
+}
+
 
 // -------------------------------------------------------------------------------
 //      メッシュシェーダーのエントリーポイント
 // -------------------------------------------------------------------------------
-[numthreads(64,1,1)]
+[numthreads(128,1,1)]
 [outputtopology("triangle")]
 void main
 (
     uint groupIndex : SV_GroupIndex,
-    out vertices MSOutput verts[3],
-    out indices uint3 tris[1]
+    uint3 groupID : SV_GroupID,
+    out vertices MSOutput verts[64],
+    out indices uint3 tris[126]
 )
-{
+{    
+    // スレッドグループごとのIDを取得
+    MeshletDesc msDesc = Meshlets[groupID.x];
     // スレッドグループの頂点とプリミティブの数を設定
-    SetMeshOutputCounts(3, 1);
+    SetMeshOutputCounts(msDesc.VertexCount, msDesc.PrimitiveCount);
     
-    // 頂点番号を設定
-    if (groupIndex < 1)
+    if (groupIndex < msDesc.PrimitiveCount)
     {
-        tris[groupIndex] = Indices[groupIndex];
+        uint packed = PackedPrimitiveIndices[msDesc.PrimitiveOffset + groupIndex];
+        tris[groupIndex] = UnpackTriangle(packed); // ローカル頂点座標（0 ～ 63）そのまま使える
     }
     
-    // 頂点データを設定
-    if (groupIndex < 3)
+    if (groupIndex < msDesc.VertexCount)
     {
-        MSOutput output = (MSOutput) 0;
+        // ローカル → グローバル頂点インデックスへ変換してから実データを読む
+        uint globalVertexIndex = MeshletVertexIndices[msDesc.VertexOffset + groupIndex];
+        MSInput v = Vertices[globalVertexIndex];
         
-        float4 localPos = float4(Vertices[groupIndex].Position, 1.0f);
-        float4 worldPos = mul(Transform.World, localPos);
+        MSOutput output = (MSOutput) 0;
+        float4 worldPos = mul(Transform.World, float4(v.Position, 1.0f));
         float4 viewPos = mul(Transform.View, worldPos);
         float4 projPos = mul(Transform.Proj, viewPos);
         
-        output.Position = projPos;
-        output.Color = Vertices[groupIndex].Color;
+        output.Position     = projPos;
+        output.Normal       = mul((float3x3) Transform.World, v.Normal);
+        output.TexCoord     = v.TexCoord;
+        output.MeshletColor = HashColor(groupID.x);
         
         verts[groupIndex] = output;
     }
-
 }

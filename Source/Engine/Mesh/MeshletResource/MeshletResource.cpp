@@ -3,6 +3,7 @@
 // -------------------------------------------------------------------------------
 #include "MeshletResource.h"
 #include <Engine/Utility/Debug/Logger/Logger.h>
+#include "meshoptimizer.h"
 
 // -------------------------------------------------------------------------------
 //		コンストラクタ	
@@ -81,16 +82,138 @@ bool MeshletResource::Init(ID3D12Device* _pDevice, const MeshletVertexData& _ver
 }
 
 // -------------------------------------------------------------------------------
+//		メッシュレットの初期化
+// -------------------------------------------------------------------------------
+bool MeshletResource::InitMeshlets(ID3D12Device* _pDevice, const ResMesh& _resMesh)
+{
+	if (_pDevice == nullptr || _resMesh.Vertices.empty() || _resMesh.Indices.empty()) 
+	{ 
+		ELOG("MeshletResource::InitMeshlets() Invalid argument or empty mesh");
+		return false; 
+	}
+
+	// meshoptimizerのパラメータ
+	// max_vertices / max_trianglesはハードウェアの制約に合わせる
+	// SM6.9世代のGPUだと 64頂点 / 124三角形 が推奨値
+	const size_t maxVertices = 64;
+	const size_t maxTriangles = 124;
+	const float coneWeight = 0.0f;	// 今回はカリング用コーンは使わない
+
+	const size_t maxMeshlets = meshopt_buildMeshletsBound(
+		_resMesh.Indices.size(), maxVertices, maxTriangles);
+
+	std::vector<meshopt_Meshlet>	meshlets(maxMeshlets);
+	std::vector<unsigned int>		meshletVertices(maxMeshlets * maxVertices);
+	std::vector<unsigned char>		meshletTriangles(maxMeshlets * maxTriangles * 3);
+
+	const size_t meshletCount = meshopt_buildMeshlets(
+		meshlets.data(),
+		meshletVertices.data(),
+		meshletTriangles.data(),
+		_resMesh.Indices.data(),
+		_resMesh.Indices.size(),
+		&_resMesh.Vertices[0].Position.x,	// 頂点座標の先頭ポインタ
+		_resMesh.Vertices.size(),
+		sizeof(ResMeshVertex),				// 頂点スライド
+		maxVertices, maxTriangles, coneWeight);
+
+	// meshopt_buildMeshletsは上限確保した配列を返すので、実際に使われた分だけに切り詰める
+	const auto& last = meshlets[meshletCount - 1];
+	meshletVertices.reserve(last.vertex_offset + last.vertex_count);
+	meshletTriangles.reserve(last.triangle_offset + ((last.triangle_count * 3 + 3) & ~3));
+	meshlets.reserve(meshletCount);
+
+	// PrimitiveIndicesを3バイト→1uintへバック
+	// GPU側は1三角形 = 1uintとして読む（下位24bitに3頂点分のローカルインデックスを詰める）
+	std::vector<MeshletDesc>	descs(meshletCount);
+	std::vector<uint32_t>		packedPrimitives;
+	packedPrimitives.reserve(meshletTriangles.size() / 3);
+	
+	for (size_t i = 0; i < meshletCount; ++i)
+	{
+		const auto& m = meshlets[i];
+
+		descs[i].VertexOffset		= m.vertex_offset;
+		descs[i].VertexCount		= m.vertex_count;
+		descs[i].PrimitiveOffset	= static_cast<uint32_t>(packedPrimitives.size());
+		descs[i].PrimitiveCount		= m.triangle_count;
+
+		for (uint32_t t = 0; t < m.triangle_count; ++t)
+		{
+			const uint8_t* tri = &meshletTriangles[m.triangle_offset + t * 3];
+			// 下位8bitずつ3頂点のローカルインデックスを詰める
+			const uint32_t packed = 
+				(static_cast<uint32_t>(tri[0])) |
+				(static_cast<uint32_t>(tri[1]) << 8) |
+				(static_cast<uint32_t>(tri[2]) << 16);
+			packedPrimitives.emplace_back(packed);
+		}
+	}
+
+	// GPUバッファへ転送
+	if (!CreateStructuredBuffer(_pDevice,
+		sizeof(unsigned int) * meshletVertices.size(), meshletVertices.data(), m_pMeshletVertexIndices))
+	{
+		ELOG("MeshletResource::InitMeshlets() MeshletVertexIndices creation failed");
+		return false;
+	}
+
+	if (!CreateStructuredBuffer(_pDevice,
+		sizeof(uint32_t) * packedPrimitives.size(), packedPrimitives.data(), m_pPackedPrimitiveIndices))
+	{
+		ELOG("MeshletResource::InitMeshlets() PackedPrimitives creation failed");
+		return false;
+	}
+
+	if (!CreateStructuredBuffer(_pDevice,
+		sizeof(MeshletDesc) * descs.size(), descs.data(), m_pMeshlets))
+	{
+		ELOG("MeshletResource::InitMeshlets() Meshlets creation failed");
+		return false;
+	}
+
+	if (!CreateStructuredBuffer(_pDevice,
+		sizeof(ResMeshVertex) * _resMesh.Vertices.size(), _resMesh.Vertices.data(), m_pVertexBuffer))
+	{
+		ELOG("MeshletResource::InitMeshlets() VertexBuffer creation failed");
+		return false;
+	}
+
+	m_VertexCount	= static_cast<uint32_t>(_resMesh.Vertices.size());
+	m_MeshletCount = static_cast<uint32_t>(meshletCount);
+
+	for (size_t i = 0; i < std::min<size_t>(3, descs.size()); ++i)
+	{
+		ELOG("Meshlet[%zu]: VertexOffset=%u VertexCount=%u PrimitiveOffset=%u PrimitiveCount=%u",
+			i, descs[i].VertexOffset, descs[i].VertexCount, descs[i].PrimitiveOffset, descs[i].PrimitiveCount);
+	}
+
+	ELOG("meshletVertices.size()=%zu packedPrimitives.size()=%zu meshlets.size()=%zu",
+		meshletVertices.size(), packedPrimitives.size(), descs.size());
+
+	return true;
+}
+
+// -------------------------------------------------------------------------------
 //		終了処理
 // -------------------------------------------------------------------------------
 void MeshletResource::Term()
 {
 	m_pVertexBuffer.Reset();
 	m_pIndexBuffer.Reset();
+	m_pMeshletVertexIndices.Reset();
+	m_pPackedPrimitiveIndices.Reset();
+	m_pMeshlets.Reset();
+
 	m_VertexCount	= 0;
 	m_IndexCount	= 0;
-	m_VerticesSlot	= UINT32_MAX;
-	m_IndicesSlot	= UINT32_MAX;
+	m_MeshletCount	= 0;
+
+	m_VerticesSlot			= UINT32_MAX;
+	m_IndicesSlot			= UINT32_MAX;
+	m_MeshletVerticesSlot	= UINT32_MAX;
+	m_PrimitiveIndicesSlot	= UINT32_MAX;
+	m_MeshletsSlot			= UINT32_MAX;
 }
 
 // -------------------------------------------------------------------------------
@@ -102,44 +225,65 @@ void MeshletResource::SetRootSlots(uint32_t _verticesSlot, uint32_t _indicesSlot
 	m_IndicesSlot = _indicesSlot;
 }
 
+void MeshletResource::SetMeshletRootSlots(
+	uint32_t _verticesSlot, 
+	uint32_t _meshletVerticesSlot, 
+	uint32_t _primitiveIndicesSlot, 
+	uint32_t _meshletsSlot)
+{
+	m_VerticesSlot			= _verticesSlot;
+	m_MeshletVerticesSlot	= _meshletVerticesSlot;
+	m_PrimitiveIndicesSlot	= _primitiveIndicesSlot;
+	m_MeshletsSlot			= _meshletsSlot;
+}
+
 // -------------------------------------------------------------------------------
 //		描画コマンドを積む
 // -------------------------------------------------------------------------------
 void MeshletResource::Draw(
-	ID3D12GraphicsCommandList* _pCmd,
+	ID3D12GraphicsCommandList*	_pCmd,
 	uint32_t					_instanceCount
 )
 {
-	if (_pCmd == nullptr || m_IndexCount == 0)
-	{
-		return;
-	}
+	if (_pCmd == nullptr) 
+	{ return; }
 
-	// Vertices / Indices を Root Descriptor(SRV)にバインド
-	// スロットが未設定の場合はバインドをスキップして無効呼び出しを防ぐ
-	if (m_VerticesSlot != UINT32_MAX)
-	{
-		_pCmd->SetGraphicsRootShaderResourceView(m_VerticesSlot, m_pVertexBuffer->GetGPUVirtualAddress());
-	}
-
-	if (m_IndicesSlot != UINT32_MAX)
-	{
-		_pCmd->SetGraphicsRootShaderResourceView(m_IndicesSlot, m_pIndexBuffer->GetGPUVirtualAddress());
-	}
-
-	// DispatchMeshはID3D12GraphicsCommandList6以降のメソッドなのでQueryInterfaceする
 	ComPtr<ID3D12GraphicsCommandList6> pCmd6;
-	auto hr = _pCmd->QueryInterface(IID_PPV_ARGS(pCmd6.GetAddressOf()));
-	if (FAILED(hr))
-	{
-		ELOG("MeshletResource::Draw() : QueryInterface(ID3D12GraphicsCommandList6) failed hr = 0x%08X", hr);
-		return;
-	}
+	if (FAILED(_pCmd->QueryInterface(IID_PPV_ARGS(pCmd6.GetAddressOf())))) 
+	{ return; }
 
-	// 現状は三角形数分をまとめて1スレッドグループで処理する最小構成
-	// (numthreads(64,1,1)なので、1グループで最大21三角形程度まで対応可能
-	// 大規模メッシュではメッシュレットで分割してスレッドグループ数を増やす必要がある
-	pCmd6->DispatchMesh(_instanceCount, 1, 1);
+	if (m_MeshletCount > 0)
+	{
+		// 実モデル描画パス
+		if (m_VerticesSlot			!= UINT32_MAX) 
+		{ _pCmd->SetGraphicsRootShaderResourceView(m_VerticesSlot, m_pVertexBuffer->GetGPUVirtualAddress()); }
+		if (m_MeshletVerticesSlot	!= UINT32_MAX)
+		{ _pCmd->SetGraphicsRootShaderResourceView(m_MeshletVerticesSlot, m_pMeshletVertexIndices->GetGPUVirtualAddress()); }
+		if (m_PrimitiveIndicesSlot	!= UINT32_MAX)
+		{ _pCmd->SetGraphicsRootShaderResourceView(m_PrimitiveIndicesSlot, m_pPackedPrimitiveIndices->GetGPUVirtualAddress()); }
+		if (m_MeshletsSlot			!= UINT32_MAX) 
+		{ _pCmd->SetGraphicsRootShaderResourceView(m_MeshletsSlot, m_pMeshlets->GetGPUVirtualAddress()); }
+
+		pCmd6->DispatchMesh(m_MeshletCount, 1, 1);	// メッシュレット数分スレッドグループを回す
+	}
+	else
+	{
+		// Vertices / Indices を Root Descriptor(SRV)にバインド
+		// スロットが未設定の場合はバインドをスキップして無効呼び出しを防ぐ
+		if (m_VerticesSlot != UINT32_MAX)
+		{
+			_pCmd->SetGraphicsRootShaderResourceView(m_VerticesSlot, m_pVertexBuffer->GetGPUVirtualAddress());
+		}
+
+		if (m_IndicesSlot != UINT32_MAX)
+		{
+			_pCmd->SetGraphicsRootShaderResourceView(m_IndicesSlot, m_pIndexBuffer->GetGPUVirtualAddress());
+		}
+		// 現状は三角形数分をまとめて1スレッドグループで処理する最小構成
+		// (numthreads(64,1,1)なので、1グループで最大21三角形程度まで対応可能
+		// 大規模メッシュではメッシュレットで分割してスレッドグループ数を増やす必要がある
+		pCmd6->DispatchMesh(_instanceCount, 1, 1);
+	}
 }
 
 bool MeshletResource::CreateStructuredBuffer(

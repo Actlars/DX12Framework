@@ -1,12 +1,10 @@
 {
-  "VS": "StandardMeshShaderVS.cso",
-  "PS": "StandardMeshShaderPS.cso",
-  "CullMode": "NONE",
+  "MS": "SimpleMS.cso",
+  "PS": "SimplePS.cso",
+  "CullMode": "BACK",
   "DepthEnable": true,
-  "FillMode": "SOLID",
   "DepthWriteMask": "ALL",
   "DepthFunc": "LESS_EQUAL",
-  "BlendEnable": false,
   "RTVFormat": "R16G16B16A16_FLOAT",
   "DSVFormat": "D32_FLOAT"
 }

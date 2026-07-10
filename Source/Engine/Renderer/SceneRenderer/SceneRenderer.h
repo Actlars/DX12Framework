@@ -9,6 +9,7 @@
 #include <Engine/RHI/Resource/Sampler/Sampler.h>
 #include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
 #include <Engine/Mesh/MeshletResource/MeshletResource.h>
+#include <Engine/Mesh/Material/Material.h>
 #include <Engine/Mesh/ResData.h>
 
 namespace RHI { class Device; }
@@ -20,6 +21,19 @@ enum class RenderMode
 	Traditional,	// CPUが呼ぶ方式 : CPUがDrawごとにSetGraphicsRootDescriptorTableでバインド
 	Bindless,		// Bindless方式 : ResourceDescriptorHeap[]でシェーダーが自身でリソースを入手
 };
+
+// -------------------------------------------------------------------------------
+// ModelMeshletEntry
+// 
+// 概要 : 
+//	メッシュレットのモデル描画で使うメッシュ1個分のデータを詰める構造体
+// -------------------------------------------------------------------------------
+struct ModelMeshletEntry
+{
+	std::unique_ptr<MeshletResource> Mesh;
+	uint32_t DiffuseTextureIndex = 0;
+};
+
 
 // -------------------------------------------------------------------------------
 // SceneRenderer
@@ -91,6 +105,9 @@ public:
 	// -------------------------------------------------------------------------------
 	RenderMode					GetRenderMode()					{ return m_RenderMode; }
 
+	// @brief	デバッグモード切替
+	void ToggleMeshletDebugMode() { m_MeshletDebugMode = m_MeshletDebugMode ? 0 : 1; }
+
 private:
 
 	RenderMode					m_RenderMode	= RenderMode::Bindless;	// 描画モード
@@ -111,5 +128,14 @@ private:
 	ID3D12PipelineState*		m_pTrianglePSO = nullptr;
 	MeshletResource				m_TriangleMesh;
 	RHI::ConstantBuffer			m_TriangleTransformCB;
+
+	// 実モデル描画
+	RHI::RootSignatureLayout	m_ModelMeshletRootSignatureLayout;
+	ID3D12PipelineState*		m_pModelMeshletPSO = nullptr;
+	MeshletResource				m_ModelMeshletMesh;
+	std::vector<ModelMeshletEntry> m_ModelMeshletMeshes;
+	std::vector<std::unique_ptr<Material>> m_ModelMaterials;
+	uint32_t m_MeshletDebugMode = 0;
+	std::vector<std::unique_ptr<RHI::ConstantBuffer>> m_ModelMeshletTransformCBs;
 
 };

@@ -175,7 +175,7 @@ bool RHI::PipelineState::LoadFromJsonGraphics(
 		psoDesc.SampleMask = UINT_MAX;
 		psoDesc.PrimitiveTopologyType = ToTopologyType(_json.value("PrimitiveTopologyType", std::string("TRIANGLE")));
 		psoDesc.NumRenderTargets = 1;
-		psoDesc.RTVFormats[0] = ToFormat(_json.value("RTVFormat", std::string("R8G8BB8A8_UNORM")));
+		psoDesc.RTVFormats[0] = ToFormat(_json.value("RTVFormat", std::string("R8G8B8A8_UNORM")));
 		psoDesc.DSVFormat = ToFormat(_json.value("DSVFormat", std::string("D32_FLOAT")));
 		psoDesc.SampleDesc.Count = 1;
 
@@ -304,7 +304,7 @@ bool RHI::PipelineState::LoadFromJsonMeshShader(
 		desc.SampleMask		= UINT_MAX;
 		desc.SampleDesc		= descSample;
 		desc.RTFormats		= rtFormat;
-		desc.DSFormat		= DXGI_FORMAT_UNKNOWN;
+		desc.DSFormat		= ToFormat(_json.value("DSVFormat", std::string("D32_FLOAT")));
 		desc.Flags			= D3D12_PIPELINE_STATE_FLAG_NONE;
 
 		D3D12_PIPELINE_STATE_STREAM_DESC descStream = {};

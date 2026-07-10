@@ -1,0 +1,58 @@
+{
+  "Name": "MeshletModelRootSignature",
+  "Parameters": [
+    {
+      "Name": "Transform",
+      "Type": "CBV",
+      "ShaderRegister": 0,
+      "Visibility": "MS"
+    },
+    {
+      "Name": "Vertices",
+      "Type": "SRV",
+      "ShaderRegister": 0,
+      "Visibility": "MS"
+    },
+    {
+      "Name": "MeshletVertexIndices",
+      "Type": "SRV",
+      "ShaderRegister": 1,
+      "Visibility": "MS"
+    },
+    {
+      "Name": "PackedPrimitiveIndices",
+      "Type": "SRV",
+      "ShaderRegister": 2,
+      "Visibility": "MS"
+    },
+    {
+      "Name": "Meshlets",
+      "Type": "SRV",
+      "ShaderRegister": 3,
+      "Visibility": "MS"
+    },
+    {
+      "Name": "TextureIndex",
+      "Type": "Constants",
+      "ShaderRegister": 1,
+      "Num32BitValues": 1,
+      "Visibility": "PS"
+    },
+    {
+      "Name": "DebugMode",
+      "Type": "Constants",
+      "ShaderRegister": 2,
+      "Num32BitValues": 1,
+      "Visibility": "PS"
+    }
+  ],
+  "StaticSamplers": [
+    {
+      "ShaderRegister": 0,
+      "Filter": "LINEAR",
+      "AddressMode": "WRAP",
+      "Visibility": "PS"
+    }
+  ],
+  "Flags": [ "CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED" ]
+}

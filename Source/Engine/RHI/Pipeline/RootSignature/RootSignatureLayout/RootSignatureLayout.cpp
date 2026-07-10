@@ -122,15 +122,22 @@ bool RHI::RootSignatureLayout::LoadFromJson(ID3D12Device * _pDevice, const std::
 		}
 		else if (type == "SRV")	// Root Descriptor形式のSRV
 		{
-			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+			param.ParameterType				= D3D12_ROOT_PARAMETER_TYPE_SRV;
 			param.Descriptor.ShaderRegister = reg;
-			param.Descriptor.RegisterSpace = space;
+			param.Descriptor.RegisterSpace	= space;
 		}
 		else if (type == "UAV")	// ComputeShader用
 		{
-			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_UAV;
+			param.ParameterType				= D3D12_ROOT_PARAMETER_TYPE_UAV;
 			param.Descriptor.ShaderRegister = reg;
-			param.Descriptor.RegisterSpace = space;
+			param.Descriptor.RegisterSpace	= space;
+		}
+		else if (type == "Constants")
+		{
+			param.ParameterType				= D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+			param.Constants.ShaderRegister	= reg;
+			param.Constants.RegisterSpace	= space;
+			param.Constants.Num32BitValues	= p.value("Num32BitValues", 1u);
 		}
 		else if (type == "SRV_Table" || type == "Sampler_Table")
 		{

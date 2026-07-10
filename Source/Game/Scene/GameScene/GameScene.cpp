@@ -238,6 +238,15 @@ void GameScene::UpdateInput(float _deltaTime)
     if (GetAsyncKeyState('E') & 0x8000) { m_Camera.MoveUp(_deltaTime); }
     if (GetAsyncKeyState('Q') & 0x8000) { m_Camera.MoveDown(_deltaTime); }
 
+    // Mキーでメッシュレット表示切り替え（エッジ検出）
+    static bool sPrevMKey = false;
+    const bool curMKey = (GetAsyncKeyState('M') & 0x8000) != 0;
+    if (curMKey && !sPrevMKey)
+    {
+        m_SceneRenderer.ToggleMeshletDebugMode();
+    }
+    sPrevMKey = curMKey;
+
     HWND hWnd = GetActiveWindow();
     if (hWnd == nullptr) { return; }
 
