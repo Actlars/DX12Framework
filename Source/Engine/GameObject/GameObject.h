@@ -3,7 +3,8 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include <typeindex>
-#include <Engine/GameObject/IRenderable.h>
+#include <Engine/GameObject/Renderable/IRenderable.h>
+#include <Engine/GameObject/Renderable/IMeshletRenderable.h>
 #include <Engine/GameObject/Component/Component.h>
 
 // -------------------------------------------------------------------------------
@@ -69,8 +70,10 @@ public:
 	// 
 	// @param[in]	_pCmd	記録中のコマンドリスト
 	// -------------------------------------------------------------------------------
-	//virtual void Draw(ID3D12GraphicsCommandList* _pCmd);
 	virtual void Submit(RenderQueue* _pQueue);
+
+	// @brief	毎フレームの描画コマンドを積む処理
+	virtual void SubmitMeshlet(MeshletRenderQueue* _pQueue);
 
 	// -------------------------------------------------------------------------------
 	// @brief	コンポーネントを追加する
@@ -107,6 +110,10 @@ public:
 		// IRenderableを実装していれば描画リストにも追加
 		if (auto* pRenderable = dynamic_cast<IRenderable*>(pComp)) 
 		{ m_Renderables.emplace_back(pRenderable); }
+
+		// IMeshletRenderableを実装していれば描画リストにも追加
+		if (auto* pMeshletRenderable = dynamic_cast<IMeshletRenderable*>(pComp)) 
+		{ m_MeshletRenderables.emplace_back(pMeshletRenderable); }
 
 		return pComp;
 	}
@@ -160,6 +167,14 @@ public:
 				m_Renderables.end());
 		}
 
+		// メッシュレット描画リストから削除
+		if (auto* pMeshletRenderable = dynamic_cast<IMeshletRenderable*>(pComp))
+		{
+			m_MeshletRenderables.erase(
+				std::remove(m_MeshletRenderables.begin(), m_MeshletRenderables.end(), pMeshletRenderable),
+				m_MeshletRenderables.end());
+		}
+
 		// コンポーネントリストから削除
 		m_Components.erase(
 			std::remove_if(m_Components.begin(), m_Components.end(), [pComp](const std::unique_ptr<Component>& c)
@@ -201,6 +216,11 @@ protected:
 	// IRenderableを実装するコンポーネントへの参照リスト（所有権なし）
 	// Drawでここだけをループすることで非描画コンポーネントをスキップする
 	std::vector<IRenderable*>						m_Renderables;
+
+	// IMeshletRenderableを実装するコンポーネントへの参照リスト（所有権なし）
+	std::vector<IMeshletRenderable*>				m_MeshletRenderables;
+
+
 
 private:
 

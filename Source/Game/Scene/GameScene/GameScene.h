@@ -9,6 +9,7 @@
 #include <Engine/GameObject/GameObject.h>
 #include <Engine/GameObject/GameObjectManager.h>
 #include <Engine/GameObject/Components/MeshComponent/MeshComponent.h>
+#include <Engine/GameObject/Components/MeshletComponent/MeshletComponent.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
 #include <Engine/Mesh/ResData.h>
 #include <Engine/Renderer/SceneRenderer/SceneRenderer.h>
@@ -67,6 +68,7 @@ private:
     // -------------------------------------------------------------------------------
     void InitCamera();
     bool InitMeshes();
+    bool InitMeshlets();
     bool InitGameObjects();     // GameObjectManager にオブジェクトを登録
 
     // -------------------------------------------------------------------------------
@@ -89,6 +91,9 @@ private:
     // GameObjectManager から毎回 GetComponent() するのではなく
     // 初期化時にキャッシュしておく
     std::vector<MeshComponent*>     m_MeshComponents;
+
+    // MeshletComponentへの参照
+    MeshletComponent*  m_MeshletComponents = nullptr;
 
     // カメラ 
     FPSCamera           m_Camera;

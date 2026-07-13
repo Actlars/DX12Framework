@@ -49,6 +49,5 @@ namespace RG
 
 		ResourceRegistry		m_ResourceRegistry;
 		std::vector<RenderPass> m_RenderPasses;
-
 	};
 }

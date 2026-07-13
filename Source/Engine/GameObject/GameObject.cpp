@@ -3,6 +3,7 @@
 // -------------------------------------------------------------------------------
 #include "GameObject.h"
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
+#include <Engine/Renderer/RenderQueue/MeshletRenderQueue/MeshletRenderQueue.h>
 
 // -------------------------------------------------------------------------------
 //		ユニークIDの生成（スレッドセーフ）
@@ -67,6 +68,18 @@ void GameObject::Submit(RenderQueue* _pQueue)
 	{
 		if (pRenderable->IsVisible()) 
 		{ pRenderable->Submit(_pQueue); }
+	}
+}
+
+void GameObject::SubmitMeshlet(MeshletRenderQueue* _pQueue)
+{
+	if (!m_IsActive || _pQueue == nullptr) 
+	{ return; }
+
+	for (auto* pMeshletRenderable : m_MeshletRenderables)
+	{
+		if (pMeshletRenderable->IsVisible())
+		{ pMeshletRenderable->Submit(_pQueue); }
 	}
 }
 

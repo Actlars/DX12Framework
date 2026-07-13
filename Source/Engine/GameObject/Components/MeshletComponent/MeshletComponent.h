@@ -3,8 +3,8 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include <Engine/GameObject/Component/Component.h>
-#include <Engine/GameObject/Renderable/IRenderable.h>
-#include <Engine/Mesh/Mesh/Mesh.h>
+#include <Engine/GameObject/Renderable/IMeshletRenderable.h>
+#include <Engine/Mesh/MeshletResource/MeshletResource.h>
 #include <Engine/Mesh/Material/Material.h>
 #include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
 
@@ -13,55 +13,65 @@
 // -------------------------------------------------------------------------------
 namespace RHI
 {
+	class Device;
 	class RootSignatureLayout;
 }
 
-// 定数バッファ（ワールド・ビュー・プロジェクション）
-// MeshComponent自身が持ち、TrnsformComponentから毎フレーム更新する
-struct alignas(256) TransformCB
+// -------------------------------------------------------------------------------
+// ModelMeshletEntry
+// 
+// 概要 : 
+//	メッシュレットのモデル描画で使うメッシュ1個分のデータを詰める構造体
+// -------------------------------------------------------------------------------
+struct ModelMeshletEntry
 {
-	DirectX::XMMATRIX World;
-	DirectX::XMMATRIX View;
-	DirectX::XMMATRIX Proj;
+	std::unique_ptr<MeshletResource> Mesh;
+	uint32_t DiffuseTextureIndex = 0;
 };
 
 // -------------------------------------------------------------------------------
-// MeshComponent class
+// MeshletComponent class
 // 
 // 概要 : 
-//	メッシュの描画を担当するコンポーネント
-//	ComponentとIRenderableを継承する
+//	MeshShaderパイプラインでの描画を担当するコンポーネント
+//	ComponentとIMeshletRenderableを継承する
 // 
-//	TransformComponentからワールド変換行列を取得して定数バッファに渡し、Mesh::Drawで描画コマンドに積む
+//	モデルのロードからメッシュレット分割まで行う（今は）
 // -------------------------------------------------------------------------------
-class MeshComponent : public Component, public IRenderable
+class MeshletComponent : public Component, public IMeshletRenderable
 {
 public:
+
+	// 定数バッファ（ワールド・ビュー・プロジェクション）
+	// MeshComponent自身が持ち、TrnsformComponentから毎フレーム更新する
+	struct alignas(256) TransformCB
+	{
+		DirectX::XMMATRIX World;
+		DirectX::XMMATRIX View;
+		DirectX::XMMATRIX Proj;
+	};
 
 	// -------------------------------------------------------------------------------
 	// コンストラクタ
 	// -------------------------------------------------------------------------------
-	MeshComponent();
+	MeshletComponent();
 
 	// -------------------------------------------------------------------------------
 	// デストラクタ
 	// -------------------------------------------------------------------------------
-	~MeshComponent();
+	~MeshletComponent();
 
 	// -------------------------------------------------------------------------------
-	// @brief	定数バッファを初期化
-	//			AddComponent後にGameSceneから呼ぶ
+	// @brief	モデルをロードし、メッシュレット化、マテリアル生成、定数バッファ確保まで行う
 	// 
 	// @param[in]	_pDevice	デバイス
-	// @param[in]	_pPool		CBV用DescriptorPool
-	// @param[in]	_frameCount	フレームバッファ数（GraphicsDevice::GetFrameCount())
+	// @param[in]	_modelPath	ロードするモデルのファイルパス
 	// @retval	true	成功
 	// @retval	false	失敗
 	// -------------------------------------------------------------------------------
 	bool Init(
-		ID3D12Device*			_pDevice,
-		RHI::DescriptorPool*	_pPool,
-		uint32_t				_frameCount);
+		RHI::Device*			_pDevice,
+		const std::wstring&		_modelPath);
 
 	// -------------------------------------------------------------------------------
 	// コンポーネントインターフェースの実装
@@ -71,41 +81,19 @@ public:
 
 
 	// -------------------------------------------------------------------------------
-	// IRenderableインターフェースの実装
+	// IMeshRenderableインターフェースの実装
 	// -------------------------------------------------------------------------------
 
 	// @brief	描画コマンドを積む
-	void Submit(RenderQueue* _pQueue) override;
-	//void Draw(ID3D12GraphicsCommandList* _pCmd) override;
-
+	void Submit(MeshletRenderQueue* _pQueue) override;
 	// @brief	描画が有効かどうか返す
 	bool IsVisible() const override;
-
-	// -------------------------------------------------------------------------------
-	// @brief	描画するメッシュとマテリアルを設定する
-	// 
-	// @param[in]	_pMesh		Meshへのポインタ（所有権なし）
-	// @param[in]	_pMaterial	Materialへのポインタ（所有権なし）
-	// -------------------------------------------------------------------------------
-	void SetMesh(Mesh* _pMesh, Material* _pMaterial);
-
-	// -------------------------------------------------------------------------------
-	// @brief	定数バッファのスロット番号を設定する
-	//			GameSceneのRootSignatureと合わせる
-	// -------------------------------------------------------------------------------
-	void SetRootParamSlots(
-		uint32_t _transformSlot,
-		uint32_t _materialSlot,
-		uint32_t _textureSlot);
 
 	// @brief	現在のフレームインデックスを設定する
 	void SetFrameIndex(uint32_t _frameIndex);
 
-	// @brief	RootSignatureLayoutを設定する
+	// @brief	RootSignatureLayoutを設定する（スロット番号をここから取得する）
 	void SetRootLayout(const RHI::RootSignatureLayout* _pRootLayout);
-
-	// @brief	RootSignatureLayoutを設定する（BIndless）
-	void SetRootLayoutBindless(const RHI::RootSignatureLayout* _pRootLayout);
 
 	// -------------------------------------------------------------------------------
 	// @brief	カメラの View / Proj行列を設定する
@@ -125,15 +113,10 @@ private:
 	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
-
-	// 描画リソース（所有権なし）
-	Mesh*		m_pMesh		= nullptr;
-	Material*	m_pMaterial = nullptr;
-
-	// 定数バッファ
+	std::vector<ModelMeshletEntry>						m_Meshes;
+	std::vector<std::unique_ptr<Material>>				m_Materials;
 	std::vector<std::unique_ptr<RHI::ConstantBuffer>>	m_TransformCBs;
-	std::vector<std::unique_ptr<RHI::ConstantBuffer>>	m_MaterialIndicesCBs;
-	uint32_t											m_FrameIndex;
+	uint32_t											m_FrameIndex	= 0;
 
 	// カメラ行列（GameSceneから毎フレーム更新）
 	DirectX::XMMATRIX m_View = DirectX::XMMatrixIdentity();
@@ -141,10 +124,10 @@ private:
 
 	// RootSignatureのスロット番号（GameSceneの設定と合わせる）
 	uint32_t m_TransformSlot	= UINT32_MAX;
-	uint32_t m_MaterialSlot		= UINT32_MAX;
-	uint32_t m_TextureSlot		= UINT32_MAX;
+	uint32_t m_TextureIndexSlot	= UINT32_MAX;
 
-	uint32_t m_MaterialIndicesSlot = UINT32_MAX;	// Bindless用
+	bool m_IsVisible = true;
 
-	bool m_IsValiable = true;
+	MeshletComponent(const MeshletComponent&) = delete;
+	void operator = (const MeshletComponent&) = delete;
 };

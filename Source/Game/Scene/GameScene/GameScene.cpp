@@ -37,8 +37,9 @@ bool GameScene::OnInit(RHI::Device* _pDevice)
 
     InitCamera();
 
-    if (!InitMeshes()) { ELOG("InitMeshes() failed."); return false; }
-    if (!InitGameObjects()) { ELOG("InitGameObjects() failed."); return false; }
+    if (!InitMeshes())      { ELOG("InitMeshes() failed");      return false; }
+    if (!InitGameObjects()) { ELOG("InitGameObjects() failed"); return false; }
+    if (!InitMeshlets())    { ELOG("InitMeshlets() failed");    return false; }
 
     ShowCursor(FALSE);
     m_IsInitialized = true;
@@ -152,6 +153,28 @@ bool GameScene::InitMeshes()
         }
         m_Materials.emplace_back(std::move(mat));
     }
+
+    return true;
+}
+
+bool GameScene::InitMeshlets()
+{
+    auto* pObj = m_ObjectManager.Add<GameObject>("MeshletModel");
+
+    auto* pTransform = pObj->AddComponent<TransformComponent>();
+    pTransform->SetPosition({ 0.0f,0.0f,0.0f });
+    pTransform->SetScale({ 1.0f,1.0f,1.0f });
+
+    auto* pMeshletComp = pObj->AddComponent<MeshletComponent>();
+    if (!pMeshletComp->Init(m_pDevice, L"Assets/Model/Player/Elinyaa/Elinyaa.fbx"))
+    {
+        ELOG("MeshletComponent::Init() failed");
+        return false;
+    }
+
+    pMeshletComp->SetRootLayout(m_SceneRenderer.GetModelMeshletRootSignatureLayout());
+
+    m_MeshletComponents = pMeshletComp;
 
     return true;
 }
@@ -278,5 +301,11 @@ void GameScene::UpdateViewProj()
         if (pMeshComp == nullptr) { continue; }
         pMeshComp->SetFrameIndex(frameIndex);
         pMeshComp->SetViewProj(view, proj);
+    }
+
+    if (m_MeshletComponents != nullptr)
+    {
+        m_MeshletComponents->SetFrameIndex(frameIndex);
+        m_MeshletComponents->SetViewProj(view, proj);
     }
 }

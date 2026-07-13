@@ -3,42 +3,42 @@
 // -------------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------------
-#include <Engine/Renderer/RendererItem/DrawItem.h>
+#include <Engine/Renderer/RendererItem/MeshletDrawItem.h>
 
 enum class RenderMode;
 
 // -------------------------------------------------------------------------------
-// RenderQueue class
+// MeshletRenderQueue class
 // 
 // 概要 : 
-//	DrawItemを蓄積し、まとめてコマンドリストへ発行する
-//	submitはDX12APIを呼ばないためマルチスレッドから安全に呼べる
-//	Executeは単一スレッドで、実際にコマンドリストへ記録する
+//	MeshletDrawItemを蓄積し、まとめてDispatchMeshコマンドを発行する
+//	RenderQueueのMeshShaderパイプライン版
+//	SubmitはDX12APIを呼ばないためマルチスレッドから安全に呼べる
+//	Executeは単一スレッドで、実際にコマンドへ記録する
 // -------------------------------------------------------------------------------
-class RenderQueue
+class MeshletRenderQueue
 {
 public:
 
 	// -------------------------------------------------------------------------------
 	// コンストラクタ
 	// -------------------------------------------------------------------------------
-	RenderQueue();
+	MeshletRenderQueue();
 
 	// -------------------------------------------------------------------------------
 	// デストラクタ
 	// -------------------------------------------------------------------------------
-	~RenderQueue();
+	~MeshletRenderQueue();
 
 	// -------------------------------------------------------------------------------
-	// @brief	DrawItemを積む
+	// @brief	MeshletDrawItemを積む
 	// -------------------------------------------------------------------------------
-	void Submit(const DrawItem& _item);
+	void Submit(const MeshletDrawItem& _item);
 
 	// -------------------------------------------------------------------------------
-	// @brief	蓄積したDrawItemを順にコマンドリストへ発行する
-	//			GameScene::OnRenderから呼ぶ
+	// @brief	蓄積したMeshletDrawItemを順にコマンドリストへ発行する
 	// -------------------------------------------------------------------------------
-	void Execute(ID3D12GraphicsCommandList* _pCmd, RenderMode _mode);
+	void Execute(ID3D12GraphicsCommandList* _pCmd);
 
 	size_t GetItemCount() const;
 
@@ -47,7 +47,7 @@ private:
 	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
-	std::vector<DrawItem>	m_DrawItems;
-	std::mutex				m_Mutex;	// Submit()とExecute()の排他制御用
+	std::vector<MeshletDrawItem>	m_DrawItems;
+	std::mutex						m_Mutex;		// Submit()とExecute()の排他制御用
 
 };

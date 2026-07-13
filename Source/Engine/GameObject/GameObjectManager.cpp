@@ -3,6 +3,7 @@
 // -------------------------------------------------------------------------------
 #include "GameObjectManager.h"
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
+#include <Engine/Renderer/RenderQueue/MeshletRenderQueue/MeshletRenderQueue.h>
 
 // -------------------------------------------------------------------------------
 //		コンストラクタ
@@ -63,12 +64,27 @@ void GameObjectManager::Update(float _deltaTime)
 	}
 }
 
+// -------------------------------------------------------------------------------
+//		IRenderableを持つGameObjectのDrawを呼ぶ
+// -------------------------------------------------------------------------------
 void GameObjectManager::Submit(RenderQueue* _pQueue)
 {
 	for (auto& obj : m_Objects)
 	{
 		if (obj->IsActive()) 
 		{ obj->Submit(_pQueue); }
+	}
+}
+
+// -------------------------------------------------------------------------------
+//		IMeshletRenderableを持つGameObjectのDrawを呼ぶ
+// -------------------------------------------------------------------------------
+void GameObjectManager::SubmitMeshlet(MeshletRenderQueue* _pQueue)
+{
+	for (auto& obj : m_Objects)
+	{
+		if (obj->IsActive())
+		{ obj->SubmitMeshlet(_pQueue); }
 	}
 }
 

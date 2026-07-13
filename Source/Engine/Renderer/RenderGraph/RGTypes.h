@@ -10,8 +10,8 @@ namespace RG
 	//	ハンドル（ただの整数）で扱うことで、パスの宣言をDX12型に依存しなくさせる
 	// -------------------------------------------------------------------------------
 
-	using	Handle = uint32_t;
-	constexpr	Handle InvalidHandle = UINT32_MAX;
+	using		Handle					= uint32_t;
+	constexpr	Handle InvalidHandle	= UINT32_MAX;
 
 	// -------------------------------------------------------------------------------
 	// TransientResourceDesc

@@ -5,10 +5,10 @@
 #include <Engine/Renderer/RenderGraph/RenderGraph.h>
 #include <Engine/Renderer/PostProcess/PostProcessStack/PostProcessStack.h>
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
+#include <Engine/Renderer/RenderQueue/MeshletRenderQueue/MeshletRenderQueue.h>
 #include <Engine/RHI/Pipeline/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
 #include <Engine/RHI/Resource/Sampler/Sampler.h>
 #include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
-#include <Engine/Mesh/MeshletResource/MeshletResource.h>
 #include <Engine/Mesh/Material/Material.h>
 #include <Engine/Mesh/ResData.h>
 
@@ -20,18 +20,6 @@ enum class RenderMode
 {
 	Traditional,	// CPUが呼ぶ方式 : CPUがDrawごとにSetGraphicsRootDescriptorTableでバインド
 	Bindless,		// Bindless方式 : ResourceDescriptorHeap[]でシェーダーが自身でリソースを入手
-};
-
-// -------------------------------------------------------------------------------
-// ModelMeshletEntry
-// 
-// 概要 : 
-//	メッシュレットのモデル描画で使うメッシュ1個分のデータを詰める構造体
-// -------------------------------------------------------------------------------
-struct ModelMeshletEntry
-{
-	std::unique_ptr<MeshletResource> Mesh;
-	uint32_t DiffuseTextureIndex = 0;
 };
 
 
@@ -93,12 +81,14 @@ public:
 	//			MeshComponent::SetRootLayoutに渡すため、GameSceneから参照される
 	// -------------------------------------------------------------------------------
 	RHI::RootSignatureLayout*	GetMeshRootSignatureLayout()	{ return &m_MeshRootSignatureLayout; }
-
 	// -------------------------------------------------------------------------------
 	// @brief	メッシュ描画用のRootSignatureを取得
 	//			MeshComponent::SetRootLayoutBindlessに渡すため、GameSceneから参照される
 	// -------------------------------------------------------------------------------
-	RHI::RootSignatureLayout*	GetMeshRootSignatureLayoutBIndless() { return &m_MeshRootSignatureLayoutBindless; }
+	RHI::RootSignatureLayout*	GetMeshRootSignatureLayoutBIndless()	{ return &m_MeshRootSignatureLayoutBindless; }
+
+	// MeshletComponent::SetRootLayoutに渡すため、GameSceneから参照される
+	RHI::RootSignatureLayout* GetModelMeshletRootSignatureLayout()		{ return &m_ModelMeshletRootSignatureLayout; }
 
 	// -------------------------------------------------------------------------------
 	// @brief	現在の描画で使っているパイプラインのモードを取得
@@ -121,21 +111,12 @@ private:
 	PostProcessStack			m_PostProcessStack;
 	RenderQueue					m_RenderQueue;
 	RHI::Sampler				m_Sampler;
-	RHI::ConstantBuffer			testIndexCB;
 
-	// MeshShader三角形テスト
-	RHI::RootSignatureLayout	m_TriangleRootSignatureLayout;
-	ID3D12PipelineState*		m_pTrianglePSO = nullptr;
-	MeshletResource				m_TriangleMesh;
-	RHI::ConstantBuffer			m_TriangleTransformCB;
-
-	// 実モデル描画
+	// MeshShader
+	// 描画対象データはMeshletComponentが持つ
 	RHI::RootSignatureLayout	m_ModelMeshletRootSignatureLayout;
 	ID3D12PipelineState*		m_pModelMeshletPSO = nullptr;
-	MeshletResource				m_ModelMeshletMesh;
-	std::vector<ModelMeshletEntry> m_ModelMeshletMeshes;
-	std::vector<std::unique_ptr<Material>> m_ModelMaterials;
-	uint32_t m_MeshletDebugMode = 0;
-	std::vector<std::unique_ptr<RHI::ConstantBuffer>> m_ModelMeshletTransformCBs;
+	MeshletRenderQueue			m_MeshletRenderQueue;
+	uint32_t					m_MeshletDebugMode = 0;
 
 };

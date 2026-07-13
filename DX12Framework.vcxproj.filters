@@ -220,6 +220,21 @@
     <Filter Include="ソース ファイル\Engine\Mesh\MeshletResource">
       <UniqueIdentifier>{9b9466e4-c917-420f-9821-9d5e33c15c63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\RendererItem">
+      <UniqueIdentifier>{d90ae77a-e37d-474c-bf7c-24b414580bac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Renderer\RenderQueue\MeshletRenderQueue">
+      <UniqueIdentifier>{51e475cd-45b3-4f1b-8fde-6a3a587b260c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\GameObject\Renderable">
+      <UniqueIdentifier>{58bd13c3-c357-4193-8762-4f0078b38585}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\GameObject\Components\MeshletComponent">
+      <UniqueIdentifier>{c0520235-c71d-482f-af51-139245b4f6a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Shader\slangTest">
+      <UniqueIdentifier>{68625171-8a83-47fb-91d4-6dfb64634d06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -276,9 +291,6 @@
     <ClInclude Include="Source\Engine\Renderer\Renderer.h">
       <Filter>ソース ファイル\Engine\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\GameObject\IRenderable.h">
-      <Filter>ソース ファイル\Engine\GameObject</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager.h">
       <Filter>ソース ファイル\Engine\GameObject</Filter>
     </ClInclude>
@@ -293,9 +305,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GameObject\Component\Component.h">
       <Filter>ソース ファイル\Engine\GameObject\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\DrawItem.h">
-      <Filter>ソース ファイル\Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\RenderQueue\RenderQueue.h">
       <Filter>ソース ファイル\Engine\Renderer\RenderQueue</Filter>
@@ -401,6 +410,24 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Mesh\MeshletResource\MeshletResource.h">
       <Filter>ソース ファイル\Engine\Mesh\MeshletResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\RendererItem\MeshletDrawItem.h">
+      <Filter>ソース ファイル\Engine\Renderer\RendererItem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\RendererItem\DrawItem.h">
+      <Filter>ソース ファイル\Engine\Renderer\RendererItem</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\RenderQueue\MeshletRenderQueue\MeshletRenderQueue.h">
+      <Filter>ソース ファイル\Engine\Renderer\RenderQueue\MeshletRenderQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\Renderable\IMeshletRenderable.h">
+      <Filter>ソース ファイル\Engine\GameObject\Renderable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\Renderable\IRenderable.h">
+      <Filter>ソース ファイル\Engine\GameObject\Renderable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.h">
+      <Filter>ソース ファイル\Engine\GameObject\Components\MeshletComponent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -536,6 +563,12 @@
     <ClCompile Include="Source\Engine\Mesh\MeshletResource\MeshletResource.cpp">
       <Filter>ソース ファイル\Engine\Mesh\MeshletResource</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\RenderQueue\MeshletRenderQueue\MeshletRenderQueue.cpp">
+      <Filter>ソース ファイル\Engine\Renderer\RenderQueue\MeshletRenderQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.cpp">
+      <Filter>ソース ファイル\Engine\GameObject\Components\MeshletComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli">
@@ -543,6 +576,9 @@
     </None>
     <None Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShader.hlsli">
       <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
+    </None>
+    <None Include="Source\Engine\Shader\slangTest\SlangTest.slang">
+      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

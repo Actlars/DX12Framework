@@ -184,11 +184,13 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\Camera\CameraBase.h" />
     <ClInclude Include="Source\Engine\Camera\FPSCamera\FPSCamera.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.h" />
+    <ClInclude Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.h" />
     <ClInclude Include="Source\Engine\GameObject\Component\Component.h" />
     <ClInclude Include="Source\Engine\GameObject\GameObject.h" />
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager.h" />
-    <ClInclude Include="Source\Engine\GameObject\IRenderable.h" />
+    <ClInclude Include="Source\Engine\GameObject\Renderable\IMeshletRenderable.h" />
+    <ClInclude Include="Source\Engine\GameObject\Renderable\IRenderable.h" />
     <ClInclude Include="Source\Engine\Mesh\Material\Material.h" />
     <ClInclude Include="Source\Engine\Mesh\MeshletResource\MeshletResource.h" />
     <ClInclude Include="Source\Engine\Mesh\MeshLoader\MeshLoader.h" />
@@ -196,17 +198,19 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\Mesh\Mesh\Mesh.h" />
     <ClInclude Include="Source\Engine\Mesh\PolygonMeshResource\PolygonMeshResource.h" />
     <ClInclude Include="Source\Engine\Mesh\ResData.h" />
-    <ClInclude Include="Source\Engine\Renderer\DrawItem.h" />
     <ClInclude Include="Source\Engine\Renderer\GraphicsView\GraphicsView.h" />
     <ClInclude Include="Source\Engine\Renderer\PostProcess\IPostProcessEffect.h" />
     <ClInclude Include="Source\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect\BloomEffect.h" />
     <ClInclude Include="Source\Engine\Renderer\PostProcess\PostProcessStack\PostProcessStack.h" />
     <ClInclude Include="Source\Engine\Renderer\Renderer.h" />
+    <ClInclude Include="Source\Engine\Renderer\RendererItem\DrawItem.h" />
+    <ClInclude Include="Source\Engine\Renderer\RendererItem\MeshletDrawItem.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGPassBuilder.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGRenderPass.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGResourceRegistry.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGTypes.h" />
+    <ClInclude Include="Source\Engine\Renderer\RenderQueue\MeshletRenderQueue\MeshletRenderQueue.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderQueue\RenderQueue.h" />
     <ClInclude Include="Source\Engine\Renderer\SceneRenderer\SceneRenderer.h" />
     <ClInclude Include="Source\Engine\RHI\Core\CommandList\CommandList.h" />
@@ -246,6 +250,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\Camera\CameraBase.cpp" />
     <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp" />
+    <ClCompile Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager.cpp" />
@@ -260,6 +265,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderGraph\RenderGraph.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderGraph\RGResourceRegistry.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\RenderQueue\MeshletRenderQueue\MeshletRenderQueue.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderQueue\RenderQueue.cpp" />
     <ClCompile Include="Source\Engine\Renderer\SceneRenderer\SceneRenderer.cpp" />
     <ClCompile Include="Source\Engine\RHI\Core\CommandList\CommandList.cpp" />
@@ -303,6 +309,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
   <ItemGroup>
     <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli" />
     <None Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShader.hlsli" />
+    <None Include="Source\Engine\Shader\slangTest\SlangTest.slang" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Source\Engine\Shader\MeshShader\MeshShaderPS.hlsl">
