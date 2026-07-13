@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <SlangTask>
+      <!--Enter Defaults Here-->
+      <ObjectFileOutput>$(OutDir)%(Filename).cso</ObjectFileOutput>
+      <AdditionalOptions></AdditionalOptions>
+      <EntryPointName>main</EntryPointName>
+      <TargetFormat>DXIL</TargetFormat>
+      <ShaderModel>_6_9</ShaderModel>
+      <TreatWarningAsError>True</TreatWarningAsError>
+      <SuppressStartupBanner>True</SuppressStartupBanner>
+      <EnableDebuggingInformation Condition="'$(Configuration)' == 'Debug'">True</EnableDebuggingInformation>
+      <EnableDebuggingInformation Condition="!('$(Configuration)' == 'Debug')">False</EnableDebuggingInformation>
+      <DisableOptimizations Condition="'$(Configuration)' == 'Debug'">True</DisableOptimizations>
+      <DisableOptimizations Condition="!('$(Configuration)' == 'Debug')">False</DisableOptimizations>
+      <CommandLineTemplate>"$(SolutionDir)External\Slang\bin\slangc.exe" [AllOptions] [Inputs]</CommandLineTemplate>
+    </SlangTask>
+  </ItemDefinitionGroup>
+</Project>

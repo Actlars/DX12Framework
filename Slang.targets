@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName Include="SlangTask">
+      <Targets>Slang</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+
+  <UsingTask
+    TaskName="SlangTask"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+
+  <Target Name="_WriteSlangTaskTlogs"
+          Condition="'@(SlangTask)' != '' and '@(SelectedFiles)' == ''">
+    <ItemGroup>
+      <_SlangTaskReadTlog Include="^%(SlangTask.FullPath);%(SlangTask.AdditionalDependencies)"
+        Condition="'%(SlangTask.ExcludedFromBuild)' != 'true' and '%(SlangTask.ObjectFileOutput)' != ''"/>
+      <_SlangTaskWriteTlog Include="^%(SlangTask.FullPath);$([MSBuild]::NormalizePath('%(SlangTask.ObjectFileOutput)'))"
+        Condition="'%(SlangTask.ExcludedFromBuild)' != 'true' and '%(SlangTask.ObjectFileOutput)' != ''"/>
+    </ItemGroup>
+    <WriteLinesToFile
+      Condition = "'@(_SlangTaskReadTlog)' != ''"
+      File = "$(TLogLocation)SlangTask.read.1u.tlog"
+      Lines = "@(_SlangTaskReadTlog->MetaData('Identity'));"
+      Overwrite = "true"
+      Encoding = "Unicode"/>
+    <WriteLinesToFile
+      Condition = "'@(_SlangTaskWriteTlog)' != ''"
+      File = "$(TLogLocation)SlangTask.write.1u.tlog"
+      Lines = "@(_SlangTaskWriteTlog->MetaData('Identity'));"
+      Overwrite = "true"
+      Encoding = "Unicode"/>
+    <ItemGroup>
+      <_SlangTaskReadTlog Remove="@(_SlangTaskReadTlog)" />
+      <_SlangTaskWriteTlog Remove="@(_SlangTaskWriteTlog)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="Slang" Condition="'@(SlangTask)' != ''" BeforeTargets="ClCompile" DependsOnTargets="_WriteSlangTaskTlogs;_SelectedFiles" >
+    <ItemGroup Condition="'@(SelectedFiles)' != ''">
+      <SlangTask Remove="@(SlangTask)" Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+    <Message Importance="High" Text="Slang : %(SlangTask.Filename)%(SlangTask.Extension)" />
+    <SlangTask
+      Condition = "'@(SlangTask)' != '' and '%(SlangTask.ExcludedFromBuild)' != 'true'"
+      AdditionalIncludeDirectories = "%(SlangTask.AdditionalIncludeDirectories)"
+      SuppressStartupBanner = "%(SlangTask.SuppressStartupBanner)"
+      TreatWarningAsError = "%(SlangTask.TreatWarningAsError)"
+      PreprocessorDefinitions = "%(SlangTask.PreprocessorDefinitions)"
+      AdditionalOptions = "%(SlangTask.AdditionalOptions)"
+      DisableOptimizations = "%(SlangTask.DisableOptimizations)"
+      EnableDebuggingInformation = "%(SlangTask.EnableDebuggingInformation)"
+      EntryPointName = "%(SlangTask.EntryPointName)"
+      ObjectFileOutput = "%(SlangTask.ObjectFileOutput)"
+      TargetFormat = "%(SlangTask.TargetFormat)"
+      ShaderModel = "%(SlangTask.ShaderModel)"
+      ShaderType = "%(SlangTask.ShaderType)"
+      CommandLineTemplate = "%(SlangTask.CommandLineTemplate)"
+      Inputs = "%(SlangTask.Identity)"
+      />
+  </Target>
+</Project>

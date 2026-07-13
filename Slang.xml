@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="http://schemas.microsoft.com/build/2009/properties" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <Rule Name="SlangTask"
+        PageTemplate="tool"
+        DisplayName="Slang コンパイラ"
+        SwitchPrefix="-"
+        Order="300">
+    <Rule.Categories>
+      <Category Name="General" DisplayName="全般"/>
+      <Category Name="Advanced" DisplayName="詳細設定"/>
+      <Category Name="Output Files" DisplayName="出力ファイル"/>
+      <Category Name="All Options" DisplayName="すべてのオプション" Subtype="Search"/>
+      <Category Name="Command Line" DisplayName="コマンド ライン" Subtype="CommandLine"/>
+    </Rule.Categories>
+    <Rule.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="SlangTask" Label="" HasConfigurationCondition="true" />
+    </Rule.DataSource>
+
+    <StringProperty Name="Inputs" Category="Command Line" IsRequired="true">
+      <StringProperty.DataSource>
+        <DataSource Persistence="ProjectFile" ItemType="SlangTask" SourceType="Item" />
+      </StringProperty.DataSource>
+    </StringProperty>
+
+    <BoolProperty Name="SuppressStartupBanner" DisplayName="著作権情報の非表示" Description="(該当オプションなし。現状未使用)" Category="Advanced"/>
+<BoolProperty Name="TreatWarningAsError" DisplayName="警告をエラーとして扱う" Description="すべての警告をエラーとして扱います。(-warnings-as-errors all)" Category="Advanced" Switch="warnings-as-errors all" />
+
+    <StringListProperty Subtype="folder" Name="AdditionalIncludeDirectories" DisplayName="追加のインクルード ディレクトリ" Description="インクルードパスに追加するディレクトリ。セミコロン区切り。(-I[パス])" Category="General" Switch="I" />
+
+    <StringProperty Name="EntryPointName" DisplayName="エントリ ポイント名" Description="シェーダーのエントリポイント名を指定します (-entry [名前])" Category="General" Switch="entry " />
+
+    <BoolProperty Name="DisableOptimizations" DisplayName="最適化を無効にする" Description="最適化を無効にします。(-O0)" Category="General" Switch="O0" />
+    <BoolProperty Name="EnableDebuggingInformation" DisplayName="デバッグ情報を有効にする" Description="デバッグ情報を有効にします。(-g)" Category="General" Switch="g" />
+
+    <EnumProperty Name="TargetFormat" DisplayName="出力ターゲット" Description="出力フォーマットを指定します。(-target [フォーマット])" Category="General">
+      <EnumValue Name="DXIL" Switch="target dxil" DisplayName="DXIL (DirectX 12)" />
+      <EnumValue Name="DXBC" Switch="target dxbc" DisplayName="DXBC (DirectX 11)" />
+      <EnumValue Name="SPIRV" Switch="target spirv" DisplayName="SPIR-V (Vulkan)" />
+      <EnumValue Name="HLSL" Switch="target hlsl" DisplayName="HLSL (テキスト出力)" />
+    </EnumProperty>
+
+    <EnumProperty Name="ShaderType" DisplayName="シェーダーの種類" Description="シェーダーの種類を指定します。(-profile [種類]_[モデル])" Category="General">
+      <EnumValue Name="Vertex" Switch="profile vs" DisplayName="頂点シェーダー">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Pixel" Switch="profile ps" DisplayName="ピクセル シェーダー">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Compute" Switch="profile cs" DisplayName="コンピュートシェーダー">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Mesh" Switch="profile ms" DisplayName="メッシュシェーダー">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Amplification" Switch="profile as" DisplayName="増幅シェーダー">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+    </EnumProperty>
+
+    <EnumProperty Name="ShaderModel" DisplayName="シェーダモデル" Description="シェーダーモデルを指定します。" Category="General" >
+      <EnumValue Name="_6_5" Switch="6_5" DisplayName="Shader Model 6.5" />
+      <EnumValue Name="_6_6" Switch="6_6" DisplayName="Shader Model 6.6" />
+      <EnumValue Name="_6_7" Switch="6_7" DisplayName="Shader Model 6.7" />
+      <EnumValue Name="_6_8" Switch="6_8" DisplayName="Shader Model 6.8" />
+      <EnumValue Name="_6_9" Switch="6_9" DisplayName="Shader Model 6.9" />
+      <EnumValue Name="_6_10" Switch="6_10" DisplayName="Shader Model 6.10" />
+    </EnumProperty>
+
+    <StringListProperty Name="PreprocessorDefinitions" DisplayName="プリプロセッサの定義" Description="ソースファイルの前処理シンボルを定義します。" Category="General" Switch="D " />
+
+    <StringProperty Subtype="file" Name="ObjectFileOutput" DisplayName="オブジェクト ファイル名" Description="出力ファイル名を指定します。(-o [名前])" Category="Output Files" Switch="o " />
+
+    <StringProperty Name="CommandLineTemplate" DisplayName="コマンドライン" Visible="False" IncludeInCommandLine="False" />
+    <StringProperty Subtype="AdditionalOptions" Name="AdditionalOptions" Category="Command Line" DisplayName="追加のオプション" Description="追加のオプション" />
+  </Rule>
+
+  <ItemType Name="SlangTask" DisplayName="Slang コンパイラ" />
+  <ContentType Name="SlangTask" ItemType="SlangTask" DisplayName="Slang コンパイラ" />
+  <FileExtension Name=".slang" ContentType="SlangTask" />
+</ProjectSchemaDefinitions>

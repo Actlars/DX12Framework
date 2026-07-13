@@ -577,9 +577,6 @@
     <None Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShader.hlsli">
       <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
     </None>
-    <None Include="Source\Engine\Shader\slangTest\SlangTest.slang">
-      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Engine\Shader\Mesh\StandardMesh\BindlessTestPS.hlsl">
@@ -617,5 +614,19 @@
     <CustomBuild Include="Source\Engine\Shader\Mesh\StandardMesh\SimplePS.hlsl">
       <Filter>ソース ファイル\Engine\Shader\Mesh\StandardMesh</Filter>
     </CustomBuild>
+    <CustomBuild Include="Source\Engine\Shader\slangTest\Header.hlsli">
+      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <SlangTask Include="Source\Engine\Shader\slangTest\SlangTestMS.slang">
+      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\slangTest\SlangTestPS.slang">
+      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\slangTest\CoopVecTest.slang">
+      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
+    </SlangTask>
   </ItemGroup>
 </Project>
