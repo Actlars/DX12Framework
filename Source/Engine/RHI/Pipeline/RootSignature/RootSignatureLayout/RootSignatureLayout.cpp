@@ -14,6 +14,7 @@ namespace
 		if (_s == "PS") { return D3D12_SHADER_VISIBILITY_PIXEL;			}
 		if (_s == "GS") { return D3D12_SHADER_VISIBILITY_GEOMETRY;		}
 		if (_s == "HS") { return D3D12_SHADER_VISIBILITY_HULL;			}
+		if (_s == "CS") { return D3D12_SHADER_VISIBILITY_ALL;			}
 		if (_s == "DS") { return D3D12_SHADER_VISIBILITY_DOMAIN;		}
 		if (_s == "MS") { return D3D12_SHADER_VISIBILITY_MESH;			}
 		if (_s == "AS") { return D3D12_SHADER_VISIBILITY_AMPLIFICATION; }

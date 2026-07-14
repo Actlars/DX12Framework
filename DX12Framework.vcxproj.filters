@@ -235,6 +235,12 @@
     <Filter Include="ソース ファイル\Engine\Shader\slangTest">
       <UniqueIdentifier>{68625171-8a83-47fb-91d4-6dfb64634d06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\Test">
+      <UniqueIdentifier>{779f13fe-b66e-4705-b19b-b26fee099534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Test\CoopVecTestRunner">
+      <UniqueIdentifier>{3b7fc923-67c6-4293-a6fc-c3796a4f0082}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -429,6 +435,12 @@
     <ClInclude Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.h">
       <Filter>ソース ファイル\Engine\GameObject\Components\MeshletComponent</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\RHI\Resource\Buffer\Buffer.h">
+      <Filter>ソース ファイル\Engine\RHI\Resource\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Test\CoopVecTestRunner\CoopVecTestRunner.h">
+      <Filter>ソース ファイル\Engine\Test\CoopVecTestRunner</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp">
@@ -568,6 +580,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.cpp">
       <Filter>ソース ファイル\Engine\GameObject\Components\MeshletComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\RHI\Resource\Buffer\Buffer.cpp">
+      <Filter>ソース ファイル\Engine\RHI\Resource\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Test\CoopVecTestRunner\CoopVecTestRunner.cpp">
+      <Filter>ソース ファイル\Engine\Test\CoopVecTestRunner</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

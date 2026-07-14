@@ -56,7 +56,7 @@
 #include <DirectXTex.h>
 #pragma comment(lib, "DirectXTex.lib")
 #include <cstdint>
-#include <d3d12.h>
+#include <include/d3d12.h>
 #include <dxgi1_6.h>
 #include <d3dcompiler.h>
 #include <include/d3dx12/d3dx12.h>

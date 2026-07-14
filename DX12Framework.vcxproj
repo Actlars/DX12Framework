@@ -222,6 +222,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStateDesc.h" />
     <ClInclude Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineStream\PipelineStream.h" />
     <ClInclude Include="Source\Engine\RHI\Pipeline\RootSignature\RootSignatureLayout\RootSignatureLayout.h" />
+    <ClInclude Include="Source\Engine\RHI\Resource\Buffer\Buffer.h" />
     <ClInclude Include="Source\Engine\RHI\Resource\Buffer\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="Source\Engine\RHI\Resource\Buffer\IndexBuffer\IndexBuffer.h" />
     <ClInclude Include="Source\Engine\RHI\Resource\Buffer\VertexBuffer\VertexBuffer.h" />
@@ -237,6 +238,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\RHI\Resource\Texture\TransientResourcePool\TransientResourcePool.h" />
     <ClInclude Include="Source\Engine\Scene\IScene.h" />
     <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h" />
+    <ClInclude Include="Source\Engine\Test\CoopVecTestRunner\CoopVecTestRunner.h" />
     <ClInclude Include="Source\Engine\Utility\ComPtr\ComPtr.h" />
     <ClInclude Include="Source\Engine\Utility\Debug\Logger\Logger.h" />
     <ClInclude Include="Source\Engine\Utility\FileUtil\FileUtil.h" />
@@ -274,6 +276,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\RHI\Core\Fence\Fence.cpp" />
     <ClCompile Include="Source\Engine\RHI\Pipeline\PipelineState\PipelineState.cpp" />
     <ClCompile Include="Source\Engine\RHI\Pipeline\RootSignature\RootSignatureLayout\RootSignatureLayout.cpp" />
+    <ClCompile Include="Source\Engine\RHI\Resource\Buffer\Buffer.cpp" />
     <ClCompile Include="Source\Engine\RHI\Resource\Buffer\ConstantBuffer\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Engine\RHI\Resource\Buffer\IndexBuffer\IndexBuffer.cpp" />
     <ClCompile Include="Source\Engine\RHI\Resource\Buffer\VertexBuffer\VertexBuffer.cpp" />
@@ -286,6 +289,7 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\RHI\Resource\Texture\TextureManager\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\RHI\Resource\Texture\TransientResourcePool\TransientResourcePool.cpp" />
     <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp" />
+    <ClCompile Include="Source\Engine\Test\CoopVecTestRunner\CoopVecTestRunner.cpp" />
     <ClCompile Include="Source\Engine\Utility\Debug\Logger\Logger.cpp" />
     <ClCompile Include="Source\Engine\Utility\FileUtil\FileUtil.cpp" />
     <ClCompile Include="Source\Engine\Utility\JsonLoader\JsonLoader.cpp" />

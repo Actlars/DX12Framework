@@ -53,6 +53,14 @@ namespace RHI
 			const nlohmann::json&	_json,
 			ID3D12RootSignature*	_pRootSignature);
 
+		// -------------------------------------------------------------------------------
+		// @brief	ComputeShaderパイプライン用のPSO生成
+		// -------------------------------------------------------------------------------
+		bool LoadFromJsonCompute(
+			ID3D12Device*			_pDevice,
+			const nlohmann::json&	_json,
+			ID3D12RootSignature*	_pRootSignature);
+
 		ComPtr<ID3D12PipelineState> m_pPSO;
 	};
 }

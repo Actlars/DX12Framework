@@ -91,6 +91,10 @@ bool RHI::PipelineState::LoadFromJson(
 	{
 		return LoadFromJsonMeshShader(_pDevice, json, _pRootSignature);
 	}
+	else if (json.contains("CS"))
+	{
+		return LoadFromJsonCompute(_pDevice, json, _pRootSignature);
+	}
 	else
 	{
 		return LoadFromJsonGraphics(_pDevice, json, _pRootSignature, _inputLayout);
@@ -331,6 +335,45 @@ bool RHI::PipelineState::LoadFromJsonMeshShader(
 	catch (const std::exception& e)
 	{
 		ELOG("PipelineState::LoadFromJosnMeshShader() : exception : %s", e.what());
+		return false;
+	}
+
+	return true;
+}
+
+bool RHI::PipelineState::LoadFromJsonCompute(ID3D12Device* _pDevice, const nlohmann::json& _json, ID3D12RootSignature* _pRootSignature)
+{
+	try
+	{
+		// シェーダーの読み込み
+		std::wstring csPath;
+		std::wstring vsName = StringUtil::ToWString(_json.at("CS").get<std::string>());
+
+		if (!SearchFilePath(vsName.c_str(), csPath))
+		{
+			ELOG("PipelineState::FromToJsonCompute() : CS not found : %ls", vsName.c_str());
+			return false;
+		}
+
+		ComPtr<ID3DBlob> pCS;
+		if (FAILED(D3DReadFileToBlob(csPath.c_str(), pCS.GetAddressOf())))
+		{ return false; }
+
+		D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {};
+		psoDesc.pRootSignature	= _pRootSignature;
+		psoDesc.CS				= { pCS->GetBufferPointer(),pCS->GetBufferSize() };
+		psoDesc.Flags			= D3D12_PIPELINE_STATE_FLAG_NONE;
+
+		auto hr = _pDevice->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS((m_pPSO.GetAddressOf())));
+		if (FAILED(hr))
+		{
+			ELOG("PipelineState::LoadFromJsonCompute() : CreateComputePipelineState failed hr = 0x%08X", hr);
+			return false;
+		}
+	}
+	catch (const std::exception& e)
+	{
+		ELOG("PipelineState::LoadFromJsonCompute() : exception : %s", e.what());
 		return false;
 	}
 

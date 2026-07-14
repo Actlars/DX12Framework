@@ -5,6 +5,7 @@
 #include <Engine/RHI/Core/Device/Device.h>
 #include <Engine/Renderer/Renderer.h>
 #include <Engine/Utility/Debug/Logger/Logger.h>
+#include <Engine/Test/CoopVecTestRunner/CoopVecTestRunner.h>
 
 // -------------------------------------------------------------------------------
 // GraphicsView::Impl
@@ -53,6 +54,13 @@ bool GraphicsView::Init(void* _hWnd, uint32_t _width, uint32_t _height)
 		DLOG("GraphicsView::Init() Rendere failed");
 		return false; 
 	}
+
+#ifdef _DEBUG
+	{
+		CoopVecTestRunner coopVecTest;
+		coopVecTest.Run(&m_pImpl->Device);
+	}
+#endif
 
 	return true;
 }
