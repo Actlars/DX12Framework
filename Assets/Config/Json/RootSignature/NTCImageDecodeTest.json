@@ -1,0 +1,31 @@
+{
+  "Name": "NTCImageDecodeTestRootSignature",
+  "Parameters": [
+    {
+      "Name": "LatentGridHigh",
+      "Type": "SRV",
+      "ShaderRegister": 0,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "LatentGridLow",
+      "Type": "SRV",
+      "ShaderRegister": 1,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "WeightBuffer",
+      "Type": "SRV",
+      "ShaderRegister": 2,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "OutputTexture",
+      "Type": "UAV_Table",
+      "ShaderRegister": 0,
+      "Visibility": "CS"
+    }
+  ],
+  "StaticSamplers": [],
+  "Flags": []
+}

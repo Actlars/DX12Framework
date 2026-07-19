@@ -11,6 +11,7 @@
 #include <Engine/GameObject/Components/MeshComponent/MeshComponent.h>
 #include <Engine/GameObject/Components/MeshletComponent/MeshletComponent.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
+#include <Engine/Test/NTCImageTestRunner/NTCImageTestRunner.h>
 #include <Engine/Mesh/ResData.h>
 #include <Engine/Renderer/SceneRenderer/SceneRenderer.h>
 
@@ -104,4 +105,6 @@ private:
     PostProcessStack    m_PostProcessStack;
 
     SceneRenderer       m_SceneRenderer;
+
+    NTCImageDecodeTestRunner m_NTCRunner;
 };

@@ -132,6 +132,63 @@ bool RHI::Texture::InitFromResource(
 }
 
 // -------------------------------------------------------------------------------
+// UAV + SRV両対応テクスチャの新規作成
+// -------------------------------------------------------------------------------
+bool RHI::Texture::InitAsUAVTarget(
+	ID3D12Device*	_pDevice, 
+	DescriptorPool* _pPool, 
+	uint32_t		_width, 
+	uint32_t		_height, 
+	DXGI_FORMAT		_format)
+{
+	assert(_pDevice != nullptr);
+	assert(_pPool	!= nullptr);
+
+	m_pDevice	= _pDevice;
+	m_pPool		= _pPool;
+
+	// Defaultヒープに、UAVとして書き込み可能なテクスチャリソースを作成する
+	D3D12_HEAP_PROPERTIES heapDefault = {};
+	heapDefault.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+	D3D12_RESOURCE_DESC resDesc = {};
+	resDesc.Dimension			= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resDesc.Width				= static_cast<UINT64>(_width);
+	resDesc.Height				= static_cast<UINT64>(_height);
+	resDesc.DepthOrArraySize	= 1;
+	resDesc.MipLevels			= 1;											//	ベイク結果はミップ不要
+	resDesc.Format				= _format;
+	resDesc.SampleDesc.Count	= 1;
+	resDesc.SampleDesc.Quality	= 0;
+	resDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	resDesc.Flags				= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;	// UAVとして使うためのフラグ
+
+	// 初期状態はUNORDERED_ACCESSにしておく（生成後にコンピュートシェーダーから書き込む想定）
+	auto hr = m_pDevice->CreateCommittedResource(
+		&heapDefault,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+		nullptr,
+		IID_PPV_ARGS(m_pResource.GetAddressOf()));
+	if (FAILED(hr))
+	{
+		ELOG("Texture::InitAsUAVTarget() : CreateCommittedResource failed hr = 0x%08X", hr);
+		return false;
+	}
+
+	m_Width		= _width;
+	m_Height	= _height;
+	m_Format	= _format;
+
+	// SRVとUAVの両方をDescriptorPoolに登録する
+	CreateSRVFromResource(m_pResource.Get(), _format, false);
+	CreateUAVFromResource(m_pResource.Get(), _format);
+
+	return true;
+}
+
+// -------------------------------------------------------------------------------
 // 終了処理
 // -------------------------------------------------------------------------------
 void RHI::Texture::Term()
@@ -143,6 +200,12 @@ void RHI::Texture::Term()
 	{
 		m_pPool->FreeHandle(m_pHandle);
 		m_pHandle = nullptr;
+	}
+
+	if (m_pPool != nullptr && m_pUAVHandle != nullptr)
+	{
+		m_pPool->FreeHandle(m_pUAVHandle);
+		m_pUAVHandle = nullptr;
 	}
 
 	// ─── GPUリソースの解放 ───
@@ -180,6 +243,22 @@ D3D12_CPU_DESCRIPTOR_HANDLE RHI::Texture::GetHandleCPU() const
 	{ return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 }; }
 
 	return m_pHandle->HandleCPU;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE RHI::Texture::GetHandleGPU_UAV() const
+{
+	if (m_pUAVHandle == nullptr) 
+	{return D3D12_GPU_DESCRIPTOR_HANDLE{ 0 }; }
+
+	return m_pUAVHandle->HandleGPU;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE RHI::Texture::GetHandleCPU_UAV() const
+{
+	if (m_pUAVHandle == nullptr) 
+	{ return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 }; }
+	
+	return m_pUAVHandle->HandleCPU;
 }
 
 // -------------------------------------------------------------------------------
@@ -222,6 +301,22 @@ uint32_t RHI::Texture::GetIndex() const
 // -------------------------------------------------------------------------------
 bool RHI::Texture::IsValid() const 
 { return m_pHandle != nullptr; }
+
+// -------------------------------------------------------------------------------
+// UAVハンドルの取得用
+// -------------------------------------------------------------------------------
+uint32_t RHI::Texture::GetIndexUAV() const
+{
+	if (m_pUAVHandle == nullptr)
+	{ return 0; }
+	
+	return m_pUAVHandle->Index;
+}
+
+bool RHI::Texture::HasUAV() const
+{
+	return m_pUAVHandle != nullptr;
+}
 
 // -------------------------------------------------------------------------------
 // private
@@ -519,4 +614,27 @@ void RHI::Texture::CreateSRVFromResource(
 	}
 
 	m_pDevice->CreateShaderResourceView(_pResource, &srvDesc, m_pHandle->HandleCPU);
+}
+
+// -------------------------------------------------------------------------------
+// 既存のGPUリソースに対してUAVを作成する
+// -------------------------------------------------------------------------------
+void RHI::Texture::CreateUAVFromResource(
+	ID3D12Resource* _pResource,
+	DXGI_FORMAT		_format)
+{
+	m_pUAVHandle = m_pPool->AllocHandle();
+	assert(m_pUAVHandle != nullptr && "DescriptorPool のスロットが不足しています");
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+	uavDesc.Format					= _format;
+	uavDesc.ViewDimension			= D3D12_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice		= 0;
+	uavDesc.Texture2D.PlaneSlice	= 0;
+
+	m_pDevice->CreateUnorderedAccessView(
+		_pResource,
+		nullptr,
+		&uavDesc,
+		m_pUAVHandle->HandleCPU);
 }

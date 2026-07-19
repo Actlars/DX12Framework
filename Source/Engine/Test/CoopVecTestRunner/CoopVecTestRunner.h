@@ -22,10 +22,11 @@ class CoopVecTestRunner
 public:
 
 	// 1スレッドあたりの要素数（シェーダー側のCoopVec<int32_t, 32)と一致させる)
-	static constexpr uint32_t kElementsPerThread = 32;
+	static constexpr uint32_t kElementsPerThread	= 32;
 	// numthreads(4,4,1)] = 4 * 4 * 1 = 16スレッド
-	static constexpr uint32_t kThreadCount = 4 * 4 * 1;
-	static constexpr uint32_t kTotalElements = kElementsPerThread * kThreadCount;
+	static constexpr uint32_t kThreadCount			= 4 * 4 * 1;
+	// 出力バッファが持つ要素数（スレッド数 * スレッド数）
+	static constexpr uint32_t kTotalElements		= kElementsPerThread * kThreadCount;
 
 	bool Run(RHI::Device* _pDevice);
 

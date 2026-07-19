@@ -184,12 +184,12 @@ bool MeshletResource::InitMeshlets(ID3D12Device* _pDevice, const ResMesh& _resMe
 
 	for (size_t i = 0; i < std::min<size_t>(3, descs.size()); ++i)
 	{
-		ELOG("Meshlet[%zu]: VertexOffset=%u VertexCount=%u PrimitiveOffset=%u PrimitiveCount=%u",
-			i, descs[i].VertexOffset, descs[i].VertexCount, descs[i].PrimitiveOffset, descs[i].PrimitiveCount);
+		/*ELOG("Meshlet[%zu]: VertexOffset=%u VertexCount=%u PrimitiveOffset=%u PrimitiveCount=%u",
+			i, descs[i].VertexOffset, descs[i].VertexCount, descs[i].PrimitiveOffset, descs[i].PrimitiveCount);*/
 	}
 
-	ELOG("meshletVertices.size()=%zu packedPrimitives.size()=%zu meshlets.size()=%zu",
-		meshletVertices.size(), packedPrimitives.size(), descs.size());
+	/*ELOG("meshletVertices.size()=%zu packedPrimitives.size()=%zu meshlets.size()=%zu",
+		meshletVertices.size(), packedPrimitives.size(), descs.size());*/
 
 	return true;
 }

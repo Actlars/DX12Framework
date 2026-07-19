@@ -6,6 +6,9 @@
 #include <Engine/Renderer/Renderer.h>
 #include <Engine/Utility/Debug/Logger/Logger.h>
 #include <Engine/Test/CoopVecTestRunner/CoopVecTestRunner.h>
+#include <Engine/Test/CoopVecMatMulTestRunner/CoopVecMatMulTestRunner.h>
+#include <Engine/Test/NTCdecodeTestRunner/NTCdecodeTestRunner.h>
+#include <Engine/Test/NTCImageTestRunner/NTCImageTestRunner.h>
 
 // -------------------------------------------------------------------------------
 // GraphicsView::Impl
@@ -55,12 +58,33 @@ bool GraphicsView::Init(void* _hWnd, uint32_t _width, uint32_t _height)
 		return false; 
 	}
 
+//#ifdef _DEBUG
+//	{
+//		CoopVecTestRunner coopVecTest;
+//		coopVecTest.Run(&m_pImpl->Device);
+//	}
+//#endif
+//
+//#ifdef _DEBUG
+//	{
+//		NTCDecodeTestRunner ntcDecodeTest;
+//		ntcDecodeTest.Run(&m_pImpl->Device);
+//	}
+//#endif
+
 #ifdef _DEBUG
 	{
-		CoopVecTestRunner coopVecTest;
-		coopVecTest.Run(&m_pImpl->Device);
+		NTCImageDecodeTestRunner ntcImageTest;
+		ntcImageTest.Run(&m_pImpl->Device);
 	}
 #endif
+
+//#ifdef _DEBUG
+//	{
+//		CoopVecMatMulTestRunner coopVecMatMulTest;
+//		coopVecMatMulTest.Run(&m_pImpl->Device);
+//	}
+//#endif
 
 	return true;
 }

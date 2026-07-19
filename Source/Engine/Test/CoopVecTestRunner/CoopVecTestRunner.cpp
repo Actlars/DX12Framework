@@ -50,8 +50,9 @@ bool CoopVecTestRunner::Run(RHI::Device* _pDevice)
 		rhsData[i] = 1000;
 	}
 
+	// Uploadヒープ = CPUが書き込み、GPUがそれを読み取れるメモリ領域
 	RHI::BufferDesc inputDesc;
-	inputDesc.SizeInBytes	= sizeof(int32_t) * kElementsPerThread;
+	inputDesc.SizeInBytes	= sizeof(int32_t) * kElementsPerThread;	// 型 * スレッド数
 	inputDesc.HeapType		= RHI::BufferHeapType::Upload;
 
 	if (!m_InputBuffer1.Init(pDevice, inputDesc, rhsData.data()))
@@ -69,9 +70,9 @@ bool CoopVecTestRunner::Run(RHI::Device* _pDevice)
 	// 出力バッファ（Default + UAV）とReadback用バッファを準備
 	// -------------------------------------------------------------------------------
 	RHI::BufferDesc outputDesc;
-	outputDesc.SizeInBytes = sizeof(int32_t) * kTotalElements;
-	outputDesc.HeapType = RHI::BufferHeapType::Default;
-	outputDesc.AllowUAV = true;
+	outputDesc.SizeInBytes	= sizeof(int32_t) * kTotalElements;
+	outputDesc.HeapType		= RHI::BufferHeapType::Default;
+	outputDesc.AllowUAV		= true;	// シェーダーから書き込み可能にするフラグ
 
 	if (!m_OutputBufferGPU.Init(pDevice, outputDesc))
 	{
@@ -80,8 +81,8 @@ bool CoopVecTestRunner::Run(RHI::Device* _pDevice)
 	}
 
 	RHI::BufferDesc readbackDesc;
-	readbackDesc.SizeInBytes = sizeof(int32_t) * kTotalElements;
-	readbackDesc.HeapType = RHI::BufferHeapType::Readback;
+	readbackDesc.SizeInBytes	= sizeof(int32_t) * kTotalElements;
+	readbackDesc.HeapType		= RHI::BufferHeapType::Readback;
 
 	if (!m_OutputBufferReadback.Init(pDevice, readbackDesc))
 	{
@@ -92,6 +93,7 @@ bool CoopVecTestRunner::Run(RHI::Device* _pDevice)
 	// -------------------------------------------------------------------------------
 	// コマンド記録
 	// -------------------------------------------------------------------------------
+	// まずコマンドリストの初期化
 	auto* pCmdList = _pDevice->GetCommandList()->Reset(_pDevice->GetFence());
 	if (pCmdList == nullptr)
 	{
@@ -99,9 +101,12 @@ bool CoopVecTestRunner::Run(RHI::Device* _pDevice)
 		return false;
 	}
 
+	// 「このRootSignatureとこのシェーダー（PSO）を使う」とGPUに伝える
 	pCmdList->SetComputeRootSignature(m_RootSignatureLayout.GetRootSignature());
 	pCmdList->SetPipelineState(pPSO);
 
+	// シェーダー内の inputBuffer1 / inputBuffer2 / outputBuffer に、
+	// 実際に用意したバッファのGPUアドレスを結びつける（バインドする）
 	pCmdList->SetComputeRootShaderResourceView(
 		m_RootSignatureLayout.GetSlot("InputBuffer1"), m_InputBuffer1.GetAddress());
 	pCmdList->SetComputeRootShaderResourceView(
@@ -115,6 +120,8 @@ bool CoopVecTestRunner::Run(RHI::Device* _pDevice)
 
 	// -------------------------------------------------------------------------------
 	// UAV書き込み完了を保証するバリア + Readbackへコピー
+	// Defaultヒープのバッファは生成直後、COMMON状態なので
+	// シェーダーが読み書きできる（UNORDERED_ACCESS）へ切り替える
 	// -------------------------------------------------------------------------------
 	{
 		// UAV Barrier : 直前のUAV書き込みが、後続の読み取り（コピー）から
@@ -126,14 +133,15 @@ bool CoopVecTestRunner::Run(RHI::Device* _pDevice)
 
 		// UNORDERED_ACCESS → COPU_SORCE は状態遷移
 		D3D12_RESOURCE_BARRIER transition = {};
-		transition.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		transition.Transition.pResource = m_OutputBufferGPU.GetResource();
-		transition.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-		transition.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
-		transition.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		transition.Type						= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		transition.Transition.pResource		= m_OutputBufferGPU.GetResource();
+		transition.Transition.StateBefore	= D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+		transition.Transition.StateAfter	= D3D12_RESOURCE_STATE_COPY_SOURCE;
+		transition.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		pCmdList->ResourceBarrier(1, &transition);
 	}
 
+	// GPU専用メモリ（m_OutputBufferGPU）から、CPUが読めるメモリ（m_OutputBufferReadback）へコピー
 	pCmdList->CopyBufferRegion(
 		m_OutputBufferReadback.GetResource(), 0,
 		m_OutputBufferGPU.GetResource(), 0,
@@ -163,8 +171,8 @@ bool CoopVecTestRunner::Run(RHI::Device* _pDevice)
 	{
 		for (uint32_t i = 0; i < kElementsPerThread; ++i)
 		{
-			const int32_t expected = lhsData[i] + rhsData[i];
-			const int32_t actual = result[thread * kElementsPerThread + i];
+			const int32_t expected	= lhsData[i] + rhsData[i];
+			const int32_t actual	= result[thread * kElementsPerThread + i];
 			if (expected != actual)
 			{
 				ELOG("CoopVecTestRunner::Run() : mismatch at thread = %u i = %u expected = %d actual = %d",

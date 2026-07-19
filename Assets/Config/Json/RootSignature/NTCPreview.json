@@ -1,0 +1,19 @@
+{
+  "Name": "NTCPreviewRootSignature",
+  "Parameters": [
+    {
+      "Name": "NTCTexture",
+      "Type": "SRV_Table",
+      "ShaderRegister": 0,
+      "Visibility": "PS"
+    },
+    {
+      "Name": "Sampler",
+      "Type": "Sampler_Table",
+      "ShaderRegister": 0,
+      "Visibility": "PS"
+    }
+  ],
+  "StaticSamplers": [],
+  "Flags": [ "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT" ]
+}

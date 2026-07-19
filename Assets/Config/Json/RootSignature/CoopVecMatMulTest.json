@@ -1,0 +1,25 @@
+{
+  "Name": "CoopVecMatMulTestRootSignature",
+  "Parameters": [
+    {
+      "Name": "InputVector",
+      "Type": "SRV",
+      "ShaderRegister": 0,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "WeightMatrix",
+      "Type": "SRV",
+      "ShaderRegister": 1,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "OutputBuffer",
+      "Type": "UAV",
+      "ShaderRegister": 0,
+      "Visibility": "CS"
+    }
+  ],
+  "StaticSamplers": [],
+  "Flags": []
+}

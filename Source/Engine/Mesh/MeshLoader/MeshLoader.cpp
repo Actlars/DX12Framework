@@ -101,7 +101,7 @@ namespace {
 		aiString matName;
 		if (_pSrc->Get(AI_MATKEY_NAME, matName) == AI_SUCCESS)
 		{
-			ELOG("Material name = [%s]", matName.C_Str());
+			//ELOG("Material name = [%s]", matName.C_Str());
 		}
 
 		for (int type = aiTextureType_NONE; type <= aiTextureType_UNKNOWN; ++type)
@@ -111,19 +111,19 @@ namespace {
 
 			if (count <= 0) { continue; }
 
-			ELOG("Found texture type=%d count=%u", type, count);
+			//ELOG("Found texture type=%d count=%u", type, count);
 
 			for (unsigned int i = 0; i < count; ++i)
 			{
 				aiString path;
 				if (_pSrc->GetTexture(texType, i, &path) == AI_SUCCESS)
 				{
-					ELOG("  Texture path[%u] = [%s]", i, path.C_Str());
+					//ELOG("  Texture path[%u] = [%s]", i, path.C_Str());
 				}
 			}
 		}
 
-		for (unsigned int i = 0; i < _pSrc->mNumProperties; ++i)
+		/*for (unsigned int i = 0; i < _pSrc->mNumProperties; ++i)
 		{
 			const aiMaterialProperty* prop = _pSrc->mProperties[i];
 
@@ -136,7 +136,7 @@ namespace {
 				prop->mType,
 				prop->mDataLength
 			);
-		}
+		}*/
 
 		// 色パラメータ
 		{

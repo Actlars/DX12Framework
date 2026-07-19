@@ -8,6 +8,7 @@
 #include <Engine/GameObject/Components/MeshComponent/MeshComponent.h>
 #include <Engine/GameObject/Components/MeshletComponent/MeshletComponent.h>
 #include <Engine/Mesh/MeshLoader/MeshLoader.h>
+#include <Engine/RHI/Resource/Texture/Texture.h>
 #include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
@@ -88,6 +89,26 @@ bool SceneRenderer::Init(RHI::Device* _pDevice)
         return false;
     }
     // -------------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------------
+    // NTCプレビュー用パイプラインステート初期化
+    // -------------------------------------------------------------------------------
+    if (!m_NTCPreviewRootSignatureLayout.LoadFromJson(pDevice, L"Assets/Config/Json/RootSignature/NTCPreview.json"))
+    {
+        ELOG("SceneRenderer::Init() : NTCPreviewRootSignatureLayout load failed");
+        return false;
+    }
+
+    m_pNTCPreviewPSO = m_pDevice->GetPipelineCache()->GetOrCreate(
+        pDevice, L"Assets/Config/Json/PipelineState/NTCPreview.json",
+        m_NTCPreviewRootSignatureLayout.GetRootSignature(),
+        D3D12_INPUT_LAYOUT_DESC{ nullptr,0 }); // フルスクリーン三角形なので入力レイアウト不要
+
+    if (m_pNTCPreviewPSO == nullptr)
+    {
+        ELOG("SceneRenderer::Init() : NTCPreview PSO creation failed");
+        return false;
+    }
 
     auto* pSmpPool = m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP);
     if (!m_Sampler.Init(pDevice, pSmpPool, RHI::Sampler::CreateLinearWrap()))
@@ -229,6 +250,47 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
             // MeshletComponentへ渡すのでここではSubmitのみ行う
             m_MeshletRenderQueue.Execute(cmd);
         });
+
+    // -------------------------------------------------------------------------------
+    // NTCプレビューパス(デバッグ用: 画面全体をNTCテクスチャで塗りつぶす)
+    // -------------------------------------------------------------------------------
+    if (m_pNTCPreviewTexture != nullptr)
+    {
+        m_RenderGraph.AddPass(
+            "NTCPreviewPass",
+            [colorHandle](RG::PassBuilder& _builder)
+            {
+                _builder.Use(colorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);
+            },
+            [this](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
+            {
+                const auto frameIndex = m_pDevice->GetFrameIndex();
+                auto handleRTV = m_pDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
+                cmd->OMSetRenderTargets(1, &handleRTV, FALSE, nullptr); // 深度は使わない
+
+                SetFullViewport(cmd, m_pDevice->GetWidth(), m_pDevice->GetHeight());
+
+                ID3D12DescriptorHeap* heaps[] =
+                {
+                    m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap(),
+                    m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP)->GetHeap(),
+                };
+                cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+
+                cmd->SetGraphicsRootSignature(m_NTCPreviewRootSignatureLayout.GetRootSignature());
+                cmd->SetPipelineState(m_pNTCPreviewPSO);
+
+                cmd->SetGraphicsRootDescriptorTable(
+                    m_NTCPreviewRootSignatureLayout.GetSlot("NTCTexture"),
+                    m_pNTCPreviewTexture->GetHandleGPU());
+                cmd->SetGraphicsRootDescriptorTable(
+                    m_NTCPreviewRootSignatureLayout.GetSlot("Sampler"),
+                    m_Sampler.GetHandleGPU());
+
+                cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+                cmd->DrawInstanced(3, 1, 0, 0); // フルスクリーン三角形(頂点バッファ不要、VS側で座標生成する前提)
+            });
+    }
 
     // RenderGraph本体実行
     m_RenderGraph.Execute(_pCmd, pTracker);

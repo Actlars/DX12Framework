@@ -15,6 +15,7 @@
       <DisableOptimizations Condition="'$(Configuration)' == 'Debug'">True</DisableOptimizations>
       <DisableOptimizations Condition="!('$(Configuration)' == 'Debug')">False</DisableOptimizations>
       <CommandLineTemplate>"$(SolutionDir)External\Slang\bin\slangc.exe" [AllOptions] [Inputs]</CommandLineTemplate>
+      <CommandLineTemplate>"$(SolutionDir)External\Slang\bin\slangc.exe" -Xdxc -I"$(SolutionDir)External\DXC_2026_05\include\hlsl" [AllOptions] [Inputs]</CommandLineTemplate>
     </SlangTask>
   </ItemDefinitionGroup>
 </Project>

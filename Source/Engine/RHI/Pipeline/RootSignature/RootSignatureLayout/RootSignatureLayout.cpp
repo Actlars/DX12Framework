@@ -140,12 +140,25 @@ bool RHI::RootSignatureLayout::LoadFromJson(ID3D12Device * _pDevice, const std::
 			param.Constants.RegisterSpace	= space;
 			param.Constants.Num32BitValues	= p.value("Num32BitValues", 1u);
 		}
-		else if (type == "SRV_Table" || type == "Sampler_Table")
+		else if (type == "SRV_Table" || type == "Sampler_Table" || type == "UAV_Table" || type == "CBV_Table")
 		{
 			D3D12_DESCRIPTOR_RANGE range = {};
-			range.RangeType							= (type == "SRV_Table")
-													? D3D12_DESCRIPTOR_RANGE_TYPE_SRV
-													: D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+			if (type == "SRV_Table")
+			{
+				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			}
+			else if (type == "Sampler_Table")
+			{
+				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+			}
+			else if (type == "UAV_Table")
+			{
+				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+			}
+			else if (type == "CBV_Table")
+			{
+				range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+			}
 			range.NumDescriptors					= p.value("NumDescriptors", 1u);
 			range.BaseShaderRegister				= reg;
 			range.RegisterSpace						= space;

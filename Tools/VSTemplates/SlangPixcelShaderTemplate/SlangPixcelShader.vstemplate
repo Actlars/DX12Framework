@@ -1,0 +1,12 @@
+<VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Item">
+  <TemplateData>
+    <Name>Slang Pixel Shader</Name>
+    <Description>Slangで書くPixel Shaderファイルを作成します。</Description>
+    <ProjectType>VC</ProjectType>
+    <SortOrder>40</SortOrder>
+    <DefaultName>NewPixelShader.slang</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true" TargetFileName="$fileinputname$.slang">SlangPixelShader.slang</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

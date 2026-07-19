@@ -241,6 +241,15 @@
     <Filter Include="ソース ファイル\Engine\Test\CoopVecTestRunner">
       <UniqueIdentifier>{3b7fc923-67c6-4293-a6fc-c3796a4f0082}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\Test\CoopVecMatMulTestRunner">
+      <UniqueIdentifier>{a1af38a2-4243-4f59-846a-e4adfc903ac6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Test\NTCdecodeTestRunner">
+      <UniqueIdentifier>{5cb4cfce-503e-4c38-8f4c-664a485cd3a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Test\NTCImageTestRunner">
+      <UniqueIdentifier>{d5e4464f-1c5e-4212-8ee3-7a656a2d72b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -441,6 +450,15 @@
     <ClInclude Include="Source\Engine\Test\CoopVecTestRunner\CoopVecTestRunner.h">
       <Filter>ソース ファイル\Engine\Test\CoopVecTestRunner</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Test\CoopVecMatMulTestRunner\CoopVecMatMulTestRunner.h">
+      <Filter>ソース ファイル\Engine\Test\CoopVecMatMulTestRunner</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Test\NTCdecodeTestRunner\NTCdecodeTestRunner.h">
+      <Filter>ソース ファイル\Engine\Test\NTCdecodeTestRunner</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Test\NTCImageTestRunner\NTCImageTestRunner.h">
+      <Filter>ソース ファイル\Engine\Test\NTCImageTestRunner</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp">
@@ -587,6 +605,15 @@
     <ClCompile Include="Source\Engine\Test\CoopVecTestRunner\CoopVecTestRunner.cpp">
       <Filter>ソース ファイル\Engine\Test\CoopVecTestRunner</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\Test\CoopVecMatMulTestRunner\CoopVecMatMulTestRunner.cpp">
+      <Filter>ソース ファイル\Engine\Test\CoopVecMatMulTestRunner</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Test\NTCdecodeTestRunner\NTCdecodeTestRunner.cpp">
+      <Filter>ソース ファイル\Engine\Test\NTCdecodeTestRunner</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Test\NTCImageTestRunner\NTCImageTestRunner.cpp">
+      <Filter>ソース ファイル\Engine\Test\NTCImageTestRunner</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli">
@@ -644,6 +671,18 @@
       <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
     </SlangTask>
     <SlangTask Include="Source\Engine\Shader\slangTest\CoopVecTest.slang">
+      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\slangTest\CoopVecMatMulTest.slang">
+      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\slangTest\MLPDecodeTest.slang">
+      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\slangTest\NTCImageDecode.slang">
+      <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\slangTest\NTCPreviewPS.slang">
       <Filter>ソース ファイル\Engine\Shader\slangTest</Filter>
     </SlangTask>
   </ItemGroup>

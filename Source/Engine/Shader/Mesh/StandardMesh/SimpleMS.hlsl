@@ -100,8 +100,8 @@ void main
         
         MSOutput output = (MSOutput) 0;
         float4 worldPos = mul(Transform.World, float4(v.Position, 1.0f));
-        float4 viewPos = mul(Transform.View, worldPos);
-        float4 projPos = mul(Transform.Proj, viewPos);
+        float4 viewPos  = mul(Transform.View, worldPos);
+        float4 projPos  = mul(Transform.Proj, viewPos);
         
         output.Position     = projPos;
         output.Normal       = mul((float3x3) Transform.World, v.Normal);

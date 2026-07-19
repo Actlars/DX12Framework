@@ -98,6 +98,8 @@ public:
 	// @brief	デバッグモード切替
 	void ToggleMeshletDebugMode() { m_MeshletDebugMode = m_MeshletDebugMode ? 0 : 1; }
 
+	void SetNTCPreviewTexture(RHI::Texture* _pTexture) { m_pNTCPreviewTexture = _pTexture; }
+
 private:
 
 	RenderMode					m_RenderMode	= RenderMode::Bindless;	// 描画モード
@@ -118,5 +120,9 @@ private:
 	ID3D12PipelineState*		m_pModelMeshletPSO = nullptr;
 	MeshletRenderQueue			m_MeshletRenderQueue;
 	uint32_t					m_MeshletDebugMode = 0;
+
+	RHI::RootSignatureLayout m_NTCPreviewRootSignatureLayout;
+	ID3D12PipelineState* m_pNTCPreviewPSO = nullptr;
+	RHI::Texture* m_pNTCPreviewTexture = nullptr;
 
 };

@@ -37,9 +37,19 @@ bool GameScene::OnInit(RHI::Device* _pDevice)
 
     InitCamera();
 
-    if (!InitMeshes())      { ELOG("InitMeshes() failed");      return false; }
-    if (!InitGameObjects()) { ELOG("InitGameObjects() failed"); return false; }
-    if (!InitMeshlets())    { ELOG("InitMeshlets() failed");    return false; }
+    //if (!InitMeshes())      { ELOG("InitMeshes() failed");      return false; }
+    //if (!InitGameObjects()) { ELOG("InitGameObjects() failed"); return false; }
+    //if (!InitMeshlets())    { ELOG("InitMeshlets() failed");    return false; }
+
+    if (!m_NTCRunner.Run(m_pDevice))
+    {
+        ELOG("NTCImageDecodeTestRunner::Run() failed");
+        // é∏îsÇµÇƒÇ‡ÉQÅ[ÉÄé©ëÃÇÕë±çsÇ≥ÇπÇΩÇ¢Ç»ÇÁreturnÇµÇ»Ç¢
+    }
+    else
+    {
+        m_SceneRenderer.SetNTCPreviewTexture(&m_NTCRunner.GetBakedTexture());
+    }
 
     ShowCursor(FALSE);
     m_IsInitialized = true;
@@ -192,10 +202,10 @@ bool GameScene::InitGameObjects()
     for (auto i = 0u; i < m_Meshes.size(); ++i)
     {
         const auto materialId = m_Meshes[i]->GetMaterialId();
-        ELOG("Mesh[%u] matId=%u, materials.size=%zu", i, materialId, m_Materials.size());
+        //ELOG("Mesh[%u] matId=%u, materials.size=%zu", i, materialId, m_Materials.size());
 
         Material* pMaterial = (materialId < m_Materials.size()) ? m_Materials[materialId].get() : nullptr;
-        ELOG("Mesh[%u] pMat=%s", i, pMaterial ? "valid" : "nullptr");
+        //ELOG("Mesh[%u] pMat=%s", i, pMaterial ? "valid" : "nullptr");
 
         const auto name = "Mesh_" + std::to_string(i);
         auto* pObj = m_ObjectManager.Add<GameObject>(name);

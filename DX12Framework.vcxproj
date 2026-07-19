@@ -80,19 +80,28 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(Solution)External\meshoptimizer\src\$(Configuration)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(SolutionDir)External\meshoptimizer\src\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(Solution)External\Assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)External\Assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc145-mtd.lib;%(AdditionalDependencies);$(SolutionDir)External\PIX\bin\x64\WinPixEventRuntime.lib</AdditionalDependencies>
       <DelayLoadDLLs>assimp-vc145-mtd.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(OutDir)D3D12\" mkdir "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\Agility_1.721\bin\x64\D3D12Core.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\Agility_1.721\bin\x64\d3d12SDKLayers.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\DXC_2026_05\bin\x64\dxcompiler.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\DXC_2026_05\bin\x64\dxil.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\lib\Debug\assimp-vc145-mtd.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\kubazip.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\minizip.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\poly2tri.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\pugixml.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <FxCompile>
       <ShaderModel>6.8</ShaderModel>
@@ -109,20 +118,32 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(Solution)External\meshoptimizer\src\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(SolutionDir)External\meshoptimizer\src\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(Solution)External\Assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)External\Assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc145-mt.lib;%(AdditionalDependencies);$(SolutionDir)External\PIX\bin\x64\WinPixEventRuntime.lib</AdditionalDependencies>
       <DelayLoadDLLs>assimp-vc145-mt.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(OutDir)D3D12\" mkdir "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\Agility_1.721\bin\x64\D3D12Core.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\Agility_1.721\bin\x64\d3d12SDKLayers.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\DXC_2026_05\bin\x64\dxcompiler.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\DXC_2026_05\bin\x64\dxil.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\lib\Release\assimp-vc145-mt.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\kubazip.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\minizip.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\poly2tri.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\pugixml.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <FxCompile>
+      <ShaderModel>6.8</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -133,22 +154,28 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;$(SolutionDir)External\DXC_2026_02\include;$(SolutionDir)External\DXC_2026_02\bin\x64;$(SolutionDir)External\Agility_1.619\include;$(SolutionDir)External\Agility_1.619\bin\64;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(Solution)External\meshoptimizer\src\$(Configuration)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;$(SolutionDir)External\DXC_2026_02\include;$(SolutionDir)External\DXC_2026_02\bin\x64;$(SolutionDir)External\Agility_1.721\include;$(SolutionDir)External\Agility_1.721\bin\x64;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(SolutionDir)External\meshoptimizer\src\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(Solution)External\Assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)External\Assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc145-mtd.lib;%(AdditionalDependencies);$(SolutionDir)External\PIX\bin\x64\WinPixEventRuntime.lib</AdditionalDependencies>
       <DelayLoadDLLs>assimp-vc145-mtd.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(OutDir)D3D12\" mkdir "$(OutDir)D3D12\"
-copy /Y "$(ProjectDir)External\Agility_1.619\bin\x64\D3D12Core.dll" "$(OutDir)D3D12\"
-copy /Y "$(ProjectDir)External\Agility_1.619\bin\x64\d3d12SDKLayers.dll" "$(OutDir)D3D12\"
-copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxcompiler.dll" "$(OutDir)"
-copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Command>
+copy /Y "$(ProjectDir)External\Agility_1.721\bin\x64\D3D12Core.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\Agility_1.721\bin\x64\d3d12SDKLayers.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\DXC_2026_05\bin\x64\dxcompiler.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\DXC_2026_05\bin\x64\dxil.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\lib\Debug\assimp-vc145-mtd.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\kubazip.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\minizip.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\poly2tri.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\pugixml.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <FxCompile>
       <ShaderModel>6.8</ShaderModel>
@@ -165,20 +192,32 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;%(AdditionalIncludeDirectories;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(Solution)External\meshoptimizer\src\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(SolutionDir)External\meshoptimizer\src\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(Solution)External\Assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)External\Assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc145-mt.lib;%(AdditionalDependencies);$(SolutionDir)External\PIX\bin\x64\WinPixEventRuntime.lib</AdditionalDependencies>
       <DelayLoadDLLs>assimp-vc145-mt.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>if not exist "$(OutDir)D3D12\" mkdir "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\Agility_1.721\bin\x64\D3D12Core.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\Agility_1.721\bin\x64\d3d12SDKLayers.dll" "$(OutDir)D3D12\"
+copy /Y "$(ProjectDir)External\DXC_2026_05\bin\x64\dxcompiler.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\DXC_2026_05\bin\x64\dxil.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\lib\Release\assimp-vc145-mt.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\kubazip.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\minizip.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\poly2tri.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\pugixml.dll" "$(OutDir)"
+copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
+    <FxCompile>
+      <ShaderModel>6.8</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h" />
@@ -238,7 +277,10 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClInclude Include="Source\Engine\RHI\Resource\Texture\TransientResourcePool\TransientResourcePool.h" />
     <ClInclude Include="Source\Engine\Scene\IScene.h" />
     <ClInclude Include="Source\Engine\Scene\SceneManager\SceneManager.h" />
+    <ClInclude Include="Source\Engine\Test\CoopVecMatMulTestRunner\CoopVecMatMulTestRunner.h" />
     <ClInclude Include="Source\Engine\Test\CoopVecTestRunner\CoopVecTestRunner.h" />
+    <ClInclude Include="Source\Engine\Test\NTCdecodeTestRunner\NTCdecodeTestRunner.h" />
+    <ClInclude Include="Source\Engine\Test\NTCImageTestRunner\NTCImageTestRunner.h" />
     <ClInclude Include="Source\Engine\Utility\ComPtr\ComPtr.h" />
     <ClInclude Include="Source\Engine\Utility\Debug\Logger\Logger.h" />
     <ClInclude Include="Source\Engine\Utility\FileUtil\FileUtil.h" />
@@ -289,7 +331,10 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     <ClCompile Include="Source\Engine\RHI\Resource\Texture\TextureManager\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\RHI\Resource\Texture\TransientResourcePool\TransientResourcePool.cpp" />
     <ClCompile Include="Source\Engine\Scene\SceneManager\SceneManager.cpp" />
+    <ClCompile Include="Source\Engine\Test\CoopVecMatMulTestRunner\CoopVecMatMulTestRunner.cpp" />
     <ClCompile Include="Source\Engine\Test\CoopVecTestRunner\CoopVecTestRunner.cpp" />
+    <ClCompile Include="Source\Engine\Test\NTCdecodeTestRunner\NTCdecodeTestRunner.cpp" />
+    <ClCompile Include="Source\Engine\Test\NTCImageTestRunner\NTCImageTestRunner.cpp" />
     <ClCompile Include="Source\Engine\Utility\Debug\Logger\Logger.cpp" />
     <ClCompile Include="Source\Engine\Utility\FileUtil\FileUtil.cpp" />
     <ClCompile Include="Source\Engine\Utility\JsonLoader\JsonLoader.cpp" />
@@ -314,6 +359,28 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
   <ItemGroup>
     <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli" />
     <None Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShader.hlsli" />
+    <SlangTask Include="Source\Engine\Shader\slangTest\CoopVecMatMulTest.slang">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_6_10</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_6_10</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_6_10</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_6_10</ShaderModel>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\slangTest\MLPDecodeTest.slang">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\slangTest\NTCImageDecode.slang">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\slangTest\NTCPreviewPS.slang">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </SlangTask>
     <SlangTask Include="Source\Engine\Shader\slangTest\SlangTestMS.slang">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\Slang\bin\slangc.exe" -target dxil -profile ms_6_9 -entry main -o "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
@@ -332,6 +399,10 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Mesh</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Mesh</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Mesh</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_6_10</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_6_10</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_6_10</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_6_10</ShaderModel>
     </SlangTask>
     <SlangTask Include="Source\Engine\Shader\slangTest\SlangTestPS.slang">
       <FileType>Document</FileType>
@@ -351,6 +422,10 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_6_10</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_6_10</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_6_10</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_6_10</ShaderModel>
     </SlangTask>
     <CustomBuild Include="Source\Engine\Shader\slangTest\Header.hlsli">
       <FileType>Document</FileType>
@@ -369,22 +444,22 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.8</ShaderModel>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -398,22 +473,22 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.8</ShaderModel>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -425,22 +500,22 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -452,22 +527,22 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -479,22 +554,22 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -506,22 +581,22 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </AdditionalInputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).cso</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -533,10 +608,10 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
@@ -560,10 +635,10 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T vs_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
     </CustomBuild>
     <FxCompile Include="Source\Engine\Shader\Mesh\StandardMesh\BindlessTestPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -577,10 +652,10 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ms_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
@@ -592,10 +667,10 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
     </CustomBuild>
     <CustomBuild Include="Source\Engine\Shader\Mesh\StandardMesh\SimplePS.hlsl">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_02\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)External\DXC_2026_05\bin\x64\dxc.exe" -T ps_6_9 -E main -Fo "$(OutDir)%(Filename).cso" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling HLSL (DXC) : %(Filename)</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling HLSL (DXC) : %(Filename)</Message>
@@ -611,9 +686,9 @@ copy /Y "$(ProjectDir)External\DXC_2026_02\bin\x64\dxil.dll" "$(OutDir)"</Comman
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_6_9</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_6_9</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_6_10</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_6_9</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_6_10</ShaderModel>
       <FileType>Document</FileType>
     </SlangTask>
   </ItemGroup>

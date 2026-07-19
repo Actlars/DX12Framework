@@ -1,0 +1,12 @@
+<VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Item">
+  <TemplateData>
+    <Name>Slang Amplification Shader</Name>
+    <Description>Slangで書くAmplification Shaderファイルを作成します。</Description>
+    <ProjectType>VC</ProjectType>
+    <SortOrder>30</SortOrder>
+    <DefaultName>NewAmplificationShader.slang</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true" TargetFileName="$fileinputname$.slang">SlangAmplificationShader.slang</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

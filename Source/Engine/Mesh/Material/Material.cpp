@@ -31,7 +31,7 @@ bool Material::Init(
         return false;
     }
 
-    ELOG("Material::Init() index start, DiffuseMap=%ls", _resMat.DiffuseMap.c_str());
+    //ELOG("Material::Init() index start, DiffuseMap=%ls", _resMat.DiffuseMap.c_str());
 
     m_pPool = _pPool;
     m_pPool->AddRef();
@@ -114,7 +114,7 @@ bool Material::Init(
         // パスが空またはファイルが存在しない → ダミー（1 x 1白）で補完
         if (path.empty() || !std::filesystem::exists(path))
         {
-            ELOG("Material Texture[%u] path = [%ls]", i, path.c_str());
+           // ELOG("Material Texture[%u] path = [%ls]", i, path.c_str());
             if (!CreateDummyTexture(_pDevice, _pQueue, _pPool, m_Textures[i]))
             {
                 ELOG("Material::Init() CreateDummyTexture[%u] failed", i);
@@ -136,7 +136,7 @@ bool Material::Init(
             continue;
         }
 
-        ELOG("Material Texture[%u] loaded successfully. path=%ls", i, path.c_str());
+       // ELOG("Material Texture[%u] loaded successfully. path=%ls", i, path.c_str());
         m_HasTexture[i] = true;
     }
 

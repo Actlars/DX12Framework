@@ -46,9 +46,9 @@ namespace RHI
 		// @retval	false	初期化失敗
 		// -------------------------------------------------------------------------------
 		bool Init(
-			ID3D12Device* _pDevice,
+			ID3D12Device*		_pDevice,
 			ID3D12CommandQueue* _pQueue,
-			DescriptorPool* _pPool,
+			DescriptorPool*		_pPool,
 			const std::wstring& _path);
 
 		// -------------------------------------------------------------------------------
@@ -64,12 +64,34 @@ namespace RHI
 		// @retval	false	失敗
 		// -------------------------------------------------------------------------------
 		bool InitFromResource(
-			ID3D12Device* _pDevice,
+			ID3D12Device*	_pDevice,
 			DescriptorPool* _pPool,
 			ID3D12Resource* _pResource,
 			DXGI_FORMAT		_format = DXGI_FORMAT_R8G8B8A8_UNORM,
 			bool			_isCube = false);
 
+		// -------------------------------------------------------------------------------
+		// @brief	SRV + UAV両対応のテクスチャを新規作成する
+		//			コンピュートシェーダーで書き込み、
+		//			その後マテリアルで読み取りする「ベイク先の格納先」用途の想定
+		// 
+		// @param[in]	_pDevice	デバイス
+		// @param[in]	_pPool		SRV/UAVを割り当てるDescriptorPool
+		// @param[in]	_width		テクスチャ横幅
+		// @param[in]	_height		テクスチャ縦幅
+		// @param[in]	_format		ピクセルフォーマット(UAV対応フォーマットである必要がある)
+		// @retval	true	成功
+		// @retval	false	失敗
+		// ※注意 : 生成直後のリソース状態は、D3D12_RESOURCE_STATE_	UNORDERED_ACCESS
+		//			コンピュートシェーダーでの書き込み後、SRVとして読む前に
+		//			呼び出し側でPIXEL_SHADER_RESOURCE等へバリアを張る
+		// -------------------------------------------------------------------------------
+		bool InitAsUAVTarget(
+			ID3D12Device*	_pDevice,
+			DescriptorPool* _pPool,
+			uint32_t		_width,
+			uint32_t		_height,
+			DXGI_FORMAT		_format);
 
 		// -------------------------------------------------------------------------------
 		// @brief	終了処理。GPUリソースとSRVハンドルを開放する
@@ -85,6 +107,12 @@ namespace RHI
 		// @brief	CPUからSRVを書き込むためのCPUハンドルを返す
 		// -------------------------------------------------------------------------------
 		D3D12_CPU_DESCRIPTOR_HANDLE GetHandleCPU() const;
+
+		// -------------------------------------------------------------------------------
+		// @brief	UAV用のCPU/GPUハンドルを返す
+		// -------------------------------------------------------------------------------
+		D3D12_GPU_DESCRIPTOR_HANDLE GetHandleGPU_UAV() const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetHandleCPU_UAV() const;
 
 		// -------------------------------------------------------------------------------
 		// @brief	テクスチャの横幅を返す
@@ -116,6 +144,16 @@ namespace RHI
 		// -------------------------------------------------------------------------------
 		bool IsValid()const;
 
+		// -------------------------------------------------------------------------------
+		// @brief	Bindless用 : UAVのディスクリプタヒープ内でのインデックスを返す
+		// -------------------------------------------------------------------------------
+		uint32_t GetIndexUAV()const;
+
+		// -------------------------------------------------------------------------------
+		// @brief	UAVハンドルを保持しているか（InitAsUAVTargetで作成されたか）を返す
+		// -------------------------------------------------------------------------------
+		bool HasUAV()const;
+
 	private:
 
 		// -------------------------------------------------------------------------------
@@ -140,9 +178,9 @@ namespace RHI
 		// @retval	false	失敗
 		// -------------------------------------------------------------------------------
 		bool UploadToGPU(
-			const DirectX::ScratchImage& _image,
-			const DirectX::TexMetadata& _meta,
-			ComPtr<ID3D12Resource>& _outResource);
+			const DirectX::ScratchImage&	_image,
+			const DirectX::TexMetadata&		_meta,
+			ComPtr<ID3D12Resource>&			_outResource);
 
 		// -------------------------------------------------------------------------------
 		// @brief	GPUリソースに対してSRVをDescriptorPoolに登録する
@@ -162,18 +200,26 @@ namespace RHI
 			bool			_isCube);
 
 		// -------------------------------------------------------------------------------
+		// @brief	GPUリソースに対して、UAVをDescriptorPoolに登録する
+		// -------------------------------------------------------------------------------
+		void CreateUAVFromResource(
+			ID3D12Resource* _pResource,
+			DXGI_FORMAT		_format);
+
+		// -------------------------------------------------------------------------------
 		// private variables
 		// -------------------------------------------------------------------------------
-		ID3D12Device* m_pDevice = nullptr;	// D3D12デバイス（所有権なし）
-		ID3D12CommandQueue* m_pQueue = nullptr;	// コマンドキュー（所有権なし）
-		DescriptorPool* m_pPool = nullptr;	// SRVプール（所有権なし）
-		DescriptorHandle* m_pHandle = nullptr;	// プールから借りたSRVハンドル
+		ID3D12Device*		m_pDevice		= nullptr;	// D3D12デバイス（所有権なし）
+		ID3D12CommandQueue* m_pQueue		= nullptr;	// コマンドキュー（所有権なし）
+		DescriptorPool*		m_pPool			= nullptr;	// SRVプール（所有権なし）
+		DescriptorHandle*	m_pHandle		= nullptr;	// プールから借りたSRVハンドル
+		DescriptorHandle*	m_pUAVHandle	= nullptr;	// UAV専用ハンドル
 
 		ComPtr<ID3D12Resource>	m_pResource;		// GPUリソース本体
 
-		uint32_t	m_Width = 0;					// テクスチャ横幅
-		uint32_t	m_Height = 0;					// テクスチャ縦幅
-		DXGI_FORMAT m_Format = DXGI_FORMAT_UNKNOWN;	// ピクセルフォーマット
+		uint32_t	m_Width		= 0;					// テクスチャ横幅
+		uint32_t	m_Height	= 0;					// テクスチャ縦幅
+		DXGI_FORMAT m_Format	= DXGI_FORMAT_UNKNOWN;	// ピクセルフォーマット
 
 		// コピー禁止
 		Texture(const Texture&) = delete;

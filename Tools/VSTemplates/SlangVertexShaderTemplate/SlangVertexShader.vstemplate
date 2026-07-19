@@ -1,0 +1,12 @@
+<VSTemplate Version="3.0.0" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" Type="Item">
+  <TemplateData>
+    <Name>Slang Vertex Shader</Name>
+    <Description>Slangで書くVertex Shaderファイルを作成します。</Description>
+    <ProjectType>VC</ProjectType>
+    <SortOrder>50</SortOrder>
+    <DefaultName>NewVertexShader.slang</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true" TargetFileName="$fileinputname$.slang">SlangVertexShader.slang</ProjectItem>
+  </TemplateContent>
+</VSTemplate>
