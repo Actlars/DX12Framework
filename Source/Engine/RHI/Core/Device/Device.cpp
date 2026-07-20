@@ -93,6 +93,19 @@ RHI::TransientResourcePool* RHI::Device::GetTransientResourcePool()		  { return 
 RHI::PipelineCache*			RHI::Device::GetPipelineCache()				  { return &m_PipelineCache; }
 RHI::DescriptorPool*		RHI::Device::GetPool(POOL_TYPE _type)	const { return m_pPool[_type]; }
 RHI::DepthTarget*			RHI::Device::GetDepthTarget()			const { return const_cast<RHI::DepthTarget*>(&m_DepthTarget); }
+RHI::Texture* RHI::Device::GetDummyTexture()
+{
+	if (!m_DummyTextureInitialized)
+	{
+		m_DummyTextureInitialized = InitDummyTexture();
+		if (!m_DummyTextureInitialized)
+		{
+			ELOG("Device::GetDummyTexture() : InitDummyTexture failed");
+			return nullptr;
+		}
+	}
+	return &m_DummyTexture;
+}
 uint32_t					RHI::Device::GetFrameIndex()			const { return m_FrameIndex; }
 uint32_t					RHI::Device::GetFrameCount()			const { return m_Desc.FrameCount; }
 uint32_t					RHI::Device::GetWidth()					const { return m_Desc.Width; }
@@ -369,6 +382,91 @@ bool RHI::Device::InitTransientResourcePool()
 	}
 
 	return true;
+}
+
+// -------------------------------------------------------------------------------
+// 共有ダミーテクスチャ生成
+// -------------------------------------------------------------------------------
+bool RHI::Device::InitDummyTexture()
+{
+	const uint32_t whitePixel = 0xFFFFFFFF;
+
+	D3D12_HEAP_PROPERTIES heapDefault = {};
+	heapDefault.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+	D3D12_RESOURCE_DESC resDesc = {};
+	resDesc.Dimension			= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resDesc.Width				= 1;
+	resDesc.Height				= 1;
+	resDesc.DepthOrArraySize	= 1;
+	resDesc.MipLevels			= 1;
+	resDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
+	resDesc.SampleDesc.Count	= 1;
+	resDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	resDesc.Flags				= D3D12_RESOURCE_FLAG_NONE;
+
+	ComPtr<ID3D12Resource> pResource;
+	auto hr = m_pDevice->CreateCommittedResource(
+		&heapDefault, D3D12_HEAP_FLAG_NONE, &resDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+		IID_PPV_ARGS(pResource.GetAddressOf()));
+	if (FAILED(hr))
+	{
+		ELOG("Device::InitDummyTexture() :Resource creation failed");
+		return false;
+	}
+
+	const UINT64 uploadSize = GetRequiredIntermediateSize(pResource.Get(), 0, 1);
+	D3D12_HEAP_PROPERTIES heapUpload = {};
+	heapUpload.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+	D3D12_RESOURCE_DESC uploadDesc = {};
+	uploadDesc.Dimension		= D3D12_RESOURCE_DIMENSION_BUFFER;
+	uploadDesc.Width			= uploadSize;
+	uploadDesc.Height			= 1;
+	uploadDesc.DepthOrArraySize = 1;
+	uploadDesc.MipLevels		= 1;
+	uploadDesc.Format			= DXGI_FORMAT_UNKNOWN;
+	uploadDesc.SampleDesc.Count = 1;
+	uploadDesc.Layout			= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	ComPtr<ID3D12Resource> pUpload;
+	hr = m_pDevice->CreateCommittedResource(
+		&heapUpload, D3D12_HEAP_FLAG_NONE, &uploadDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		IID_PPV_ARGS(pUpload.GetAddressOf()));
+	if (FAILED(hr)) 
+	{ return false; }
+	
+	D3D12_SUBRESOURCE_DATA subResource = {};
+	subResource.pData		= &whitePixel;
+	subResource.RowPitch	= 4;
+	subResource.SlicePitch	= 4;
+
+	auto* pCmd = m_CommandList.Reset(&m_Fence);
+	if (pCmd == nullptr) 
+	{ return false; }
+
+	UpdateSubresources(pCmd, pResource.Get(), pUpload.Get(), 0, 0, 1, &subResource);
+
+	D3D12_RESOURCE_BARRIER barrier = {};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Transition.pResource = pResource.Get();
+	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	pCmd->ResourceBarrier(1, &barrier);
+	pCmd->Close();
+
+	ID3D12CommandList* ppLists[] = { pCmd };
+	m_pQueue->ExecuteCommandLists(1, ppLists);
+
+	const auto fenceValue = m_Fence.Signal(m_pQueue.Get());
+	m_CommandList.RecordFenceValue(fenceValue);
+	m_Fence.WaitForValue(fenceValue);
+
+	return m_DummyTexture.InitFromResource(
+		m_pDevice.Get(), m_pPool[POOL_TYPE_RES], pResource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM);
 }
 
 void RHI::Device::UpdateFrameIndex()

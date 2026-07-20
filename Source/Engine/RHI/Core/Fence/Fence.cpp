@@ -87,7 +87,7 @@ UINT64 RHI::Fence::Signal(ID3D12CommandQueue* _pQueue)
 	// カウンターを増やす
 	m_Counter++;
 
-	return m_Counter;
+	return value;
 }
 
 // -------------------------------------------------------------------------------

@@ -105,7 +105,7 @@ void MeshComponent::SetViewProj(
 
 bool MeshComponent::IsVisible() const
 {
-	return m_IsValiable && m_pMesh != nullptr;
+	return m_IsVisible && m_pMesh != nullptr;
 }
 void MeshComponent::SetFrameIndex(uint32_t _frameIndex)
 {
@@ -136,7 +136,7 @@ void MeshComponent::SetRootLayoutBindless(const RHI::RootSignatureLayout* _pRoot
 
 void MeshComponent::SetVisible(bool _visible)
 {
-	m_IsValiable = _visible;
+	m_IsVisible = _visible;
 }
 
 // -------------------------------------------------------------------------------

@@ -54,7 +54,7 @@ bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath
 	for (auto& resMat : resMaterials)
 	{
 		auto mat = std::make_unique<Material>();
-		if (!mat->Init(pDevice, pQueue, pResPool, resMat))
+		if (!mat->Init(_pDevice, resMat))
 		{
 			ELOG("MeshletComponent::Init() : Material Init failed");
 			return false;
@@ -101,49 +101,6 @@ bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath
 	}
 
 	return true;
-
-	//// MeshShader 実モデル描画
-	//if (!m_ModelMeshletRootSignatureLayout.LoadFromJson(pDevice, L"Assets/Config/Json/RootSignature/MeshletShader.json"))
-	//{
-	//	ELOG("SceneRenderer::Init() : ModelMeshletRootSignatureLayout load failed");
-	//	return false;
-	//}
-
-	//m_pModelMeshletPSO = m_pDevice->GetPipelineCache()->GetOrCreate(
-	//	pDevice, L"Assets/Config/Json/PipelineState/MeshletShader.json",
-	//	m_ModelMeshletRootSignatureLayout.GetRootSignature(),
-	//	D3D12_INPUT_LAYOUT_DESC{ nullptr,0 });
-
-	//if (m_pModelMeshletPSO == nullptr)
-	//{
-	//	ELOG("SceneRenderer::Init() : ModelMeshlet PSO creation failed");
-	//	return false;
-	//}
-
-	// FrameCount分の定数バッファを作成する
-	/*m_TransformCBs.reserve(_frameCount);
-	for (auto i = 0u; i < _frameCount; ++i)
-	{
-		auto cb = std::make_unique<RHI::ConstantBuffer>();
-		if (!cb->Init(_pDevice, _pPool, sizeof(TransformCB)))
-		{
-			ELOG("MeshComponent::Init() ConstantBuffer[%u] failed", i);
-			return false;
-		}
-		m_TransformCBs.emplace_back(std::move(cb));
-	}
-
-	m_MaterialIndicesCBs.reserve(_frameCount);
-	for (auto i = 0u; i < _frameCount; ++i)
-	{
-		auto cb = std::make_unique<RHI::ConstantBuffer>();
-		if (!cb->Init(_pDevice, _pPool, sizeof(MaterialIndicesCB)))
-		{
-			ELOG("MeshComponent::Init() MaterialIndicesCB ConstantBuffer[%u] failed", i);
-			return false;
-		}
-		m_MaterialIndicesCBs.emplace_back(std::move(cb));
-	}*/
 }
 
 // -------------------------------------------------------------------------------

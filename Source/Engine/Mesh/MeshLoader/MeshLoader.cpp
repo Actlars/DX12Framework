@@ -123,21 +123,6 @@ namespace {
 			}
 		}
 
-		/*for (unsigned int i = 0; i < _pSrc->mNumProperties; ++i)
-		{
-			const aiMaterialProperty* prop = _pSrc->mProperties[i];
-
-			ELOG(
-				"MatProp[%u] key=[%s] semantic=%u index=%u type=%d dataLength=%u",
-				i,
-				prop->mKey.C_Str(),
-				prop->mSemantic,
-				prop->mIndex,
-				prop->mType,
-				prop->mDataLength
-			);
-		}*/
-
 		// 色パラメータ
 		{
 			aiColor3D c(0.5f, 0.5f, 0.5f);
@@ -164,28 +149,6 @@ namespace {
 			if (_pSrc->Get(AI_MATKEY_OPACITY, v) == AI_SUCCESS) 
 			{ _dst.Alpha = v; }
 		}
-
-		// テクスチャパスの取得
-		// Assimpが返すパスはモデルファイルからの相対パスなので
-		// モデルのディレクトリと結合して使いやすい絶対パスに変換する
-		//auto resolveTexPath = [&](aiTextureType _type)->std::wstring
-		//	{
-		//		aiString path;
-		//		if (_pSrc->GetTexture(_type, 0, &path) != AI_SUCCESS)
-		//		{
-		//			ELOG("Texture failed");
-		//			return L"";
-		//		}
-
-		//		// パス区切り文字をスラッシュに統一してから結合
-		//		auto relPath = ToWString(path.C_Str());
-		//		for (auto& c : relPath)
-		//		{
-		//			if (c == L'\\') { c = L'/'; }
-		//		}
-
-		//		return _modelDir + L"/" + relPath;
-		//	};
 
 		// モデルが返すテクスチャパスを実ファイルの絶対パスに解決する
 		// 複数のaiTextureTypeを優先順に試す（フォーマット差異を吸収）

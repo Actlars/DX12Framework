@@ -133,7 +133,7 @@ private:
 	// 定数バッファ
 	std::vector<std::unique_ptr<RHI::ConstantBuffer>>	m_TransformCBs;
 	std::vector<std::unique_ptr<RHI::ConstantBuffer>>	m_MaterialIndicesCBs;
-	uint32_t											m_FrameIndex;
+	uint32_t											m_FrameIndex = 0;
 
 	// カメラ行列（GameSceneから毎フレーム更新）
 	DirectX::XMMATRIX m_View = DirectX::XMMatrixIdentity();
@@ -146,5 +146,5 @@ private:
 
 	uint32_t m_MaterialIndicesSlot = UINT32_MAX;	// Bindless用
 
-	bool m_IsValiable = true;
+	bool m_IsVisible = true;
 };

@@ -4,6 +4,7 @@
 // Includes
 #include <Engine/RHI/Resource/DescriptorHeap/DescriptorPool/DescriptorPool.h>
 #include <Engine/RHI/Resource/Texture/Texture.h>
+#include <Engine/RHI/Core/Device/Device.h>
 #include "../ResData.h"
 
 // -------------------------------------------------------------------------------
@@ -91,9 +92,7 @@ public:
 	// @retval	false	初期化に失敗
 	// -------------------------------------------------------------------------------
 	bool Init(
-		ID3D12Device*			_pDevice,
-		ID3D12CommandQueue*		_pQueue,
-		RHI::DescriptorPool*	_pPool,
+		RHI::Device*			_pRHIDevice,
 		const ResMaterial&		_resMat);
 
 	// -------------------------------------------------------------------------------
@@ -129,19 +128,10 @@ public:
 private:
 
 	// -------------------------------------------------------------------------------
-	// @brief	1*1の白ダミーテクスチャを生成する
-	//			テクスチャが存在しないスロットに差し込む
-	// -------------------------------------------------------------------------------
-	bool CreateDummyTexture(
-		ID3D12Device*			_pDevice,
-		ID3D12CommandQueue*		_pQueue,
-		RHI::DescriptorPool*	_pPool,
-		RHI::Texture&			_outTexture);
-
-	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
 	ComPtr<ID3D12Resource>		m_pCB;						// 定数バッファ
+	RHI::Device*				m_pDevice		= nullptr;	// ダミーテクスチャ参照用のデバイス
 	RHI::DescriptorHandle*		m_pCBHandle		= nullptr;	// CBVハンドル
 	RHI::DescriptorPool*		m_pPool			= nullptr;	// プール
 	MaterialCB*					m_pMappedPtr	= nullptr;	// Map済みポインタ

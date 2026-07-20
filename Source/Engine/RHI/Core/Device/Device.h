@@ -11,6 +11,7 @@
 #include <Engine/RHI/Resource/ResourceStateTracker/ResourceStateTracker.h>
 #include <Engine/RHI/Resource/Texture/TransientResourcePool/TransientResourcePool.h>
 #include <Engine/RHI/Pipeline/PipelineState/PipelineStateCache/PipelineStateCache.h>
+#include <Engine/RHI/Resource/Texture/Texture.h>
 
 namespace RHI
 {
@@ -145,6 +146,7 @@ namespace RHI
 		RHI::DescriptorPool*		GetPool(POOL_TYPE _type)		const;
 		RHI::ColorTarget*			GetColorTarget(uint32_t _index)	const;
 		RHI::DepthTarget*			GetDepthTarget()				const;
+		RHI::Texture*				GetDummyTexture()					 ;
 		uint32_t					GetFrameIndex()					const;
 		uint32_t					GetFrameCount()					const;
 		uint32_t					GetWidth()						const;
@@ -164,6 +166,7 @@ namespace RHI
 		bool InitCommandList();
 		bool InitFence();
 		bool InitTransientResourcePool();
+		bool InitDummyTexture();
 
 		// -------------------------------------------------------------------------------
 		// private variables
@@ -181,6 +184,8 @@ namespace RHI
 		RHI::ResourceStateTracker					m_ResourceStateTracker;
 		RHI::TransientResourcePool					m_TransientResourcePool;
 		RHI::PipelineCache							m_PipelineCache;
+		RHI::Texture								m_DummyTexture;
+		bool										m_DummyTextureInitialized = false;
 
 		uint32_t					m_FrameIndex = 0;
 

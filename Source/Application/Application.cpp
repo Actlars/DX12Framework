@@ -94,36 +94,6 @@ bool Application::Init()
     // フレームインデックスを最新状態に同期する
     m_GraphicsView.UpdateFrameIndexAfterSceneChange();
 
-    //D3D12_FEATURE_DATA_SHADER_MODEL sm = {};
-    //sm.HighestShaderModel = D3D_SHADER_MODEL_6_9;   // 聞きたい上限を入れる
-    //m_GraphicsView.GetImpl()->Device.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm, sizeof(sm));
-
-    //static const D3D_SHADER_MODEL kModels[] = {
-    //D3D_SHADER_MODEL_6_9, D3D_SHADER_MODEL_6_8,
-    //D3D_SHADER_MODEL_6_7, D3D_SHADER_MODEL_6_6,
-    //};
-
-    //D3D_SHADER_MODEL highest = D3D_SHADER_MODEL_6_6;
-    //for (auto req : kModels)
-    //{
-    //    D3D12_FEATURE_DATA_SHADER_MODEL sm{ req };
-    //    HRESULT hr = m_GraphicsView.GetImpl()->Device.GetDevice()->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &sm, sizeof(sm));
-    //    if (hr == E_INVALIDARG) continue;            // ランタイムがreqを知らない→下げる
-    //    if (SUCCEEDED(hr)) { highest = sm.HighestShaderModel; break; }
-    //}
-
-    //ELOG("Highest Shader Model = 0x%X", highest);
-
-    // 返ってきた sm.HighestShaderModel = 実際に対応してる最高値(要求値で頭打ち)
-    //if (sm.HighestShaderModel >= D3D_SHADER_MODEL_6_9) {
-    //    // → デバイスは6.9を実行できる
-    //    return true;
-    //}
-    //else {
-    //    // → ドライバかランタイムが6.9未対応。値が6.8等で返る
-    //    return false;
-    //}
-
     return true;
 }
 

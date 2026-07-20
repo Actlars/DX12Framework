@@ -66,6 +66,7 @@ void GameScene::OnTerm()
     // GameObjectManager を先に解放する
     // MeshComponent が Mesh / Material を参照しているため
     m_MeshComponents.clear();
+    m_MeshletComponents = nullptr;
     m_ObjectManager.Clear();
 
     m_Materials.clear();
@@ -157,7 +158,7 @@ bool GameScene::InitMeshes()
     for (auto& resMat : resMaterials)
     {
         auto mat = std::make_unique<Material>();
-        if (!mat->Init(pDevice, pQueue, pPool, resMat))
+        if (!mat->Init(m_pDevice, resMat))
         {
             ELOG("Material::Init() failed."); return false;
         }
@@ -176,7 +177,7 @@ bool GameScene::InitMeshlets()
     pTransform->SetScale({ 1.0f,1.0f,1.0f });
 
     auto* pMeshletComp = pObj->AddComponent<MeshletComponent>();
-    if (!pMeshletComp->Init(m_pDevice, L"Assets/Model/Player/Elinyaa/Elinyaa.fbx"))
+    if (!pMeshletComp->Init(m_pDevice, m_Desc.ModelPath))
     {
         ELOG("MeshletComponent::Init() failed");
         return false;
@@ -202,10 +203,7 @@ bool GameScene::InitGameObjects()
     for (auto i = 0u; i < m_Meshes.size(); ++i)
     {
         const auto materialId = m_Meshes[i]->GetMaterialId();
-        //ELOG("Mesh[%u] matId=%u, materials.size=%zu", i, materialId, m_Materials.size());
-
         Material* pMaterial = (materialId < m_Materials.size()) ? m_Materials[materialId].get() : nullptr;
-        //ELOG("Mesh[%u] pMat=%s", i, pMaterial ? "valid" : "nullptr");
 
         const auto name = "Mesh_" + std::to_string(i);
         auto* pObj = m_ObjectManager.Add<GameObject>(name);
@@ -225,29 +223,10 @@ bool GameScene::InitGameObjects()
             return false;
         }
 
-        // メッシュとマテリアルを設定
-        const auto matId = m_Meshes[i]->GetMaterialId();
-        Material* pMat = (matId < m_Materials.size()) ? m_Materials[matId].get() : nullptr;
-        pMeshComp->SetMesh(m_Meshes[i].get(), pMat);
-
-        // ── 一時テスト: マテリアルごとに別色を流し込む ──
-        static const DirectX::XMFLOAT3 kDebug[] = {
-            {1,0,0},{0,1,0},{0,0,1},{1,1,0},{1,0,1},{0,1,1}
-        };
-        if (auto* cb = pMat->GetCBPtr())
-        {
-            cb->Diffuse = kDebug[matId % 6];
-        }
-
-       // if (m_SceneRenderer.GetRenderMode() == RenderMode::Traditional)
-        {
-            // RootSignature のスロット番号を設定（GameScene の定義と合わせる）
-            pMeshComp->SetRootLayout(m_SceneRenderer.GetMeshRootSignatureLayout());
-        }
-        //else
-        {
-            pMeshComp->SetRootLayoutBindless(m_SceneRenderer.GetMeshRootSignatureLayoutBIndless());
-        }
+        pMeshComp->SetMesh(m_Meshes[i].get(), pMaterial);
+        // RootSignature のスロット番号を設定（GameScene の定義と合わせる）
+        pMeshComp->SetRootLayout(m_SceneRenderer.GetMeshRootSignatureLayout());
+        pMeshComp->SetRootLayoutBindless(m_SceneRenderer.GetMeshRootSignatureLayoutBIndless());
 
         // UpdateViewProj() で使うためにキャッシュしておく
         m_MeshComponents.emplace_back(pMeshComp);
