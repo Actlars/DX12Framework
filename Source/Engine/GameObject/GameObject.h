@@ -6,6 +6,7 @@
 #include <Engine/GameObject/Renderable/IRenderable.h>
 #include <Engine/GameObject/Renderable/IMeshletRenderable.h>
 #include <Engine/GameObject/Component/Component.h>
+#include <typeindex>
 
 // -------------------------------------------------------------------------------
 // ‘O•ûéŒ¾

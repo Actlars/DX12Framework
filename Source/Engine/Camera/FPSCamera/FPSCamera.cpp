@@ -165,6 +165,36 @@ void FPSCamera::SetRotation(float _yaw, float _pitch)
 	m_Pitch = std::clamp(_pitch, PITCH_MIN, PITCH_MAX);
 }
 
+float FPSCamera::GetYaw() const
+{
+	return 0.0f;
+}
+
+float FPSCamera::GetPitch() const
+{
+	return 0.0f;
+}
+
+float FPSCamera::GetMoveSpeed() const
+{
+	return 0.0f;
+}
+
+float FPSCamera::GetRotSpeed() const
+{
+	return 0.0f;
+}
+
+DirectX::XMFLOAT3 FPSCamera::GetForward() const
+{
+	return DirectX::XMFLOAT3();
+}
+
+DirectX::XMFLOAT3 FPSCamera::GetRight() const
+{
+	return DirectX::XMFLOAT3();
+}
+
 // -------------------------------------------------------------------------------
 //		方向ベクトルの再計算
 // -------------------------------------------------------------------------------

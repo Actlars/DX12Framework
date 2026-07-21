@@ -7,6 +7,7 @@
 #include <Engine/Mesh/MeshletResource/MeshletResource.h>
 #include <Engine/Mesh/Material/Material.h>
 #include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
+#include <Engine/Renderer/RendererItem/TransformCB.h>
 
 // -------------------------------------------------------------------------------
 // 前方宣言
@@ -41,15 +42,6 @@ struct ModelMeshletEntry
 class MeshletComponent : public Component, public IMeshletRenderable
 {
 public:
-
-	// 定数バッファ（ワールド・ビュー・プロジェクション）
-	// MeshComponent自身が持ち、TrnsformComponentから毎フレーム更新する
-	struct alignas(256) TransformCB
-	{
-		DirectX::XMMATRIX World;
-		DirectX::XMMATRIX View;
-		DirectX::XMMATRIX Proj;
-	};
 
 	// -------------------------------------------------------------------------------
 	// コンストラクタ

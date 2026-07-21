@@ -113,5 +113,3 @@ private:
 	void operator = (const CameraBase&) = delete;
 
 };
-
-

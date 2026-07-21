@@ -9,6 +9,7 @@
 #include <Engine/Test/CoopVecMatMulTestRunner/CoopVecMatMulTestRunner.h>
 #include <Engine/Test/NTCdecodeTestRunner/NTCdecodeTestRunner.h>
 #include <Engine/Test/NTCImageTestRunner/NTCImageTestRunner.h>
+#include <Engine/Renderer/Renderer.h>
 
 // -------------------------------------------------------------------------------
 // GraphicsView::Impl

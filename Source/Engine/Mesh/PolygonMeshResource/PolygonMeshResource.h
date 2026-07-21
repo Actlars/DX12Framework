@@ -81,7 +81,3 @@ private:
 	void operator =		(const PolygonMeshResource&) = delete;
 
 };
-
-
-
-

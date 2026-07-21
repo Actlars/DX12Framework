@@ -71,3 +71,5 @@
 #include <assimp/postprocess.h>
 
 #include <../External/nlohmann/json.hpp>
+
+#include <DirectXMath.h>
