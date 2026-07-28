@@ -6,6 +6,9 @@
 #include <Engine/Renderer/GraphicsView/GraphicsView.h>
 #include <Engine/Scene/SceneManager/SceneManager.h>
 
+#include <Engine/EditorUI/Render/EditorUIRenderer/EditorUIRenderer.h>
+#include <Engine/EditorUI/Core/Context.h>
+
 // -------------------------------------------------------------------------------
 // Linker
 // -------------------------------------------------------------------------------
@@ -78,6 +81,8 @@ private:
 	// @brief	1フレーム分の処理
 	void Tick();
 
+	EditorUI::InputState PollInputState() const;
+
 	// -------------------------------------------------------------------------------
 	// ウィンドウ管理
 	// -------------------------------------------------------------------------------
@@ -97,6 +102,10 @@ private:
 	// DX12基盤
 	GraphicsView	m_GraphicsView;	// DX12のデバイスとRendererの管理
 	SceneManager	m_SceneManager;	// シーン管理
+
+	// UI
+	EditorUI::Context	m_EditorUIContext;
+	EditorUIRenderer	m_EditorUIRenderer;
 
 	// タイマー（デルタタイム計算用）
 	LARGE_INTEGER m_PrevTime	= {};

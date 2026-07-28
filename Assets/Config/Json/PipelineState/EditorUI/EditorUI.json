@@ -1,0 +1,9 @@
+{
+  "VS": "UIVertexShader.cso",
+  "PS": "UIPixelShader.cso",
+  "CullMode": "NONE",
+  "DepthEnable": false,
+  "blendEnable": true,
+  "RTVFormat": "R8G8B8A8_UNORM",
+  "DSVFormat": "UNKNOWN"
+}

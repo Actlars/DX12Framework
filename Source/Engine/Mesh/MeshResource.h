@@ -31,7 +31,6 @@ public:
 	// @param[in]	_pCmd			コマンドリスト
 	// @param[in]	_instanceCount	インスタンス数は（通常は1）
 	// -------------------------------------------------------------------------------
-
 	virtual void Draw(
 		ID3D12GraphicsCommandList*	_pCmd,
 		uint32_t					_instanceCount = 1) = 0;

@@ -39,13 +39,13 @@ public:
     // -------------------------------------------------------------------------------
     struct Desc
     {
-        std::wstring        ModelPath = L"";
-        DirectX::XMFLOAT3   CameraPosition = { 0.0f, 1.0f, -5.0f };
+        std::wstring        ModelPath       = L"";
+        DirectX::XMFLOAT3   CameraPosition  = { 0.0f, 1.0f, -5.0f };
         float               CameraMoveSpeed = 5.0f;
-        float               CameraRotSpeed = 0.2f;
-        float               CameraFov = 60.0f;
-        float               CameraNear = 0.1f;
-        float               CameraFar = 10000.0f;
+        float               CameraRotSpeed  = 0.2f;
+        float               CameraFov       = 60.0f;
+        float               CameraNear      = 0.1f;
+        float               CameraFar       = 10000.0f;
     };
 
     // -------------------------------------------------------------------------------

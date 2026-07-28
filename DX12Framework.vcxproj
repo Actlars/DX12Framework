@@ -223,6 +223,15 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Application\Application.h" />
     <ClInclude Include="Source\Engine\Camera\CameraBase.h" />
     <ClInclude Include="Source\Engine\Camera\FPSCamera\FPSCamera.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Context.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\DrawList.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Id.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Input.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Style.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Types.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Window.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.h" />
@@ -294,6 +303,9 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Application\Application.cpp" />
     <ClCompile Include="Source\Engine\Camera\CameraBase.cpp" />
     <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\Context.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.cpp" />
@@ -359,6 +371,8 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
   <ItemGroup>
     <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli" />
     <None Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShader.hlsli" />
+    <SlangTask Include="Source\Engine\Shader\EditorUIShader\UIPixelShader.slang" />
+    <SlangTask Include="Source\Engine\Shader\EditorUIShader\UIVertexShader.slang" />
     <SlangTask Include="Source\Engine\Shader\slangTest\CoopVecMatMulTest.slang">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_6_10</ShaderModel>

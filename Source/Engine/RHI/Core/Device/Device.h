@@ -87,12 +87,12 @@ namespace RHI
 		// -------------------------------------------------------------------------------
 		struct Desc
 		{
-			HWND		hWnd = nullptr;						// ウィンドウハンドル
-			uint32_t	Width = 1280;							// バックバッファ横幅
-			uint32_t	Height = 720;							// バックバッファ縦幅
-			DXGI_FORMAT Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// バックバッファフォーマット
+			HWND		hWnd		= nullptr;						// ウィンドウハンドル
+			uint32_t	Width		= 1280;							// バックバッファ横幅
+			uint32_t	Height		= 720;							// バックバッファ縦幅
+			DXGI_FORMAT Format		= DXGI_FORMAT_R8G8B8A8_UNORM;	// バックバッファフォーマット
 			DXGI_FORMAT DepthFormat = DXGI_FORMAT_D32_FLOAT;		// 深度バッファフォーマット
-			uint32_t	FrameCount = 2;							// フレームバッファ数（2 = ダブル、3 = トリプル）
+			uint32_t	FrameCount	= 2;							// フレームバッファ数（2 = ダブル、3 = トリプル）
 		};
 
 		// -------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ namespace RHI
 		uint32_t					m_FrameIndex = 0;
 
 		// コピー禁止
-		Device(const Device&) = delete;
+		Device			(const Device&) = delete;
 		void operator = (const Device&) = delete;
 	};
 }

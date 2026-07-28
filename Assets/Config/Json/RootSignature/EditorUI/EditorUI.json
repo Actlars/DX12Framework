@@ -1,0 +1,32 @@
+{
+  "Name": "EditorUIRootSignature",
+  "Parameters": [
+    {
+      "Name": "ScreenParams",
+      "Type": "Constants",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "VS",
+      "Num32BitValues": 2
+    },
+    {
+      "Name": "MainTexture",
+      "Type": "SRV_Table",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "PS",
+      "NumDescriptors": 1
+    }
+  ],
+  "StaticSamplers": [
+    {
+      "ShaderRegister": 0,
+      "Filter": "LINEAR",
+      "AddressMode": "CLAMP",
+      "Visibility": "PS"
+    }
+  ],
+  "Flags": [
+    "ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT"
+  ]
+}

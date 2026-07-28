@@ -94,6 +94,8 @@ bool Application::Init()
     // フレームインデックスを最新状態に同期する
     m_GraphicsView.UpdateFrameIndexAfterSceneChange();
 
+    m_EditorUIRenderer.Init(m_GraphicsView.GetDevice(), 2);
+
     return true;
 }
 
@@ -165,6 +167,15 @@ void Application::Tick()
         // SceneManagerにvoid型を渡しても使えないので、ここでだけキャストする
         auto* pCmd = static_cast<ID3D12GraphicsCommandList*>(pCmdVoid);
         m_SceneManager.Render(pCmd);
+
+        // UI処理
+        EditorUI::InputState input = PollInputState();
+        m_EditorUIContext.NewFrame(input);
+        m_EditorUIRenderer.Render(
+            m_EditorUIContext.GetCompositedFrame(), pCmd,
+            m_GraphicsView.GetFrameIndex(),
+            static_cast<float>(m_Width), static_cast<float>(m_Height));
+
         m_GraphicsView.EndFrame(pCmdVoid);
     }
 
@@ -173,6 +184,22 @@ void Application::Tick()
 
     // シーン切り替え処理（遅延）
     m_SceneManager.ProcessSceneChange();
+}
+
+EditorUI::InputState Application::PollInputState() const
+{
+    EditorUI::InputState input;
+
+    POINT pt;
+    GetCursorPos(&pt);
+    ScreenToClient(m_hWnd, &pt);    // スクリーン座標→クライアント座標
+    input.MousePos = { static_cast<float>(pt.x), static_cast<float>(pt.y) };
+
+    input.MouseDown[static_cast<int>(EditorUI::MouseButton::Mouse_Left)] =      (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
+    input.MouseDown[static_cast<int>(EditorUI::MouseButton::Mouse_Right)] =     (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
+    input.MouseDown[static_cast<int>(EditorUI::MouseButton::Mouse_Middle)] =    (GetAsyncKeyState(VK_MBUTTON) & 0x8000) != 0;
+    
+    return input;
 }
 
 // -------------------------------------------------------------------------------
