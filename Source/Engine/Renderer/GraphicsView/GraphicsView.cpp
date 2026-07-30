@@ -73,12 +73,12 @@ bool GraphicsView::Init(void* _hWnd, uint32_t _width, uint32_t _height)
 //	}
 //#endif
 
-#ifdef _DEBUG
-	{
-		NTCImageDecodeTestRunner ntcImageTest;
-		ntcImageTest.Run(&m_pImpl->Device);
-	}
-#endif
+//#ifdef _DEBUG
+//	{
+//		NTCImageDecodeTestRunner ntcImageTest;
+//		ntcImageTest.Run(&m_pImpl->Device);
+//	}
+//#endif
 
 //#ifdef _DEBUG
 //	{

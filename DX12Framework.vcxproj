@@ -232,6 +232,9 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\EditorUI\Core\Window.h" />
     <ClInclude Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.h" />
     <ClInclude Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Widgets\Layout\Layout.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Widgets\WidgetInteraction.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Widgets\Widgets.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.h" />
@@ -240,6 +243,9 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager.h" />
     <ClInclude Include="Source\Engine\GameObject\Renderable\IMeshletRenderable.h" />
     <ClInclude Include="Source\Engine\GameObject\Renderable\IRenderable.h" />
+    <ClInclude Include="Source\Engine\Input\InputManager\InputManager.h" />
+    <ClInclude Include="Source\Engine\Input\KeyboardInput\KeyboardInput.h" />
+    <ClInclude Include="Source\Engine\Input\MouseInput\MouseInput.h" />
     <ClInclude Include="Source\Engine\Mesh\Material\Material.h" />
     <ClInclude Include="Source\Engine\Mesh\MeshletResource\MeshletResource.h" />
     <ClInclude Include="Source\Engine\Mesh\MeshLoader\MeshLoader.h" />
@@ -306,11 +312,15 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\EditorUI\Core\Context.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Widgets\Widgets.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObject.cpp" />
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputManager\InputManager.cpp" />
+    <ClCompile Include="Source\Engine\Input\KeyboardInput\KeyboardInput.cpp" />
+    <ClCompile Include="Source\Engine\Input\MouseInput\MouseInput.cpp" />
     <ClCompile Include="Source\Engine\Mesh\Material\Material.cpp" />
     <ClCompile Include="Source\Engine\Mesh\MeshletResource\MeshletResource.cpp" />
     <ClCompile Include="Source\Engine\Mesh\MeshLoader\MeshLoader.cpp" />

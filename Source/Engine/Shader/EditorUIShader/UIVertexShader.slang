@@ -10,9 +10,9 @@ struct PSInput
     float4 Position : SV_Position;
     float2 UV       : TEXCOORD0;
     float4 Color    : COLOR;
-}
+};
 
-cbuffer ScreenParam : register(b0)
+cbuffer ScreenParams : register(b0)
 {
     float2 InvScreenSize;
 }

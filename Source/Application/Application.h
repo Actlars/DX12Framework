@@ -9,6 +9,8 @@
 #include <Engine/EditorUI/Render/EditorUIRenderer/EditorUIRenderer.h>
 #include <Engine/EditorUI/Core/Context.h>
 
+#include <Engine/Input/InputManager/InputManager.h>
+
 // -------------------------------------------------------------------------------
 // Linker
 // -------------------------------------------------------------------------------
@@ -106,6 +108,11 @@ private:
 	// UI
 	EditorUI::Context	m_EditorUIContext;
 	EditorUIRenderer	m_EditorUIRenderer;
+	bool				m_PrevLeftMouseDown;		// 前フレームの左クリックの有無
+	bool				m_IsCameraControlActive;	// カメラ制御
+
+	// 入力
+	Input::InputManager m_InputManager;
 
 	// タイマー（デルタタイム計算用）
 	LARGE_INTEGER m_PrevTime	= {};

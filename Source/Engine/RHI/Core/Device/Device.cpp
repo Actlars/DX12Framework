@@ -35,6 +35,7 @@ bool RHI::Device::Init(const Desc& _desc)
 	if (!InitCommandList())				{ Term(); return false; }
 	if (!InitFence())					{ Term(); return false; }
 	if (!InitTransientResourcePool())	{ Term(); return false; }
+	if (!InitDummyTexture())			{ Term(); return false; }
 
 	return true;
 }
@@ -44,7 +45,10 @@ bool RHI::Device::Init(const Desc& _desc)
 // -------------------------------------------------------------------------------
 void RHI::Device::Term()
 {
+
 	// 各リソースを逆順に解放
+	m_DummyTexture.Term();
+	m_TransientResourcePool.ReleaseAll();
 	m_Fence.Term();
 	m_CommandList.Term();
 	m_DepthTarget.Term();
@@ -387,6 +391,91 @@ bool RHI::Device::InitTransientResourcePool()
 // -------------------------------------------------------------------------------
 // 共有ダミーテクスチャ生成
 // -------------------------------------------------------------------------------
+//bool RHI::Device::InitDummyTexture()
+//{
+//	const uint32_t whitePixel = 0xFFFFFFFF;
+//
+//	D3D12_HEAP_PROPERTIES heapDefault = {};
+//	heapDefault.Type = D3D12_HEAP_TYPE_DEFAULT;
+//
+//	D3D12_RESOURCE_DESC resDesc = {};
+//	resDesc.Dimension			= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+//	resDesc.Width				= 1;
+//	resDesc.Height				= 1;
+//	resDesc.DepthOrArraySize	= 1;
+//	resDesc.MipLevels			= 1;
+//	resDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
+//	resDesc.SampleDesc.Count	= 1;
+//	resDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
+//	resDesc.Flags				= D3D12_RESOURCE_FLAG_NONE;
+//
+//	ComPtr<ID3D12Resource> pResource;
+//	auto hr = m_pDevice->CreateCommittedResource(
+//		&heapDefault, D3D12_HEAP_FLAG_NONE, &resDesc,
+//		D3D12_RESOURCE_STATE_COPY_DEST, nullptr,
+//		IID_PPV_ARGS(pResource.GetAddressOf()));
+//	if (FAILED(hr))
+//	{
+//		ELOG("Device::InitDummyTexture() :Resource creation failed");
+//		return false;
+//	}
+//
+//	const UINT64 uploadSize = GetRequiredIntermediateSize(pResource.Get(), 0, 1);
+//	D3D12_HEAP_PROPERTIES heapUpload = {};
+//	heapUpload.Type = D3D12_HEAP_TYPE_UPLOAD;
+//
+//	D3D12_RESOURCE_DESC uploadDesc = {};
+//	uploadDesc.Dimension		= D3D12_RESOURCE_DIMENSION_BUFFER;
+//	uploadDesc.Width			= uploadSize;
+//	uploadDesc.Height			= 1;
+//	uploadDesc.DepthOrArraySize = 1;
+//	uploadDesc.MipLevels		= 1;
+//	uploadDesc.Format			= DXGI_FORMAT_UNKNOWN;
+//	uploadDesc.SampleDesc.Count = 1;
+//	uploadDesc.Layout			= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+//
+//	ComPtr<ID3D12Resource> pUpload;
+//	hr = m_pDevice->CreateCommittedResource(
+//		&heapUpload, D3D12_HEAP_FLAG_NONE, &uploadDesc,
+//		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+//		IID_PPV_ARGS(pUpload.GetAddressOf()));
+//	if (FAILED(hr)) 
+//	{ return false; }
+//	
+//	D3D12_SUBRESOURCE_DATA subResource = {};
+//	subResource.pData		= &whitePixel;
+//	subResource.RowPitch	= 4;
+//	subResource.SlicePitch	= 4;
+//
+//	auto* pCmd = m_CommandList.Reset(&m_Fence);
+//	if (pCmd == nullptr) 
+//	{ return false; }
+//
+//	UpdateSubresources(pCmd, pResource.Get(), pUpload.Get(), 0, 0, 1, &subResource);
+//
+//	D3D12_RESOURCE_BARRIER barrier = {};
+//	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+//	barrier.Transition.pResource = pResource.Get();
+//	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+//	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+//	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+//	pCmd->ResourceBarrier(1, &barrier);
+//	pCmd->Close();
+//
+//	ID3D12CommandList* ppLists[] = { pCmd };
+//	m_pQueue->ExecuteCommandLists(1, ppLists);
+//
+//	const auto fenceValue = m_Fence.Signal(m_pQueue.Get());
+//	m_CommandList.RecordFenceValue(fenceValue);
+//	m_Fence.WaitForValue(fenceValue);
+//
+//	m_DummyTextureInitialized = true;
+//
+//	return m_DummyTexture.InitFromResource(
+//		m_pDevice.Get(), m_pPool[POOL_TYPE_RES], pResource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM);
+//}
+
+// Device.cpp: InitDummyTexture() の修正版
 bool RHI::Device::InitDummyTexture()
 {
 	const uint32_t whitePixel = 0xFFFFFFFF;
@@ -395,15 +484,15 @@ bool RHI::Device::InitDummyTexture()
 	heapDefault.Type = D3D12_HEAP_TYPE_DEFAULT;
 
 	D3D12_RESOURCE_DESC resDesc = {};
-	resDesc.Dimension			= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	resDesc.Width				= 1;
-	resDesc.Height				= 1;
-	resDesc.DepthOrArraySize	= 1;
-	resDesc.MipLevels			= 1;
-	resDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
-	resDesc.SampleDesc.Count	= 1;
-	resDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	resDesc.Flags				= D3D12_RESOURCE_FLAG_NONE;
+	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resDesc.Width = 1;
+	resDesc.Height = 1;
+	resDesc.DepthOrArraySize = 1;
+	resDesc.MipLevels = 1;
+	resDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	resDesc.SampleDesc.Count = 1;
+	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 	ComPtr<ID3D12Resource> pResource;
 	auto hr = m_pDevice->CreateCommittedResource(
@@ -421,33 +510,46 @@ bool RHI::Device::InitDummyTexture()
 	heapUpload.Type = D3D12_HEAP_TYPE_UPLOAD;
 
 	D3D12_RESOURCE_DESC uploadDesc = {};
-	uploadDesc.Dimension		= D3D12_RESOURCE_DIMENSION_BUFFER;
-	uploadDesc.Width			= uploadSize;
-	uploadDesc.Height			= 1;
+	uploadDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	uploadDesc.Width = uploadSize;
+	uploadDesc.Height = 1;
 	uploadDesc.DepthOrArraySize = 1;
-	uploadDesc.MipLevels		= 1;
-	uploadDesc.Format			= DXGI_FORMAT_UNKNOWN;
+	uploadDesc.MipLevels = 1;
+	uploadDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uploadDesc.SampleDesc.Count = 1;
-	uploadDesc.Layout			= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	uploadDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 	ComPtr<ID3D12Resource> pUpload;
 	hr = m_pDevice->CreateCommittedResource(
 		&heapUpload, D3D12_HEAP_FLAG_NONE, &uploadDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 		IID_PPV_ARGS(pUpload.GetAddressOf()));
-	if (FAILED(hr)) 
-	{ return false; }
-	
+	if (FAILED(hr))
+	{
+		return false;
+	}
+
 	D3D12_SUBRESOURCE_DATA subResource = {};
-	subResource.pData		= &whitePixel;
-	subResource.RowPitch	= 4;
-	subResource.SlicePitch	= 4;
+	subResource.pData = &whitePixel;
+	subResource.RowPitch = 4;
+	subResource.SlicePitch = 4;
 
-	auto* pCmd = m_CommandList.Reset(&m_Fence);
-	if (pCmd == nullptr) 
-	{ return false; }
+	// -------------------------------------------------------------------------------
+	// 修正: 共有の m_CommandList / m_Fence を横取りせず、
+	// この初期化専用の使い捨てコマンドアロケータ/リスト/フェンスをその場で作る。
+	// フレーム描画側の状態(記録中かどうか)に一切依存しなくなる。
+	// -------------------------------------------------------------------------------
+	ComPtr<ID3D12CommandAllocator>		pAlloc;
+	ComPtr<ID3D12GraphicsCommandList>	pCmd;
+	ComPtr<ID3D12Fence>					pLocalFence;
 
-	UpdateSubresources(pCmd, pResource.Get(), pUpload.Get(), 0, 0, 1, &subResource);
+	hr = m_pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(pAlloc.GetAddressOf()));
+	if (FAILED(hr)) { return false; }
+
+	hr = m_pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pAlloc.Get(), nullptr, IID_PPV_ARGS(pCmd.GetAddressOf()));
+	if (FAILED(hr)) { return false; }
+
+	UpdateSubresources(pCmd.Get(), pResource.Get(), pUpload.Get(), 0, 0, 1, &subResource);
 
 	D3D12_RESOURCE_BARRIER barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -458,12 +560,19 @@ bool RHI::Device::InitDummyTexture()
 	pCmd->ResourceBarrier(1, &barrier);
 	pCmd->Close();
 
-	ID3D12CommandList* ppLists[] = { pCmd };
+	ID3D12CommandList* ppLists[] = { pCmd.Get() };
 	m_pQueue->ExecuteCommandLists(1, ppLists);
 
-	const auto fenceValue = m_Fence.Signal(m_pQueue.Get());
-	m_CommandList.RecordFenceValue(fenceValue);
-	m_Fence.WaitForValue(fenceValue);
+	hr = m_pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(pLocalFence.GetAddressOf()));
+	if (FAILED(hr)) { return false; }
+
+	HANDLE hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+	if (!hEvent) { return false; }
+
+	m_pQueue->Signal(pLocalFence.Get(), 1);
+	pLocalFence->SetEventOnCompletion(1, hEvent);
+	WaitForSingleObject(hEvent, INFINITE);
+	CloseHandle(hEvent);
 
 	return m_DummyTexture.InitFromResource(
 		m_pDevice.Get(), m_pPool[POOL_TYPE_RES], pResource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM);

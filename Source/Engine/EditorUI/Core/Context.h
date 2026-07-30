@@ -31,12 +31,21 @@ namespace EditorUI
 		IdStack& GetIdStack() { return m_IdStack; }
 		WindowFrame* GetCurrentWindow() { return m_CurrentWindow; }
 
+		// マウスがいずれかのUIウィンドウ上にあるかチェック
+		bool IsMouseOverAnyWindow() const;
+
 		// Render層が消費する最終出力。背面→前面の順でウィンドウごとにDrawListを並べる
 		struct CompositedFrame
 		{
 			std::vector<const DrawList*> WindowDrawLists;
 		};
 		const CompositedFrame& GetCompositedFrame() const { return m_CompositedFrame; }
+
+		// Widgets層がホバー/クリック判定に使う入力アクセサ
+		const DirectX::XMFLOAT2& GetMousePos() const { return m_Input.MousePos; }
+		bool IsMouseDown(int _button)		const { return m_Input.MouseDown[_button]; }
+		bool IsMouseClicked(int _button)	const { return m_Input.MouseDown[_button] && !m_PrevInput.MouseDown[_button]; }
+		bool IsMouseReleased(int _button)	const { return !m_Input.MouseDown[_button] && m_PrevInput.MouseDown[_button]; }
 
 	private:
 

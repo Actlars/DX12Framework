@@ -146,7 +146,7 @@ bool RHI::PipelineState::LoadFromJsonGraphics(
 		D3D12_BLEND_DESC blendDesc = {};
 		blendDesc.AlphaToCoverageEnable		= FALSE;
 		blendDesc.IndependentBlendEnable	= FALSE;
-		const bool blendEnable				= _json.value("blendEnable", false);
+		const bool blendEnable				= _json.value("BlendEnable", false);
 		for (auto& rt : blendDesc.RenderTarget)
 		{
 			rt.BlendEnable				= blendEnable ? TRUE : FALSE;

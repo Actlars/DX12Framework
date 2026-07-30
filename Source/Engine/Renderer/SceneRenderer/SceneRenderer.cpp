@@ -202,8 +202,8 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
                 cmd->SetPipelineState(m_pMeshPSOBindless);
             }
 
-            //_objects.Submit(&m_RenderQueue);
-            //m_RenderQueue.Execute(cmd, m_RenderMode);
+            _objects.Submit(&m_RenderQueue);
+            m_RenderQueue.Execute(cmd, m_RenderMode);
             _objects.FlushPendingRemoves();
         });
 
@@ -254,43 +254,43 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
     // -------------------------------------------------------------------------------
     // NTCプレビューパス(デバッグ用: 画面全体をNTCテクスチャで塗りつぶす)
     // -------------------------------------------------------------------------------
-    if (m_pNTCPreviewTexture != nullptr)
-    {
-        m_RenderGraph.AddPass(
-            "NTCPreviewPass",
-            [colorHandle](RG::PassBuilder& _builder)
-            {
-                _builder.Use(colorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);
-            },
-            [this](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
-            {
-                const auto frameIndex = m_pDevice->GetFrameIndex();
-                auto handleRTV = m_pDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
-                cmd->OMSetRenderTargets(1, &handleRTV, FALSE, nullptr); // 深度は使わない
+    //if (m_pNTCPreviewTexture != nullptr)
+    //{
+    //    m_RenderGraph.AddPass(
+    //        "NTCPreviewPass",
+    //        [colorHandle](RG::PassBuilder& _builder)
+    //        {
+    //            _builder.Use(colorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    //        },
+    //        [this](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
+    //        {
+    //            const auto frameIndex = m_pDevice->GetFrameIndex();
+    //            auto handleRTV = m_pDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
+    //            cmd->OMSetRenderTargets(1, &handleRTV, FALSE, nullptr); // 深度は使わない
 
-                SetFullViewport(cmd, m_pDevice->GetWidth(), m_pDevice->GetHeight());
+    //            SetFullViewport(cmd, m_pDevice->GetWidth(), m_pDevice->GetHeight());
 
-                ID3D12DescriptorHeap* heaps[] =
-                {
-                    m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap(),
-                    m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP)->GetHeap(),
-                };
-                cmd->SetDescriptorHeaps(_countof(heaps), heaps);
+    //            ID3D12DescriptorHeap* heaps[] =
+    //            {
+    //                m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES)->GetHeap(),
+    //                m_pDevice->GetPool(RHI::Device::POOL_TYPE_SMP)->GetHeap(),
+    //            };
+    //            cmd->SetDescriptorHeaps(_countof(heaps), heaps);
 
-                cmd->SetGraphicsRootSignature(m_NTCPreviewRootSignatureLayout.GetRootSignature());
-                cmd->SetPipelineState(m_pNTCPreviewPSO);
+    //            cmd->SetGraphicsRootSignature(m_NTCPreviewRootSignatureLayout.GetRootSignature());
+    //            cmd->SetPipelineState(m_pNTCPreviewPSO);
 
-                cmd->SetGraphicsRootDescriptorTable(
-                    m_NTCPreviewRootSignatureLayout.GetSlot("NTCTexture"),
-                    m_pNTCPreviewTexture->GetHandleGPU());
-                cmd->SetGraphicsRootDescriptorTable(
-                    m_NTCPreviewRootSignatureLayout.GetSlot("Sampler"),
-                    m_Sampler.GetHandleGPU());
+    //            cmd->SetGraphicsRootDescriptorTable(
+    //                m_NTCPreviewRootSignatureLayout.GetSlot("NTCTexture"),
+    //                m_pNTCPreviewTexture->GetHandleGPU());
+    //            cmd->SetGraphicsRootDescriptorTable(
+    //                m_NTCPreviewRootSignatureLayout.GetSlot("Sampler"),
+    //                m_Sampler.GetHandleGPU());
 
-                cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-                cmd->DrawInstanced(3, 1, 0, 0); // フルスクリーン三角形(頂点バッファ不要、VS側で座標生成する前提)
-            });
-    }
+    //            cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //            cmd->DrawInstanced(3, 1, 0, 0); // フルスクリーン三角形(頂点バッファ不要、VS側で座標生成する前提)
+    //        });
+    //}
 
     // RenderGraph本体実行
     m_RenderGraph.Execute(_pCmd, pTracker);

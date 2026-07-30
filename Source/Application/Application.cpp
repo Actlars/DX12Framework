@@ -4,6 +4,8 @@
 #include "Application.h"
 #include <Engine/Utility/Debug/Logger/Logger.h>
 #include <Game/Scene/GameScene/GameScene.h>
+#include <Engine/EditorUI/Widgets/Widgets.h>
+#include <Engine/EditorUI/Widgets/Layout/Layout.h>
 
 // -------------------------------------------------------------------------------
 // 定数
@@ -72,10 +74,18 @@ bool Application::Init()
     // SceneManagerの初期化
     m_SceneManager.Init(m_GraphicsView.GetDevice());
 
+    // InputManagerの初期化
+    if (!m_InputManager.Init(m_hWnd))
+    {
+        ELOG("InputManager::Init() failed");
+        return false;
+    }
+
     // ─── 最初のシーンを登録して即時切り替え ───
     // 遅延切り替えだが最初のシーンは即時適用する
     GameScene::Desc sceneDesc;
     sceneDesc.ModelPath         = L"C:/DX12NextPlay/DX12Framework/Assets/Model/Elinyaa/Elinyaa.fbx";
+    sceneDesc.pInputManager     = &m_InputManager;
     sceneDesc.CameraPosition    = { 0.0f, 1.0f, -5.0f };
     sceneDesc.CameraMoveSpeed   = 10.0f;
     sceneDesc.CameraRotSpeed    = 0.2f;
@@ -128,8 +138,13 @@ void Application::Term()
     // GPUの全処理が完了するのを待機する
     m_GraphicsView.WaitForGPU();
 
+    // InputManagerの終了
+    m_InputManager.Term();
+
     // SceneManagerを先に終了する（GPUリソースを持つので、GraphicsDeviceより前）
     m_SceneManager.Term();
+
+    m_EditorUIRenderer.Term();
 
     // RendererとDeviceの終了を内部で行う
     m_GraphicsView.Term();
@@ -157,6 +172,45 @@ void Application::Tick()
 
     m_PrevTime = now;
 
+    // 入力更新
+    m_InputManager.Update();
+
+    // UI開始
+    EditorUI::InputState input = PollInputState();
+    m_EditorUIContext.NewFrame(input);
+
+    static bool s_TestWindowOpen = true;
+
+    if (s_TestWindowOpen)
+    {
+        const bool showContents = m_EditorUIContext.BeginWindow("Test Window", &s_TestWindowOpen);
+
+        static bool s_Enabled = false;
+        if (showContents)
+        {
+            // ボタン処理など
+            if (EditorUI::Button(m_EditorUIContext, "OK"))
+            {
+                ELOG("Button OK clicked");
+            }
+
+            EditorUI::Checkbox(m_EditorUIContext, "Enable Feature", &s_Enabled);
+            EditorUI::Separator(m_EditorUIContext);
+
+            EditorUI::Button(m_EditorUIContext, "A");
+            EditorUI::SameLine(m_EditorUIContext.GetCurrentWindow(), m_EditorUIContext.GetStyle().ItemSpacing);
+            EditorUI::Button(m_EditorUIContext, "B");
+        }
+
+        m_EditorUIContext.EndWindow();
+    }
+
+    // UI構築終了
+    m_EditorUIContext.EndFrame();
+
+    // UI上でクリックしたか、シーン上でクリックしたかを決定
+    m_InputManager.ResolveMouseCapture(m_EditorUIContext.IsMouseOverAnyWindow());
+
     // シーンの更新
     m_SceneManager.Update(deltaTime);
 
@@ -168,19 +222,16 @@ void Application::Tick()
         auto* pCmd = static_cast<ID3D12GraphicsCommandList*>(pCmdVoid);
         m_SceneManager.Render(pCmd);
 
-        // UI処理
-        EditorUI::InputState input = PollInputState();
-        m_EditorUIContext.NewFrame(input);
         m_EditorUIRenderer.Render(
             m_EditorUIContext.GetCompositedFrame(), pCmd,
             m_GraphicsView.GetFrameIndex(),
             static_cast<float>(m_Width), static_cast<float>(m_Height));
 
         m_GraphicsView.EndFrame(pCmdVoid);
-    }
 
-    // 画面表示
-    m_GraphicsView.Present(1);
+        // 画面表示
+        m_GraphicsView.Present(1);
+    }
 
     // シーン切り替え処理（遅延）
     m_SceneManager.ProcessSceneChange();
@@ -190,14 +241,14 @@ EditorUI::InputState Application::PollInputState() const
 {
     EditorUI::InputState input;
 
-    POINT pt;
-    GetCursorPos(&pt);
-    ScreenToClient(m_hWnd, &pt);    // スクリーン座標→クライアント座標
-    input.MousePos = { static_cast<float>(pt.x), static_cast<float>(pt.y) };
+    const Input::MouseInput& mouseInput = m_InputManager.GetMouseInput();
 
-    input.MouseDown[static_cast<int>(EditorUI::MouseButton::Mouse_Left)] =      (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
-    input.MouseDown[static_cast<int>(EditorUI::MouseButton::Mouse_Right)] =     (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
-    input.MouseDown[static_cast<int>(EditorUI::MouseButton::Mouse_Middle)] =    (GetAsyncKeyState(VK_MBUTTON) & 0x8000) != 0;
+    const POINT Position = mouseInput.GetPosition();
+    input.MousePos = { static_cast<float>(Position.x), static_cast<float>(Position.y) };
+
+    input.MouseDown[static_cast<int>(EditorUI::MouseButton::Mouse_Left)] =      mouseInput.IsDown(Input::MouseButton::Left);
+    input.MouseDown[static_cast<int>(EditorUI::MouseButton::Mouse_Right)] =     mouseInput.IsDown(Input::MouseButton::Right);
+    input.MouseDown[static_cast<int>(EditorUI::MouseButton::Mouse_Middle)] =    mouseInput.IsDown(Input::MouseButton::Middle);
     
     return input;
 }
@@ -266,6 +317,11 @@ bool Application::InitWnd()
 // -------------------------------------------------------------------------------
 void Application::TermWnd()
 {
+    if (m_hWnd != nullptr)
+    {
+        DestroyWindow(m_hWnd);
+    }
+
     if (m_hInst != nullptr)
     {
         UnregisterClass(WindowClassName, m_hInst);

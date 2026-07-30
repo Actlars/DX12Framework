@@ -59,5 +59,9 @@ namespace EditorUI
 		float				LineHeight		= 0.0f;
 		WindowFlags			Flags			= WindowFlags::None;
 		bool				SkipContents	= false;	// Collapsed時、中身のウェジット呼び出しをスキップするためのフラグ
+	
+		// レイアウト用
+		Rect2D	LastItemBound{};	// 直前に置いたウィジェットの矩形(SameLineで使う)
+		float	LineY = 0.0f;		// 現在の行のY座標(SameLineで同じ行に戻るために使う)
 	};
 }

@@ -8,6 +8,8 @@
 #include <d3dcompiler.h>
 #include <Engine/Renderer/PostProcess/PostProcessEffects/BloomEffect/BloomEffect.h>
 
+#include <Engine/Input/InputManager/InputManager.h>
+
 #pragma comment(lib, "d3dcompiler.lib")
 
 // -------------------------------------------------------------------------------
@@ -37,21 +39,23 @@ bool GameScene::OnInit(RHI::Device* _pDevice)
 
     InitCamera();
 
-    //if (!InitMeshes())      { ELOG("InitMeshes() failed");      return false; }
-    //if (!InitGameObjects()) { ELOG("InitGameObjects() failed"); return false; }
-    //if (!InitMeshlets())    { ELOG("InitMeshlets() failed");    return false; }
+    if (!InitMeshes())      { ELOG("InitMeshes() failed");      return false; }
+    if (!InitGameObjects()) { ELOG("InitGameObjects() failed"); return false; }
+    if (!InitMeshlets())    { ELOG("InitMeshlets() failed");    return false; }
 
-    if (!m_NTCRunner.Run(m_pDevice))
-    {
-        ELOG("NTCImageDecodeTestRunner::Run() failed");
-        // 失敗してもゲーム自体は続行させたいならreturnしない
-    }
-    else
-    {
-        m_SceneRenderer.SetNTCPreviewTexture(&m_NTCRunner.GetBakedTexture());
-    }
+    m_pInputManager = m_Desc.pInputManager;
 
-    ShowCursor(FALSE);
+    //if (!m_NTCRunner.Run(m_pDevice))
+    //{
+    //    ELOG("NTCImageDecodeTestRunner::Run() failed");
+    //    // 失敗してもゲーム自体は続行させたいならreturnしない
+    //}
+    //else
+    //{
+    //    m_SceneRenderer.SetNTCPreviewTexture(&m_NTCRunner.GetBakedTexture());
+    //}
+
+    //ShowCursor(FALSE);
     m_IsInitialized = true;
     return true;
 }
@@ -81,8 +85,14 @@ void GameScene::OnTerm()
 // -------------------------------------------------------------------------------
 void GameScene::OnUpdate(float _deltaTime)
 {
-    // キーボード・マウス入力でカメラを更新する
-    UpdateInput(_deltaTime);
+    if (m_pInputManager != nullptr)
+    {
+        if (m_pInputManager->GetKeyboardInput().IsPressed('M')) 
+        { m_SceneRenderer.ToggleMeshletDebugMode(); }
+
+        if (m_pInputManager->IsCameraControlActive())
+        { UpdateInput(_deltaTime); }
+    }
 
     // 全 MeshComponent に最新のカメラ行列とフレームインデックスを渡す
     UpdateViewProj();

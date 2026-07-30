@@ -20,6 +20,8 @@ public :
 	
 	bool Init(RHI::Device* _pDevice, uint32_t _frameInFlightCount);
 
+	void Term();
+
 	// CompositedFrameを受け取り、実際にコマンドリストに積む
 	void Render(
 		const EditorUI::Context::CompositedFrame&	_compositedFrame,

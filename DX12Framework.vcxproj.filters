@@ -280,6 +280,21 @@
     <Filter Include="ソース ファイル\Engine\Shader\EditorUIShader">
       <UniqueIdentifier>{3798a225-52fb-4de7-a06f-2336d462a0c8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\Input">
+      <UniqueIdentifier>{4f18e89c-fcb9-4d60-afe6-f67fc19098db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Input\InputManager">
+      <UniqueIdentifier>{b9b7add5-7a04-4fce-a87a-4e45bb7279b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Input\KeyboardInput">
+      <UniqueIdentifier>{c5364254-5854-45c1-a983-cdce90b6a4f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Input\MouseInput">
+      <UniqueIdentifier>{cfe28f26-5f15-4db2-8f7d-de742673e415}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\UI\Widgets\Layout">
+      <UniqueIdentifier>{4b693999-6845-44e8-be1b-f294eabb4504}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -516,6 +531,24 @@
     <ClInclude Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.h">
       <Filter>ソース ファイル\Engine\UI\Render\UIFrameGeometry</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\Input\InputManager\InputManager.h">
+      <Filter>ソース ファイル\Engine\Input\InputManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Input\KeyboardInput\KeyboardInput.h">
+      <Filter>ソース ファイル\Engine\Input\KeyboardInput</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Input\MouseInput\MouseInput.h">
+      <Filter>ソース ファイル\Engine\Input\MouseInput</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorUI\Widgets\Layout\Layout.h">
+      <Filter>ソース ファイル\Engine\UI\Widgets\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorUI\Widgets\WidgetInteraction.h">
+      <Filter>ソース ファイル\Engine\UI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorUI\Widgets\Widgets.h">
+      <Filter>ソース ファイル\Engine\UI\Widgets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp">
@@ -679,6 +712,18 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.cpp">
       <Filter>ソース ファイル\Engine\UI\Render\UIFrameGeometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Input\InputManager\InputManager.cpp">
+      <Filter>ソース ファイル\Engine\Input\InputManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Input\KeyboardInput\KeyboardInput.cpp">
+      <Filter>ソース ファイル\Engine\Input\KeyboardInput</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Input\MouseInput\MouseInput.cpp">
+      <Filter>ソース ファイル\Engine\Input\MouseInput</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorUI\Widgets\Widgets.cpp">
+      <Filter>ソース ファイル\Engine\UI\Widgets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

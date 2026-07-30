@@ -88,22 +88,31 @@ bool EditorUI::Context::BeginWindow(std::string_view _title, bool* _isOpen, Wind
 	// このフレーム限りの作業データ(WindowFrame)を新規作成する
 	// make_uniqueで作成した所有権をm_ActiveWindowFrameに移し
 	// 生のポインタ(Frame)は所有はしないが今すぐ使うための参照として保持する
-	auto framePtr = std::make_unique<WindowFrame>();
-	WindowFrame* frame = framePtr.get();	// unique_ptrから生ポインタを見る（所有権は移動しない）
-	frame->pState = &state;
-	frame->Flags = _flags;
-	frame->Draw.Reset();					// 前回このWindowFrameが使われたときの頂点/インデックスが残っていないことの保証
+	auto framePtr		= std::make_unique<WindowFrame>();
+	WindowFrame* frame	= framePtr.get();	// unique_ptrから生ポインタを見る（所有権は移動しない）
+	frame->pState		= &state;
+	frame->Flags		= _flags;
+	frame->Draw.Reset();								// 前回このWindowFrameが使われたときの頂点/インデックスが残っていないことの保証
 	m_ActiveWindowFrame.push_back(std::move(framePtr));	// ここで所有者がframePtrからm_ActiveWindowFrameに移動する
-	m_CurrentWindow = frame;				// 今Begin中のウィンドウとして記録
+	m_CurrentWindow = frame;							// 今Begin中のウィンドウとして記録
 
 	bool hasTitleBar = !HasFlag(_flags, WindowFlags::NoTitleBar);		// NoTitleBarフラグが立っていなければタイトルバーを描く
 	float titleBarHeight = hasTitleBar ? m_Style.TitleBarHeight : 0.0f;
 
-	// ウィンドウ本体(背景＋枠線)を描画コマンドに積む
+	// -------------------------------------------------------------------------------
+	// ウィンドウ全体のクリップ
+	// -------------------------------------------------------------------------------
+	// ウィンドウ全体(背景＋枠線)を描画コマンドに積む
 	Rect2D windowRect = MakeRect(state.Position, state.Size);
+	frame->Draw.PushClipRect(windowRect);
+
+	// 背景
 	frame->Draw.AddRectFilled(windowRect, m_Style.ColorWindowBg);
+
+	// 枠線
 	frame->Draw.AddRectOutline(windowRect, m_Style.ColorBorder, m_Style.BorderThickness);
 
+	// タイトルバー
 	if (hasTitleBar)
 	{
 		Rect2D titleBarRect = MakeRect(state.Position, { state.Size.x, titleBarHeight });
@@ -126,6 +135,8 @@ bool EditorUI::Context::BeginWindow(std::string_view _title, bool* _isOpen, Wind
 	Rect2D contentClip = MakeRect(
 		{ state.Position.x, state.Position.y + titleBarHeight },
 		{ state.Size.x, state.Size.y - titleBarHeight });
+
+	// ウィジェット用クリップ
 	frame->Draw.PushClipRect(contentClip);
 
 	frame->SkipContents = state.Collapsed;
@@ -140,6 +151,43 @@ void EditorUI::Context::EndWindow()
 	m_CurrentWindow->Draw.PopClipRect();	// BeginWindowでPushした分をここで戻す
 	m_CurrentWindow = nullptr;				// Begin中の状態を解除
 	m_IdStack.Pop();						// 現在地を親スコープに戻す
+}
+
+// -------------------------------------------------------------------------------
+// ウィンドウ上かチェック
+// -------------------------------------------------------------------------------
+bool EditorUI::Context::IsMouseOverAnyWindow() const
+{
+	// 前面から調べる
+	for (auto it = m_WindowOrder.rbegin();
+		it != m_WindowOrder.rend();
+		++it)
+	{
+		const Id id = *it;
+
+		auto stateIt = m_WindowStates.find(id);
+		if (stateIt == m_WindowStates.end())
+		{
+			continue;
+		}
+
+		const WindowState& state = stateIt->second;
+
+		// 今フレームで表示されていないウィンドウは対象外
+		if (!state.Active)
+		{
+			continue;
+		}
+
+		const Rect2D windowRect = MakeRect(state.Position, state.Size);
+
+		if (windowRect.Contains(m_Input.MousePos))
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 // -------------------------------------------------------------------------------

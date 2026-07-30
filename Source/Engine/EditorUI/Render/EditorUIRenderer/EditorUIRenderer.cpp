@@ -29,7 +29,7 @@ bool EditorUIRenderer::Init(RHI::Device* _pDevice, uint32_t _frameInFlightCount)
 	// -------------------------------------------------------------------------------
 	// RootSignature / PSO読み込み
 	// -------------------------------------------------------------------------------
-	if (!m_RootSignatureLayout.LoadFromJson(pDevice, L"Assets/Config/Json/RootSignature/EditorUI.json"))
+	if (!m_RootSignatureLayout.LoadFromJson(pDevice, L"Assets/Config/Json/RootSignature/EditorUI/EditorUI.json"))
 	{
 		ELOG("EditorUIRenderer::Init() RootSignature load failed");
 		return false;
@@ -38,7 +38,7 @@ bool EditorUIRenderer::Init(RHI::Device* _pDevice, uint32_t _frameInFlightCount)
 	auto* pRootSignature = m_RootSignatureLayout.GetRootSignature();
 	D3D12_INPUT_LAYOUT_DESC inputLayout{ KUIInputElements, _countof(KUIInputElements) };
 	m_pPSO = _pDevice->GetPipelineCache()->GetOrCreate(
-		pDevice, L"Assets/Config/Json/PipelineState/EditorUI.json",
+		pDevice, L"Assets/Config/Json/PipelineState/EditorUI/EditorUI.json",
 		pRootSignature, inputLayout);
 
 	if (m_pPSO == nullptr)
@@ -72,6 +72,13 @@ bool EditorUIRenderer::Init(RHI::Device* _pDevice, uint32_t _frameInFlightCount)
 	return true;
 }
 
+void EditorUIRenderer::Term()
+{
+	m_TextureHandles.clear();
+	m_FrameGeometries.clear();
+	m_pDevice = nullptr;
+}
+
 void EditorUIRenderer::Render(
 	const EditorUI::Context::CompositedFrame&	_compositedFrame, 
 	ID3D12GraphicsCommandList*					_pCmd, 
@@ -91,6 +98,12 @@ void EditorUIRenderer::Render(
 	// 描画するものがない
 	if (commands.empty())
 	{ return; }
+
+	// -------------------------------------------------------------------------------
+	// バッファに直接重ね書きし、深度は使わない
+	// -------------------------------------------------------------------------------
+	auto* pRTV = m_pDevice->GetColorTarget(_frameIndex)->GetHandleRTV();
+	_pCmd->OMSetRenderTargets(1, &pRTV->HandleCPU, FALSE, nullptr);
 
 	// -------------------------------------------------------------------------------
 	// パイプライン設定
@@ -120,7 +133,7 @@ void EditorUIRenderer::Render(
 	// ルート定数は画面サイズが変わらない限り毎コマンド同じなのでループの外で1回だけ積む
 	// -------------------------------------------------------------------------------
 	struct { float InvW, InvH; }screenParams{ 1.0f / _screenWidth,1.0f / _screenHeight };
-	_pCmd->SetComputeRoot32BitConstants(m_RootSignatureLayout.GetSlot("ScreenParams"), 2, &screenParams, 0);
+	_pCmd->SetGraphicsRoot32BitConstants(m_RootSignatureLayout.GetSlot("ScreenParams"), 2, &screenParams, 0);
 
 	// -------------------------------------------------------------------------------
 	// マージ済みコマンドを順番に処理

@@ -15,6 +15,8 @@
 #include <Engine/Mesh/ResData.h>
 #include <Engine/Renderer/SceneRenderer/SceneRenderer.h>
 
+namespace Input { class InputManager; }
+
 // -------------------------------------------------------------------------------
 // GameScene ƒNƒ‰ƒX
 //
@@ -39,13 +41,14 @@ public:
     // -------------------------------------------------------------------------------
     struct Desc
     {
-        std::wstring        ModelPath       = L"";
-        DirectX::XMFLOAT3   CameraPosition  = { 0.0f, 1.0f, -5.0f };
-        float               CameraMoveSpeed = 5.0f;
-        float               CameraRotSpeed  = 0.2f;
-        float               CameraFov       = 60.0f;
-        float               CameraNear      = 0.1f;
-        float               CameraFar       = 10000.0f;
+        std::wstring            ModelPath       = L"";
+        DirectX::XMFLOAT3       CameraPosition  = { 0.0f, 1.0f, -5.0f };
+        Input::InputManager*    pInputManager   = nullptr;
+        float                   CameraMoveSpeed = 5.0f;
+        float                   CameraRotSpeed  = 0.2f;
+        float                   CameraFov       = 60.0f;
+        float                   CameraNear      = 0.1f;
+        float                   CameraFar       = 10000.0f;
     };
 
     // -------------------------------------------------------------------------------
@@ -106,5 +109,7 @@ private:
 
     SceneRenderer       m_SceneRenderer;
 
-    NTCImageDecodeTestRunner m_NTCRunner;
+    Input::InputManager*       m_pInputManager = nullptr;
+
+    //NTCImageDecodeTestRunner m_NTCRunner;
 };
