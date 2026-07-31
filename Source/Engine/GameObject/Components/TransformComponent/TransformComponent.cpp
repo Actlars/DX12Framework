@@ -4,25 +4,25 @@
 #include "TransformComponent.h"
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 TransformComponent::TransformComponent()
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 TransformComponent::~TransformComponent()
 { /* DO_NOTHING*/ }
 
 // -------------------------------------------------------------------------------
-//		XV
+//		æ›´æ–°
 // -------------------------------------------------------------------------------
 void TransformComponent::Update(float _deltaTime)
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		ƒZƒbƒ^[
+//		ã‚»ãƒƒã‚¿ãƒ¼
 // -------------------------------------------------------------------------------
 void TransformComponent::SetPosition(const DirectX::XMFLOAT3& _pos) 
 { m_Position = _pos; m_Dirty = true; }
@@ -32,7 +32,7 @@ void TransformComponent::SetScale(const DirectX::XMFLOAT3& _scale)
 { m_Scale = _scale; m_Dirty = true; }
 
 // -------------------------------------------------------------------------------
-//		ƒQƒbƒ^[
+//		ã‚²ãƒƒã‚¿ãƒ¼
 // -------------------------------------------------------------------------------
 const DirectX::XMFLOAT3& TransformComponent::GetPosition() const 
 { return m_Position; }
@@ -42,7 +42,7 @@ const DirectX::XMFLOAT3& TransformComponent::GetScale() const
 { return m_Scale; }
 
 // -------------------------------------------------------------------------------
-//		ˆÊ’u‚ğ‰ÁZ‚·‚é
+//		ä½ç½®ã‚’åŠ ç®—ã™ã‚‹
 // -------------------------------------------------------------------------------
 void TransformComponent::AddPosition(const DirectX::XMFLOAT3& _delta)
 {
@@ -53,7 +53,7 @@ void TransformComponent::AddPosition(const DirectX::XMFLOAT3& _delta)
 }
 
 // -------------------------------------------------------------------------------
-//		‰ñ“]‚ğ‰ÁZ‚·‚é
+//		å›è»¢ã‚’åŠ ç®—ã™ã‚‹
 // -------------------------------------------------------------------------------
 void TransformComponent::AddRotation(const DirectX::XMFLOAT3& _delta)
 {
@@ -64,14 +64,14 @@ void TransformComponent::AddRotation(const DirectX::XMFLOAT3& _delta)
 }
 
 // -------------------------------------------------------------------------------
-//		ƒ[ƒ‹ƒh•ÏŠ·s—ñ‚ğ•Ô‚·
+//		ãƒ¯ãƒ¼ãƒ«ãƒ‰å¤‰æ›è¡Œåˆ—ã‚’è¿”ã™
 // -------------------------------------------------------------------------------
 DirectX::XMMATRIX TransformComponent::GetWorldMatrix() const
 {
 	if (!m_Dirty) 
 	{ return m_WorldMatrix; }
 
-	// Scale ¨ Rotation ¨ Translation ‚Ì‡‚Å‡¬
+	// Scale â†’ Rotation â†’ Translation ã®é †ã§åˆæˆ
 	const auto S = DirectX::XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
 
 	const auto R = DirectX::XMMatrixRotationRollPitchYaw(

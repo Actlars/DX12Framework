@@ -9,7 +9,7 @@
 
 
 // -------------------------------------------------------------------------------
-//	ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//	ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::DescriptorPool::DescriptorPool()
 : m_RefCount (1)
@@ -19,7 +19,7 @@ RHI::DescriptorPool::DescriptorPool()
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//	ƒfƒXƒgƒ‰ƒNƒ^
+//	ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::DescriptorPool::~DescriptorPool()
 {
@@ -29,7 +29,7 @@ RHI::DescriptorPool::~DescriptorPool()
 }
 
 // -------------------------------------------------------------------------------
-//	QÆƒJƒEƒ“ƒg‚ğ‘‚â‚·
+//	å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆã‚’å¢—ã‚„ã™
 // -------------------------------------------------------------------------------
 void RHI::DescriptorPool::AddRef()
 {
@@ -37,7 +37,7 @@ void RHI::DescriptorPool::AddRef()
 }
 
 // -------------------------------------------------------------------------------
-//	‰ğ•úˆ—‚ğs‚¤
+//	è§£æ”¾å‡¦ç†ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 void RHI::DescriptorPool::Release()
 {
@@ -49,7 +49,7 @@ void RHI::DescriptorPool::Release()
 }
 
 // -------------------------------------------------------------------------------
-//	QÆƒJƒEƒ“ƒg‚ğæ“¾
+//	å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆã‚’å–å¾—
 // -------------------------------------------------------------------------------
 uint32_t RHI::DescriptorPool::GetCount() const
 {
@@ -57,18 +57,18 @@ uint32_t RHI::DescriptorPool::GetCount() const
 }
 
 // -------------------------------------------------------------------------------
-//	ƒfƒBƒXƒNƒŠƒvƒ^ƒnƒ“ƒhƒ‹‚ğŠ„‚è“–‚Ä
+//	ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒãƒ³ãƒ‰ãƒ«ã‚’å‰²ã‚Šå½“ã¦
 // -------------------------------------------------------------------------------
 RHI::DescriptorHandle* RHI::DescriptorPool::AllocHandle()
 {
-	// ‰Šú‰»ŠÖ”
+	// åˆæœŸåŒ–é–¢æ•°
 	auto func = [&](uint32_t _index, DescriptorHandle* _pHandle)
 		{
 			auto handleCPU = m_pHeap->GetCPUDescriptorHandleForHeapStart();
 			handleCPU.ptr += m_DescriptorSize * _index;
 			_pHandle->HandleCPU = handleCPU;
 
-			// SHADER_VISIBLE‚Ì‚à‚Ì‚Ì‚¾‚¯handleGPU‚ğ‚í‚½‚·
+			// SHADER_VISIBLEã®ã‚‚ã®ã®æ™‚ã ã‘handleGPUã‚’ã‚ãŸã™
 			const auto desc = m_pHeap->GetDesc();
 			if (desc.Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
 			{
@@ -81,30 +81,30 @@ RHI::DescriptorHandle* RHI::DescriptorPool::AllocHandle()
 				_pHandle->HandleGPU = { 0 };
 			}
 
-			_pHandle->Index = _index;	// Bindless—p
+			_pHandle->Index = _index;	// Bindlessç”¨
 		};
 
-	// ‰Šú‰»ŠÖ”‚ğÀs‚µ‚Ä‚©‚çƒnƒ“ƒhƒ‹‚ğ•Ô‹p
+	// åˆæœŸåŒ–é–¢æ•°ã‚’å®Ÿè¡Œã—ã¦ã‹ã‚‰ãƒãƒ³ãƒ‰ãƒ«ã‚’è¿”å´
 	return m_Pool.Alloc(func);
 }
 
 // -------------------------------------------------------------------------------
-//	ƒfƒBƒXƒNƒŠƒvƒ^ƒnƒ“ƒhƒ‹‚ğ‰ğ•ú
+//	ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒãƒ³ãƒ‰ãƒ«ã‚’è§£æ”¾
 // -------------------------------------------------------------------------------
 void RHI::DescriptorPool::FreeHandle(DescriptorHandle*& _pHandle)
 {
 	if (_pHandle != nullptr)
 	{
-		// ƒnƒ“ƒhƒ‹‚ğƒv[ƒ‹‚É–ß‚·
+		// ãƒãƒ³ãƒ‰ãƒ«ã‚’ãƒ—ãƒ¼ãƒ«ã«æˆ»ã™
 		m_Pool.Free(_pHandle);
 
-		// nullptr‚ÅƒNƒŠƒA
+		// nullptrã§ã‚¯ãƒªã‚¢
 		_pHandle = nullptr;
 	}
 }
 
 // -------------------------------------------------------------------------------
-//	—˜—p‰Â”\‚Èƒnƒ“ƒhƒ‹”‚ğæ“¾
+//	åˆ©ç”¨å¯èƒ½ãªãƒãƒ³ãƒ‰ãƒ«æ•°ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 uint32_t RHI::DescriptorPool::GetAvailableHandleCount() const
 {
@@ -112,7 +112,7 @@ uint32_t RHI::DescriptorPool::GetAvailableHandleCount() const
 }
 
 // -------------------------------------------------------------------------------
-//	Š„‚è“–‚ÄÏ‚İ‚Ìƒnƒ“ƒhƒ‹”‚ğæ“¾
+//	å‰²ã‚Šå½“ã¦æ¸ˆã¿ã®ãƒãƒ³ãƒ‰ãƒ«æ•°ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 uint32_t RHI::DescriptorPool::GetAllocatedHandleCount() const
 {
@@ -120,7 +120,7 @@ uint32_t RHI::DescriptorPool::GetAllocatedHandleCount() const
 }
 
 // -------------------------------------------------------------------------------
-//	ƒnƒ“ƒhƒ‹‘”‚ğæ“¾
+//	ãƒãƒ³ãƒ‰ãƒ«ç·æ•°ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 uint32_t RHI::DescriptorPool::GetHandleCount() const
 {
@@ -128,7 +128,7 @@ uint32_t RHI::DescriptorPool::GetHandleCount() const
 }
 
 // -------------------------------------------------------------------------------
-//	ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ğæ“¾
+//	ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 ID3D12DescriptorHeap* const RHI::DescriptorPool::GetHeap() const
 {
@@ -136,7 +136,7 @@ ID3D12DescriptorHeap* const RHI::DescriptorPool::GetHeap() const
 }
 
 // -------------------------------------------------------------------------------
-//	¶¬ˆ—‚ğs‚¤
+//	ç”Ÿæˆå‡¦ç†ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 bool RHI::DescriptorPool::Create
 (
@@ -145,41 +145,41 @@ bool RHI::DescriptorPool::Create
 	DescriptorPool**					_ppPool
 )
 {
-	// ˆø”ƒ`ƒFƒbƒN
+	// å¼•æ•°ãƒã‚§ãƒƒã‚¯
 	if (_pDevice == nullptr || _pDesc == nullptr || _ppPool == nullptr) 
 	{ return false; }
 
-	// ƒCƒ“ƒXƒ^ƒ“ƒX‚ğ¶¬
+	// ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ç”Ÿæˆ
 	auto instance = new(std::nothrow) DescriptorPool();
 	if (instance == nullptr) 
 	{ return false; }
 
-	// ƒfƒBƒXƒNƒŠƒvƒ^ƒq[ƒv‚ğ¶¬
+	// ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—ã‚’ç”Ÿæˆ
 	auto hr = _pDevice->CreateDescriptorHeap(
 		_pDesc,
 		IID_PPV_ARGS(instance->m_pHeap.GetAddressOf()));
 
-	// ¸”s‚µ‚½‚ç‰ğ•úˆ—‚ğs‚Á‚ÄI—¹
+	// å¤±æ•—ã—ãŸã‚‰è§£æ”¾å‡¦ç†ã‚’è¡Œã£ã¦çµ‚äº†
 	if (FAILED(hr))
 	{
 		instance->Release();
 		return false;
 	}
 
-	// ƒv[ƒ‹‚ğ‰Šú‰»
+	// ãƒ—ãƒ¼ãƒ«ã‚’åˆæœŸåŒ–
 	if (!instance->m_Pool.Init(_pDesc->NumDescriptors))
 	{
 		instance->Release();
 		return false;
 	}
 
-	// ƒfƒBƒXƒNƒŠƒvƒ^‚Ì‰ÁZƒTƒCƒY‚ğæ“¾
+	// ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ã®åŠ ç®—ã‚µã‚¤ã‚ºã‚’å–å¾—
 	instance->m_DescriptorSize =
 		_pDevice->GetDescriptorHandleIncrementSize(_pDesc->Type);
 
-	// ƒCƒ“ƒXƒ^ƒ“ƒX‚ğİ’è
+	// ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’è¨­å®š
 	*_ppPool = instance;
 
-	// ³íI—¹
+	// æ­£å¸¸çµ‚äº†
 	return true;
 }

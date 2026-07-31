@@ -1,4 +1,4 @@
-#if defined(DEBUG) || defined(_DEBUG)
+ï»¿#if defined(DEBUG) || defined(_DEBUG)
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #endif//defined(DEBUG) || defined(_DEBUG)
@@ -8,7 +8,7 @@ extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = ".\\D3D12\\
 
 //namespace
 //{
-//	// ƒOƒ[ƒoƒ‹‰Šú‰»‚Ìƒ^ƒCƒ~ƒ“ƒO‚ÅƒƒO‚ğo‚·‚½‚ß‚Ìƒwƒ‹ƒp[
+//	// ã‚°ãƒ­ãƒ¼ãƒãƒ«åˆæœŸåŒ–ã®ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã§ãƒ­ã‚°ã‚’å‡ºã™ãŸã‚ã®ãƒ˜ãƒ«ãƒ‘ãƒ¼
 //	struct ExperimentalFeatureLogger
 //	{
 //		ExperimentalFeatureLogger()
@@ -47,7 +47,7 @@ extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = ".\\D3D12\\
 #include "Application/Application.h"
 
 // -------------------------------------------------------------------------------
-// ƒƒCƒ“ƒGƒ“ƒgƒŠ[ƒ|ƒCƒ“ƒg
+// ãƒ¡ã‚¤ãƒ³ã‚¨ãƒ³ãƒˆãƒªãƒ¼ãƒã‚¤ãƒ³ãƒˆ
 // -------------------------------------------------------------------------------
 int wmain(int argc, wchar_t** argv, wchar_t** evnp)
 {
@@ -65,7 +65,7 @@ int wmain(int argc, wchar_t** argv, wchar_t** evnp)
 		D3D12SDKPath
 	);
 
-	// ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğÀs
+	// ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å®Ÿè¡Œ
 	Application application(960, 540);
 	application.Run();
 

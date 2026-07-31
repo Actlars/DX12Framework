@@ -5,7 +5,7 @@
 #include "Engine/Utility/Debug/Logger/Logger.h"
 
 // -------------------------------------------------------------------------------
-//	‰Šú‰»
+//	åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool RHI::Texture::Init(
 	ID3D12Device*		_pDevice,
@@ -13,41 +13,41 @@ bool RHI::Texture::Init(
 	DescriptorPool*		_pPool,
 	const std::wstring& _path)
 {
-	// ˆø”ƒ`ƒFƒbƒN
+	// å¼•æ•°ãƒã‚§ãƒƒã‚¯
 	assert(_pDevice != nullptr);
 	assert(_pQueue != nullptr);
 	assert(_pPool != nullptr);
 
-	// ƒtƒ@ƒCƒ‹‘¶İŠm”F
-	// ‘¶İ‚µ‚È‚¢ƒpƒX‚ğ“n‚³‚ê‚½‚ç‘ŠúƒŠƒ^[ƒ“‚Å–³‘Ê‚Èˆ—‚ğ”ğ‚¯‚é
+	// ãƒ•ã‚¡ã‚¤ãƒ«å­˜åœ¨ç¢ºèª
+	// å­˜åœ¨ã—ãªã„ãƒ‘ã‚¹ã‚’æ¸¡ã•ã‚ŒãŸã‚‰æ—©æœŸãƒªã‚¿ãƒ¼ãƒ³ã§ç„¡é§„ãªå‡¦ç†ã‚’é¿ã‘ã‚‹
 	if (!std::filesystem::exists(_path))
 	{
 		return false;
 	}
 
-	// ƒƒ“ƒo•Ï”‚É•ÛiŠ—LŒ ‚Í‚È‚­QÆ‚Ì‚İj
+	// ãƒ¡ãƒ³ãƒå¤‰æ•°ã«ä¿æŒï¼ˆæ‰€æœ‰æ¨©ã¯ãªãå‚ç…§ã®ã¿ï¼‰
 	m_pDevice	= _pDevice;
 	m_pQueue	= _pQueue;
 	m_pPool		= _pPool;
 
-	// DirectXTex‚Åƒtƒ@ƒCƒ‹‚ğCPUƒƒ‚ƒŠ‚Éƒ[ƒh
+	// DirectXTexã§ãƒ•ã‚¡ã‚¤ãƒ«ã‚’CPUãƒ¡ãƒ¢ãƒªã«ãƒ­ãƒ¼ãƒ‰
 	DirectX::ScratchImage	scratchImage;
 	DirectX::TexMetadata	meta;
 	HRESULT hr;
 
 	if (IsDDS(_path))
 	{
-		// DDS : BCˆ³kÏ‚İEƒ~ƒbƒv•t‚«EƒLƒ…[ƒuƒ}ƒbƒv‚ğ‚»‚Ì‚Ü‚Ü“Ç‚Ş
-		// GPU‚ª’¼Úˆµ‚¦‚éƒf[ƒ^‚È‚Ì‚Å‰ÁH•s—v
+		// DDS : BCåœ§ç¸®æ¸ˆã¿ãƒ»ãƒŸãƒƒãƒ—ä»˜ããƒ»ã‚­ãƒ¥ãƒ¼ãƒ–ãƒãƒƒãƒ—ã‚’ãã®ã¾ã¾èª­ã‚€
+		// GPUãŒç›´æ¥æ‰±ãˆã‚‹ãƒ‡ãƒ¼ã‚¿ãªã®ã§åŠ å·¥ä¸è¦
 		hr = DirectX::LoadFromDDSFile(
-			_path.c_str(),				// std::wstring‚ğwchar_t‚Ì¶ƒ|ƒCƒ“ƒ^‚É•ÏŠ·‚µ‚Ä“n‚·
-			DirectX::DDS_FLAGS_NONE,	// “Á•Ê‚Èˆ—‚ğ‚µ‚È‚¢B
-			&meta,						// meta‚É‘‚«‚ŞBƒ[ƒhŒã‚Émeta.width‚È‚Ç‚Åî•ñ‚ğQÆ‚Å‚«‚é‚æ‚¤‚É
+			_path.c_str(),				// std::wstringã‚’wchar_tã®ç”Ÿãƒã‚¤ãƒ³ã‚¿ã«å¤‰æ›ã—ã¦æ¸¡ã™
+			DirectX::DDS_FLAGS_NONE,	// ç‰¹åˆ¥ãªå‡¦ç†ã‚’ã—ãªã„ã€‚
+			&meta,						// metaã«æ›¸ãè¾¼ã‚€ã€‚ãƒ­ãƒ¼ãƒ‰å¾Œã«meta.widthãªã©ã§æƒ…å ±ã‚’å‚ç…§ã§ãã‚‹ã‚ˆã†ã«
 			scratchImage);
 	}
 	else
 	{
-		// PNG/JPG/BMP/TGA/HDR : WIC‚ÅƒfƒR[ƒh‚µ‚ÄRGBA¶ƒf[ƒ^‚É‚·‚é
+		// PNG/JPG/BMP/TGA/HDR : WICã§ãƒ‡ã‚³ãƒ¼ãƒ‰ã—ã¦RGBAç”Ÿãƒ‡ãƒ¼ã‚¿ã«ã™ã‚‹
 		hr = DirectX::LoadFromWICFile(
 			_path.c_str(),
 			DirectX::WIC_FLAGS_NONE,
@@ -55,22 +55,22 @@ bool RHI::Texture::Init(
 			scratchImage
 		);
 
-		// WICƒtƒH[ƒ}ƒbƒg‚Íƒ~ƒbƒv‚ğ‚½‚È‚¢‚½‚ß©“®¶¬‚·‚é
-		// ƒ~ƒbƒv‚ª‚È‚¢‚Æ‰“‹——£ƒIƒuƒWƒFƒNƒg‚ª‚¿‚ç‚Â‚­iƒGƒCƒŠƒAƒVƒ“ƒOj
+		// WICãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã¯ãƒŸãƒƒãƒ—ã‚’æŒãŸãªã„ãŸã‚è‡ªå‹•ç”Ÿæˆã™ã‚‹
+		// ãƒŸãƒƒãƒ—ãŒãªã„ã¨é è·é›¢ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒã¡ã‚‰ã¤ãï¼ˆã‚¨ã‚¤ãƒªã‚¢ã‚·ãƒ³ã‚°ï¼‰
 		if (SUCCEEDED(hr) && meta.mipLevels <= 1)
 		{
 			DirectX::ScratchImage mipped;
 			hr = DirectX::GenerateMipMaps(
-				*scratchImage.GetImage(0, 0, 0),	// iƒ~ƒbƒvƒŒƒxƒ‹, ”z—ñƒCƒ“ƒfƒbƒNƒX, ƒXƒ‰ƒCƒXj
-				DirectX::TEX_FILTER_DEFAULT,		// ƒoƒCƒŠƒjƒAƒtƒBƒ‹ƒ^[‚Åƒ~ƒbƒv‚ğ¶¬
-				0,									// 0 = ƒtƒ‹ƒ~ƒbƒvƒ`ƒF[ƒ“©“®ŒvZ
+				*scratchImage.GetImage(0, 0, 0),	// ï¼ˆãƒŸãƒƒãƒ—ãƒ¬ãƒ™ãƒ«, é…åˆ—ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹, ã‚¹ãƒ©ã‚¤ã‚¹ï¼‰
+				DirectX::TEX_FILTER_DEFAULT,		// ãƒã‚¤ãƒªãƒ‹ã‚¢ãƒ•ã‚£ãƒ«ã‚¿ãƒ¼ã§ãƒŸãƒƒãƒ—ã‚’ç”Ÿæˆ
+				0,									// 0 = ãƒ•ãƒ«ãƒŸãƒƒãƒ—ãƒã‚§ãƒ¼ãƒ³è‡ªå‹•è¨ˆç®—
 				mipped
 			);
 
 			if (SUCCEEDED(hr))
 			{
-				scratchImage = std::move(mipped);	// mipped‚Ì’†g‚ğscratchImage‚ÉˆÚ“®Bstd::move‚ÅŠ—LŒ ‚ğˆÚ“®iƒRƒs[ƒRƒXƒgƒ[ƒj
-				meta = scratchImage.GetMetadata();	// ƒ~ƒbƒv¶¬Œã‚Émeta.mipLevels‚ª•Ï‚í‚é‚Ì‚ÅXV
+				scratchImage = std::move(mipped);	// mippedã®ä¸­èº«ã‚’scratchImageã«ç§»å‹•ã€‚std::moveã§æ‰€æœ‰æ¨©ã‚’ç§»å‹•ï¼ˆã‚³ãƒ”ãƒ¼ã‚³ã‚¹ãƒˆã‚¼ãƒ­ï¼‰
+				meta = scratchImage.GetMetadata();	// ãƒŸãƒƒãƒ—ç”Ÿæˆå¾Œã«meta.mipLevelsãŒå¤‰ã‚ã‚‹ã®ã§æ›´æ–°
 			}
 		}
 	}
@@ -80,14 +80,14 @@ bool RHI::Texture::Init(
 		return false;
 	}
 
-	// GPU‚Ö‚ÌƒAƒbƒvƒ[ƒh
+	// GPUã¸ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰
 	if (!UploadToGPU(scratchImage, meta, m_pResource)) 
 	{ return false; }
 
-	// SRV‚ğDescriptorPool‚É“o˜^
+	// SRVã‚’DescriptorPoolã«ç™»éŒ²
 	CreateSRV(meta);
 
-	// ƒƒ^î•ñ‚ğ•ÛiŒÄ‚Ño‚µ‘¤‚ªQÆ‚Å‚«‚é‚æ‚¤‚Éj
+	// ãƒ¡ã‚¿æƒ…å ±ã‚’ä¿æŒï¼ˆå‘¼ã³å‡ºã—å´ãŒå‚ç…§ã§ãã‚‹ã‚ˆã†ã«ï¼‰
 	m_Width		= static_cast<uint32_t>(meta.width);
 	m_Height	= static_cast<uint32_t>(meta.height);
 	m_Format	= meta.format;
@@ -96,7 +96,7 @@ bool RHI::Texture::Init(
 }
 
 // -------------------------------------------------------------------------------
-// Šù‘¶‚ÌGPUƒŠƒ\[ƒX‚©‚çSRV‚ğì¬‚·‚é
+// æ—¢å­˜ã®GPUãƒªã‚½ãƒ¼ã‚¹ã‹ã‚‰SRVã‚’ä½œæˆã™ã‚‹
 // -------------------------------------------------------------------------------
 bool RHI::Texture::InitFromResource(
 	ID3D12Device*	_pDevice,
@@ -114,25 +114,25 @@ bool RHI::Texture::InitFromResource(
 	m_pDevice	= _pDevice;
 	m_pPool		= _pPool;
 
-	// ƒŠƒ\[ƒX‚ÌQÆƒJƒEƒ“ƒg‚ğ‘‚â‚µ‚Ä•Û‚·‚é
-	// ComPtr‚ÌAttach‚Å‚Í‚È‚­AddRef‚Å•Û
+	// ãƒªã‚½ãƒ¼ã‚¹ã®å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆã‚’å¢—ã‚„ã—ã¦ä¿æŒã™ã‚‹
+	// ComPtrã®Attachã§ã¯ãªãAddRefã§ä¿æŒ
 	_pResource->AddRef();
 	m_pResource.Attach(_pResource);
 
-	// ƒŠƒ\[ƒXİ’è‚©‚çƒTƒCƒY‚ÆƒtƒH[ƒ}ƒbƒg‚ğæ“¾
+	// ãƒªã‚½ãƒ¼ã‚¹è¨­å®šã‹ã‚‰ã‚µã‚¤ã‚ºã¨ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚’å–å¾—
 	const auto desc = _pResource->GetDesc();
 	m_Width		= static_cast<uint32_t>(desc.Width);
 	m_Height	= static_cast<uint32_t>(desc.Height);
 	m_Format = (_format == DXGI_FORMAT_UNKNOWN) ? desc.Format : _format;
 
-	// SRV‚ğDescriptorPool‚É“o˜^‚·‚é
+	// SRVã‚’DescriptorPoolã«ç™»éŒ²ã™ã‚‹
 	CreateSRVFromResource(_pResource, m_Format, _isCube);
 
 	return true;
 }
 
 // -------------------------------------------------------------------------------
-// UAV + SRV—¼‘Î‰ƒeƒNƒXƒ`ƒƒ‚ÌV‹Kì¬
+// UAV + SRVä¸¡å¯¾å¿œãƒ†ã‚¯ã‚¹ãƒãƒ£ã®æ–°è¦ä½œæˆ
 // -------------------------------------------------------------------------------
 bool RHI::Texture::InitAsUAVTarget(
 	ID3D12Device*	_pDevice, 
@@ -147,7 +147,7 @@ bool RHI::Texture::InitAsUAVTarget(
 	m_pDevice	= _pDevice;
 	m_pPool		= _pPool;
 
-	// Defaultƒq[ƒv‚ÉAUAV‚Æ‚µ‚Ä‘‚«‚İ‰Â”\‚ÈƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX‚ğì¬‚·‚é
+	// Defaultãƒ’ãƒ¼ãƒ—ã«ã€UAVã¨ã—ã¦æ›¸ãè¾¼ã¿å¯èƒ½ãªãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒªã‚½ãƒ¼ã‚¹ã‚’ä½œæˆã™ã‚‹
 	D3D12_HEAP_PROPERTIES heapDefault = {};
 	heapDefault.Type = D3D12_HEAP_TYPE_DEFAULT;
 
@@ -156,14 +156,14 @@ bool RHI::Texture::InitAsUAVTarget(
 	resDesc.Width				= static_cast<UINT64>(_width);
 	resDesc.Height				= static_cast<UINT64>(_height);
 	resDesc.DepthOrArraySize	= 1;
-	resDesc.MipLevels			= 1;											//	ƒxƒCƒNŒ‹‰Ê‚Íƒ~ƒbƒv•s—v
+	resDesc.MipLevels			= 1;											//	ãƒ™ã‚¤ã‚¯çµæœã¯ãƒŸãƒƒãƒ—ä¸è¦
 	resDesc.Format				= _format;
 	resDesc.SampleDesc.Count	= 1;
 	resDesc.SampleDesc.Quality	= 0;
 	resDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	resDesc.Flags				= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;	// UAV‚Æ‚µ‚Äg‚¤‚½‚ß‚Ìƒtƒ‰ƒO
+	resDesc.Flags				= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;	// UAVã¨ã—ã¦ä½¿ã†ãŸã‚ã®ãƒ•ãƒ©ã‚°
 
-	// ‰Šúó‘Ô‚ÍUNORDERED_ACCESS‚É‚µ‚Ä‚¨‚­i¶¬Œã‚ÉƒRƒ“ƒsƒ…[ƒgƒVƒF[ƒ_[‚©‚ç‘‚«‚Ş‘z’èj
+	// åˆæœŸçŠ¶æ…‹ã¯UNORDERED_ACCESSã«ã—ã¦ãŠãï¼ˆç”Ÿæˆå¾Œã«ã‚³ãƒ³ãƒ”ãƒ¥ãƒ¼ãƒˆã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã‹ã‚‰æ›¸ãè¾¼ã‚€æƒ³å®šï¼‰
 	auto hr = m_pDevice->CreateCommittedResource(
 		&heapDefault,
 		D3D12_HEAP_FLAG_NONE,
@@ -181,7 +181,7 @@ bool RHI::Texture::InitAsUAVTarget(
 	m_Height	= _height;
 	m_Format	= _format;
 
-	// SRV‚ÆUAV‚Ì—¼•û‚ğDescriptorPool‚É“o˜^‚·‚é
+	// SRVã¨UAVã®ä¸¡æ–¹ã‚’DescriptorPoolã«ç™»éŒ²ã™ã‚‹
 	CreateSRVFromResource(m_pResource.Get(), _format, false);
 	CreateUAVFromResource(m_pResource.Get(), _format);
 
@@ -189,13 +189,13 @@ bool RHI::Texture::InitAsUAVTarget(
 }
 
 // -------------------------------------------------------------------------------
-// I—¹ˆ—
+// çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void RHI::Texture::Term()
 {
-	// DescriptorPool ‚ÉSRVƒnƒ“ƒhƒ‹‚ğ•Ô‹p
-	// ƒv[ƒ‹‚©‚çØ‚è‚½ƒnƒ“ƒhƒ‹‚Í•K‚¸•Ô‚·
-	// ƒv[ƒ‹‚ªnullptr‚Ìê‡iInit–¢Š®—¹j‚Í‰½‚à‚µ‚È‚¢
+	// DescriptorPool ã«SRVãƒãƒ³ãƒ‰ãƒ«ã‚’è¿”å´
+	// ãƒ—ãƒ¼ãƒ«ã‹ã‚‰å€Ÿã‚ŠãŸãƒãƒ³ãƒ‰ãƒ«ã¯å¿…ãšè¿”ã™
+	// ãƒ—ãƒ¼ãƒ«ãŒnullptrã®å ´åˆï¼ˆInitæœªå®Œäº†ï¼‰ã¯ä½•ã‚‚ã—ãªã„
 	if (m_pPool != nullptr && m_pHandle != nullptr)
 	{
 		m_pPool->FreeHandle(m_pHandle);
@@ -208,11 +208,11 @@ void RHI::Texture::Term()
 		m_pUAVHandle = nullptr;
 	}
 
-	// „Ÿ„Ÿ„Ÿ GPUƒŠƒ\[ƒX‚Ì‰ğ•ú „Ÿ„Ÿ„Ÿ
-	// ComPtr‚È‚Ì‚ÅQÆƒJƒEƒ“ƒg‚ª0‚É‚È‚Á‚½‚Æ‚«©“®‰ğ•ú‚³‚ê‚é
+	// â”€â”€â”€ GPUãƒªã‚½ãƒ¼ã‚¹ã®è§£æ”¾ â”€â”€â”€
+	// ComPtrãªã®ã§å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆãŒ0ã«ãªã£ãŸã¨ãè‡ªå‹•è§£æ”¾ã•ã‚Œã‚‹
 	m_pResource.Reset();
 
-	// „Ÿ„Ÿ„Ÿ ƒ|ƒCƒ“ƒ^‚ÌƒNƒŠƒA „Ÿ„Ÿ„Ÿ
+	// â”€â”€â”€ ãƒã‚¤ãƒ³ã‚¿ã®ã‚¯ãƒªã‚¢ â”€â”€â”€
 	m_pDevice	= nullptr;
 	m_pQueue	= nullptr;
 	m_pPool		= nullptr;
@@ -223,11 +223,11 @@ void RHI::Texture::Term()
 }
 
 // -------------------------------------------------------------------------------
-// GPUƒnƒ“ƒhƒ‹‚Ìæ“¾
+// GPUãƒãƒ³ãƒ‰ãƒ«ã®å–å¾—
 // -------------------------------------------------------------------------------
 D3D12_GPU_DESCRIPTOR_HANDLE RHI::Texture::GetHandleGPU() const
 {
-	// ƒnƒ“ƒhƒ‹‚ª–¢Šm•Û‚Ìê‡‚Í–³Œø‚È’liptr = 0j‚ğ•Ô‚·
+	// ãƒãƒ³ãƒ‰ãƒ«ãŒæœªç¢ºä¿ã®å ´åˆã¯ç„¡åŠ¹ãªå€¤ï¼ˆptr = 0ï¼‰ã‚’è¿”ã™
 	if (m_pHandle == nullptr) 
 	{ return D3D12_GPU_DESCRIPTOR_HANDLE{ 0 }; }
 
@@ -235,7 +235,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE RHI::Texture::GetHandleGPU() const
 }
 
 // -------------------------------------------------------------------------------
-// CPUƒnƒ“ƒhƒ‹‚Ìæ“¾
+// CPUãƒãƒ³ãƒ‰ãƒ«ã®å–å¾—
 // -------------------------------------------------------------------------------
 D3D12_CPU_DESCRIPTOR_HANDLE RHI::Texture::GetHandleCPU() const
 {
@@ -262,31 +262,31 @@ D3D12_CPU_DESCRIPTOR_HANDLE RHI::Texture::GetHandleCPU_UAV() const
 }
 
 // -------------------------------------------------------------------------------
-// ‰¡•‚Ìæ“¾
+// æ¨ªå¹…ã®å–å¾—
 // -------------------------------------------------------------------------------
 uint32_t RHI::Texture::GetWidth() const 
 { return m_Width; }
 
 // -------------------------------------------------------------------------------
-// c•‚Ìæ“¾
+// ç¸¦å¹…ã®å–å¾—
 // -------------------------------------------------------------------------------
 uint32_t RHI::Texture::GetHeight() const 
 { return m_Height; }
 
 // -------------------------------------------------------------------------------
-// ƒtƒH[ƒ}ƒbƒg‚Ìæ“¾
+// ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã®å–å¾—
 // -------------------------------------------------------------------------------
 DXGI_FORMAT RHI::Texture::GetFormat() const 
 { return m_Format; }
 
 // -------------------------------------------------------------------------------
-// GPUƒŠƒ\[ƒX‚Ìæ“¾
+// GPUãƒªã‚½ãƒ¼ã‚¹ã®å–å¾—
 // -------------------------------------------------------------------------------
 ID3D12Resource* RHI::Texture::GetResource() const 
 { return m_pResource.Get(); }
 
 // -------------------------------------------------------------------------------
-// Bindless—p‚ÌƒCƒ“ƒfƒbƒNƒXæ“¾
+// Bindlessç”¨ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹å–å¾—
 // -------------------------------------------------------------------------------
 uint32_t RHI::Texture::GetIndex() const
 {
@@ -297,13 +297,13 @@ uint32_t RHI::Texture::GetIndex() const
 }
 
 // -------------------------------------------------------------------------------
-// ƒnƒ“ƒhƒ‹‚Ì—L–³‚ğ•Ô‚·
+// ãƒãƒ³ãƒ‰ãƒ«ã®æœ‰ç„¡ã‚’è¿”ã™
 // -------------------------------------------------------------------------------
 bool RHI::Texture::IsValid() const 
 { return m_pHandle != nullptr; }
 
 // -------------------------------------------------------------------------------
-// UAVƒnƒ“ƒhƒ‹‚Ìæ“¾—p
+// UAVãƒãƒ³ãƒ‰ãƒ«ã®å–å¾—ç”¨
 // -------------------------------------------------------------------------------
 uint32_t RHI::Texture::GetIndexUAV() const
 {
@@ -323,14 +323,14 @@ bool RHI::Texture::HasUAV() const
 // -------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------
-// DDS‚©‚Ç‚¤‚©‚ğŠg’£q‚Å”»’è
+// DDSã‹ã©ã†ã‹ã‚’æ‹¡å¼µå­ã§åˆ¤å®š
 // -------------------------------------------------------------------------------
 bool RHI::Texture::IsDDS(const std::wstring& _path)
 {
-	// std::filesystem::path ‚ÅŠg’£q‚ğæ‚è‚¾‚·
+	// std::filesystem::path ã§æ‹¡å¼µå­ã‚’å–ã‚Šã ã™
 	auto ext = std::filesystem::path(_path).extension().wstring();
 
-	// ‘å•¶šE¬•¶š‚Ç‚¿‚ç‚Å‚à‘Î‰i.DDS / .ddsj
+	// å¤§æ–‡å­—ãƒ»å°æ–‡å­—ã©ã¡ã‚‰ã§ã‚‚å¯¾å¿œï¼ˆ.DDS / .ddsï¼‰
 	for (auto& c : ext) 
 	{ c = static_cast<wchar_t>(towlower(c)); }
 
@@ -338,92 +338,92 @@ bool RHI::Texture::IsDDS(const std::wstring& _path)
 }
 
 // -------------------------------------------------------------------------------
-// GPU‚Ö‚ÌƒAƒbƒvƒ[ƒh
+// GPUã¸ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰
 // -------------------------------------------------------------------------------
 bool RHI::Texture::UploadToGPU(
 	const DirectX::ScratchImage&	_image,
 	const DirectX::TexMetadata&		_meta,
 	ComPtr<ID3D12Resource>&			_outResource)
 {
-	// ƒTƒuƒŠƒ\[ƒX‘”‚ÌŒvZ
-	// ƒTƒuƒŠƒ\[ƒX = ƒ~ƒbƒv’i” * ”z—ñƒTƒCƒY
+	// ã‚µãƒ–ãƒªã‚½ãƒ¼ã‚¹ç·æ•°ã®è¨ˆç®—
+	// ã‚µãƒ–ãƒªã‚½ãƒ¼ã‚¹ = ãƒŸãƒƒãƒ—æ®µæ•° * é…åˆ—ã‚µã‚¤ã‚º
 	const uint32_t subresourceCount =
 		static_cast<uint32_t>(_meta.mipLevels * _meta.arraySize);
 
-	// D3D12_SUBRESOURCE_DATA‚Ì”z—ñ‚ğ\’z
-	// ŠeƒTƒuƒŠƒ\[ƒX‚ÌCPUƒƒ‚ƒŠã‚ÌƒAƒhƒŒƒX‚Æƒsƒbƒ`î•ñ‚ğ‚Ü‚Æ‚ß‚é
+	// D3D12_SUBRESOURCE_DATAã®é…åˆ—ã‚’æ§‹ç¯‰
+	// å„ã‚µãƒ–ãƒªã‚½ãƒ¼ã‚¹ã®CPUãƒ¡ãƒ¢ãƒªä¸Šã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã¨ãƒ”ãƒƒãƒæƒ…å ±ã‚’ã¾ã¨ã‚ã‚‹
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources(subresourceCount);
 	for (uint32_t i = 0; i < subresourceCount; ++i)
 	{
 		// GetImage(mipLevel, arrayIndex, slice)
-		// i”Ô–Ú‚ÌƒTƒuƒŠƒ\[ƒX‚ğƒ~ƒbƒv‚Æ”z—ñƒCƒ“ƒfƒbƒNƒX‚É•ª‰ğ‚µ‚Äæ“¾
+		// iç•ªç›®ã®ã‚µãƒ–ãƒªã‚½ãƒ¼ã‚¹ã‚’ãƒŸãƒƒãƒ—ã¨é…åˆ—ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã«åˆ†è§£ã—ã¦å–å¾—
 		const auto* img = _image.GetImage(
-			i % _meta.mipLevels,	// ƒ~ƒbƒvƒŒƒxƒ‹
-			i / _meta.mipLevels,	// ”z—ñƒCƒ“ƒfƒbƒNƒX
-			0);						// ƒXƒ‰ƒCƒXi3DƒeƒNƒXƒ`ƒƒˆÈŠO‚Í0ŒÅ’èj
+			i % _meta.mipLevels,	// ãƒŸãƒƒãƒ—ãƒ¬ãƒ™ãƒ«
+			i / _meta.mipLevels,	// é…åˆ—ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+			0);						// ã‚¹ãƒ©ã‚¤ã‚¹ï¼ˆ3Dãƒ†ã‚¯ã‚¹ãƒãƒ£ä»¥å¤–ã¯0å›ºå®šï¼‰
 
 		subresources[i].pData = img->pixels;
 		subresources[i].RowPitch = static_cast<LONG_PTR>(img->rowPitch);
 		subresources[i].SlicePitch = static_cast<LONG_PTR>(img->slicePitch);
 	}
 
-	// ƒfƒtƒHƒ‹ƒgƒq[ƒv‚ÉGPUƒŠƒ\[ƒX‚ğì¬iƒRƒs[æj
-	D3D12_HEAP_PROPERTIES heapDefault = {};		// GPUƒŠƒ\[ƒX‚ğ‚Ç‚Ìí—Ş‚Ìƒƒ‚ƒŠ‚É’u‚­‚©‚ğw’è‚·‚é\‘¢‘Ì
-	heapDefault.Type = D3D12_HEAP_TYPE_DEFAULT;	// D3D12_HEAP_TYPE_DEFAULT‚ÍGPUê—pƒƒ‚ƒŠiVRAMj‚Ì‚±‚ÆBCPU‚©‚ç‚Í’¼Ú‘‚«‚ß‚È‚¢‚ªAGPU‚©‚ç‚Ì“Ç‚İæ‚è‚ª‚‘¬
+	// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ’ãƒ¼ãƒ—ã«GPUãƒªã‚½ãƒ¼ã‚¹ã‚’ä½œæˆï¼ˆã‚³ãƒ”ãƒ¼å…ˆï¼‰
+	D3D12_HEAP_PROPERTIES heapDefault = {};		// GPUãƒªã‚½ãƒ¼ã‚¹ã‚’ã©ã®ç¨®é¡ã®ãƒ¡ãƒ¢ãƒªã«ç½®ãã‹ã‚’æŒ‡å®šã™ã‚‹æ§‹é€ ä½“
+	heapDefault.Type = D3D12_HEAP_TYPE_DEFAULT;	// D3D12_HEAP_TYPE_DEFAULTã¯GPUå°‚ç”¨ãƒ¡ãƒ¢ãƒªï¼ˆVRAMï¼‰ã®ã“ã¨ã€‚CPUã‹ã‚‰ã¯ç›´æ¥æ›¸ãè¾¼ã‚ãªã„ãŒã€GPUã‹ã‚‰ã®èª­ã¿å–ã‚ŠãŒé«˜é€Ÿ
 
-	D3D12_RESOURCE_DESC resDesc = {};	// D3D12_RESOURCE_DESC‚ÍGPUƒŠƒ\[ƒX‚ÌŒ`ó‚ğ’è‹`‚·‚é\‘¢‘Ì
-	resDesc.Dimension			= (_meta.dimension == DirectX::TEX_DIMENSION_TEXTURE3D)		// Dimension‚ÍƒŠƒ\[ƒX‚ª‰½ŸŒ³‚©‚ğ•\‚·
+	D3D12_RESOURCE_DESC resDesc = {};	// D3D12_RESOURCE_DESCã¯GPUãƒªã‚½ãƒ¼ã‚¹ã®å½¢çŠ¶ã‚’å®šç¾©ã™ã‚‹æ§‹é€ ä½“
+	resDesc.Dimension			= (_meta.dimension == DirectX::TEX_DIMENSION_TEXTURE3D)		// Dimensionã¯ãƒªã‚½ãƒ¼ã‚¹ãŒä½•æ¬¡å…ƒã‹ã‚’è¡¨ã™
 									? D3D12_RESOURCE_DIMENSION_TEXTURE3D
 									: D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	resDesc.Width				= static_cast<UINT64>(_meta.width);
 	resDesc.Height				= static_cast<UINT>(_meta.height);
-	resDesc.DepthOrArraySize	= (_meta.dimension == DirectX::TEX_DIMENSION_TEXTURE3D)		// 3DƒeƒNƒXƒ`ƒƒ‚È‚ç‰œsA2DƒeƒNƒXƒ`ƒƒ‚È‚ç”z—ñ–‡”‚ğ•\‚·
+	resDesc.DepthOrArraySize	= (_meta.dimension == DirectX::TEX_DIMENSION_TEXTURE3D)		// 3Dãƒ†ã‚¯ã‚¹ãƒãƒ£ãªã‚‰å¥¥è¡Œã€2Dãƒ†ã‚¯ã‚¹ãƒãƒ£ãªã‚‰é…åˆ—æšæ•°ã‚’è¡¨ã™
 									? static_cast<UINT16>(_meta.depth)
 									: static_cast<UINT16>(_meta.arraySize);
-	resDesc.MipLevels			= static_cast<UINT16>(_meta.mipLevels);						// ƒ~ƒbƒvƒ}ƒbƒv‚Ì’i”BGPU‚Í‚±‚Ì”‚¾‚¯ƒƒ‚ƒŠ‚ğŠm•Û
+	resDesc.MipLevels			= static_cast<UINT16>(_meta.mipLevels);						// ãƒŸãƒƒãƒ—ãƒãƒƒãƒ—ã®æ®µæ•°ã€‚GPUã¯ã“ã®æ•°ã ã‘ãƒ¡ãƒ¢ãƒªã‚’ç¢ºä¿
 	resDesc.Format				= _meta.format;
-	resDesc.SampleDesc.Count	= 1;														// ƒ}ƒ‹ƒ`ƒTƒ“ƒvƒŠƒ“ƒOiMSAAj‚Ìİ’è
-	resDesc.SampleDesc.Quality	= 0;														// ƒeƒNƒXƒ`ƒƒ‚É‚Í•s—v‚È‚Ì‚ÅACount = 1, Quality = 0‚ª’Êíİ’è
-	resDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;								// Layout‚ÍGPUƒƒ‚ƒŠã‚ÌƒsƒNƒZƒ‹”z’u•û–@BUNKNOWN‚ğw’è‚·‚é‚ÆGPUƒhƒ‰ƒCƒo[‚ªÅ“K‚ÈƒŒƒCƒAƒEƒg‚ğ©“®‘I‘ğ
-	resDesc.Flags				= D3D12_RESOURCE_FLAG_NONE;									// RenderTarget‚âUAV‚Æ‚µ‚Äg‚¤ê‡‚Éw’èB“Ç‚İæ‚èê—p‚ÌƒeƒNƒXƒ`ƒƒ‚È‚Ì‚ÅNONE
+	resDesc.SampleDesc.Count	= 1;														// ãƒãƒ«ãƒã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ï¼ˆMSAAï¼‰ã®è¨­å®š
+	resDesc.SampleDesc.Quality	= 0;														// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã«ã¯ä¸è¦ãªã®ã§ã€Count = 1, Quality = 0ãŒé€šå¸¸è¨­å®š
+	resDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;								// Layoutã¯GPUãƒ¡ãƒ¢ãƒªä¸Šã®ãƒ”ã‚¯ã‚»ãƒ«é…ç½®æ–¹æ³•ã€‚UNKNOWNã‚’æŒ‡å®šã™ã‚‹ã¨GPUãƒ‰ãƒ©ã‚¤ãƒãƒ¼ãŒæœ€é©ãªãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã‚’è‡ªå‹•é¸æŠ
+	resDesc.Flags				= D3D12_RESOURCE_FLAG_NONE;									// RenderTargetã‚„UAVã¨ã—ã¦ä½¿ã†å ´åˆã«æŒ‡å®šã€‚èª­ã¿å–ã‚Šå°‚ç”¨ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ãªã®ã§NONE
 
-	// ƒq[ƒv‚ÆƒŠƒ\[ƒX‚ğ“¯‚Éì¬
-	// ‰Šúó‘Ô‚ğCOPY_DEST‚É‚·‚éiƒRƒs[‚ğó‚¯æ‚é‘O’ñj
+	// ãƒ’ãƒ¼ãƒ—ã¨ãƒªã‚½ãƒ¼ã‚¹ã‚’åŒæ™‚ã«ä½œæˆ
+	// åˆæœŸçŠ¶æ…‹ã‚’COPY_DESTã«ã™ã‚‹ï¼ˆã‚³ãƒ”ãƒ¼ã‚’å—ã‘å–ã‚‹å‰æï¼‰
 	auto hr = m_pDevice->CreateCommittedResource(
 		&heapDefault,
 		D3D12_HEAP_FLAG_NONE,
 		&resDesc,
-		D3D12_RESOURCE_STATE_COPY_DEST,				// ‚±‚ÌƒŠƒ\[ƒX‚ÍƒRƒs[æ‚Æ‚µ‚Äg‚¤‚Æ‚¢‚¤‰Šúó‘Ô‚ÌéŒ¾
-		nullptr,									// ƒNƒŠƒAƒJƒ‰[
-		IID_PPV_ARGS(_outResource.GetAddressOf()));	// COMƒIƒuƒWƒFƒNƒg¶¬‚Ég‚¤ƒ}ƒNƒBƒCƒ“ƒ^[ƒtƒF[ƒX‚ÌGUID‚Æƒ|ƒCƒ“ƒ^‚ÌƒAƒhƒŒƒX‚ğ“¯‚É“n‚·
+		D3D12_RESOURCE_STATE_COPY_DEST,				// ã“ã®ãƒªã‚½ãƒ¼ã‚¹ã¯ã‚³ãƒ”ãƒ¼å…ˆã¨ã—ã¦ä½¿ã†ã¨ã„ã†åˆæœŸçŠ¶æ…‹ã®å®£è¨€
+		nullptr,									// ã‚¯ãƒªã‚¢ã‚«ãƒ©ãƒ¼
+		IID_PPV_ARGS(_outResource.GetAddressOf()));	// COMã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”Ÿæˆæ™‚ã«ä½¿ã†ãƒã‚¯ãƒ­ã€‚ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®GUIDã¨ãƒã‚¤ãƒ³ã‚¿ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’åŒæ™‚ã«æ¸¡ã™
 	if (FAILED(hr))
 	{
 		return false;
 	}
 
-	// UPLOADƒq[ƒv‚É’†ŠÔƒoƒbƒtƒ@‚ğì¬
-	// CPU ‚ª‘‚«‚İAGPU ‚ª‚±‚±‚©‚ç DEFAULT ƒq[ƒv‚ÉƒRƒs[‚·‚é
+	// UPLOADãƒ’ãƒ¼ãƒ—ã«ä¸­é–“ãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆ
+	// CPU ãŒæ›¸ãè¾¼ã¿ã€GPU ãŒã“ã“ã‹ã‚‰ DEFAULT ãƒ’ãƒ¼ãƒ—ã«ã‚³ãƒ”ãƒ¼ã™ã‚‹
 	
-    // ƒoƒbƒtƒ@ƒTƒCƒY‚ÍGPU‚ÌƒAƒ‰ƒCƒƒ“ƒg—vŒ‚ª‚ ‚é‚½‚ßAPI‚ÉŒvZ‚³‚¹‚é
-	// ì¬‚µ‚½GPUƒŠƒ\[ƒX‚É‘SƒTƒuƒŠƒ\[ƒX‚ğƒRƒs[‚·‚é‚½‚ß‚É•K—v‚È’†ŠÔƒoƒbƒtƒ@‚ÌƒTƒCƒY‚ğƒoƒCƒg’PˆÊ‚Å•Ô‚·
+    // ãƒãƒƒãƒ•ã‚¡ã‚µã‚¤ã‚ºã¯GPUã®ã‚¢ãƒ©ã‚¤ãƒ¡ãƒ³ãƒˆè¦ä»¶ãŒã‚ã‚‹ãŸã‚APIã«è¨ˆç®—ã•ã›ã‚‹
+	// ä½œæˆã—ãŸGPUãƒªã‚½ãƒ¼ã‚¹ã«å…¨ã‚µãƒ–ãƒªã‚½ãƒ¼ã‚¹ã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹ãŸã‚ã«å¿…è¦ãªä¸­é–“ãƒãƒƒãƒ•ã‚¡ã®ã‚µã‚¤ã‚ºã‚’ãƒã‚¤ãƒˆå˜ä½ã§è¿”ã™
 	const UINT64 uploadSize = GetRequiredIntermediateSize(
 		_outResource.Get(), 0, subresourceCount);
 
-	// UPLOADƒq[ƒv‚ÍCPU‚ÆGPU‚Ì—¼•û‚©‚çƒAƒNƒZƒX‚Å‚«‚é‹¤—Lƒƒ‚ƒŠ—Ìˆæ
-	// CPU‚ª‚±‚±‚Éƒf[ƒ^‚ğ‘‚«‚İAGPU‚ª‚±‚±‚©‚ç“Ç‚İæ‚Á‚ÄDEFAULTƒq[ƒv‚ÉƒRƒs[‚·‚é
+	// UPLOADãƒ’ãƒ¼ãƒ—ã¯CPUã¨GPUã®ä¸¡æ–¹ã‹ã‚‰ã‚¢ã‚¯ã‚»ã‚¹ã§ãã‚‹å…±æœ‰ãƒ¡ãƒ¢ãƒªé ˜åŸŸ
+	// CPUãŒã“ã“ã«ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã¿ã€GPUãŒã“ã“ã‹ã‚‰èª­ã¿å–ã£ã¦DEFAULTãƒ’ãƒ¼ãƒ—ã«ã‚³ãƒ”ãƒ¼ã™ã‚‹
 	D3D12_HEAP_PROPERTIES heapUpload = {};
 	heapUpload.Type = D3D12_HEAP_TYPE_UPLOAD;
 
-	// ’†ŠÔƒoƒbƒtƒ@‚ÍƒeƒNƒXƒ`ƒƒ‚Å‚Í‚È‚­‚½‚¾‚ÌƒoƒCƒg—ñiBufferj‚Æ‚µ‚Äì‚é
+	// ä¸­é–“ãƒãƒƒãƒ•ã‚¡ã¯ãƒ†ã‚¯ã‚¹ãƒãƒ£ã§ã¯ãªããŸã ã®ãƒã‚¤ãƒˆåˆ—ï¼ˆBufferï¼‰ã¨ã—ã¦ä½œã‚‹
 	D3D12_RESOURCE_DESC uploadDesc = {};
-	uploadDesc.Dimension		= D3D12_RESOURCE_DIMENSION_BUFFER;	// ƒƒ‚ƒŠ‚ğ1ŸŒ³”z—ñ‚Æ‚µ‚Äˆµ‚¤
+	uploadDesc.Dimension		= D3D12_RESOURCE_DIMENSION_BUFFER;	// ãƒ¡ãƒ¢ãƒªã‚’1æ¬¡å…ƒé…åˆ—ã¨ã—ã¦æ‰±ã†
 	uploadDesc.Width			= uploadSize;
-	uploadDesc.Height			= 1;								// Height,DepthOrArraySize,MipLevels‚ÍBuffer‚Ìê‡‚Í1ŒÅ’è
+	uploadDesc.Height			= 1;								// Height,DepthOrArraySize,MipLevelsã¯Bufferã®å ´åˆã¯1å›ºå®š
 	uploadDesc.DepthOrArraySize = 1;
 	uploadDesc.MipLevels		= 1;
-	uploadDesc.Format			= DXGI_FORMAT_UNKNOWN;				// Buffer‚ÍƒsƒNƒZƒ‹ƒtƒH[ƒ}ƒbƒg‚ğ‚½‚È‚¢‚Ì‚ÅUNKNOWN
+	uploadDesc.Format			= DXGI_FORMAT_UNKNOWN;				// Bufferã¯ãƒ”ã‚¯ã‚»ãƒ«ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚’æŒãŸãªã„ã®ã§UNKNOWN
 	uploadDesc.SampleDesc.Count = 1;
-	uploadDesc.Layout			= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;	// Buffer‚Íƒƒ‚ƒŠ‚ğæ“ª‚©‚ç‡”Ô‚É•À‚×‚éis—Dæj‚Æ‚¢‚¤ˆÓ–¡
+	uploadDesc.Layout			= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;	// Bufferã¯ãƒ¡ãƒ¢ãƒªã‚’å…ˆé ­ã‹ã‚‰é †ç•ªã«ä¸¦ã¹ã‚‹ï¼ˆè¡Œå„ªå…ˆï¼‰ã¨ã„ã†æ„å‘³
 	uploadDesc.Flags			= D3D12_RESOURCE_FLAG_NONE;
 
 	ComPtr<ID3D12Resource> pUploadBuffer;
@@ -439,9 +439,9 @@ bool RHI::Texture::UploadToGPU(
 		return false;
 	}
 
-	// ƒRƒ}ƒ“ƒhƒAƒƒP[ƒ^•ƒŠƒXƒgiƒ[ƒhê—p / g‚¢Ì‚Äj
-	// ƒ[ƒhê—p‚ÌCommandList‚ğì‚é——R‚Í•`‰æ—p‚ÌCommandList‚Æ•ª—£‚µ‚Ä•`‰æ’†‚ÌCommandList‚ÉƒRƒs[–½—ß‚ğ¬‚º‚È‚¢‚½‚ß
-	ComPtr<ID3D12CommandAllocator>		pCmdAlloc;	// ƒRƒ}ƒ“ƒhƒŠƒXƒg‚ª‹L˜^‚·‚éƒRƒ}ƒ“ƒh‚ÌÀÛ‚Ìƒƒ‚ƒŠ—Ìˆæ
+	// ã‚³ãƒãƒ³ãƒ‰ã‚¢ãƒ­ã‚±ãƒ¼ã‚¿ï¼†ãƒªã‚¹ãƒˆï¼ˆãƒ­ãƒ¼ãƒ‰å°‚ç”¨ / ä½¿ã„æ¨ã¦ï¼‰
+	// ãƒ­ãƒ¼ãƒ‰å°‚ç”¨ã®CommandListã‚’ä½œã‚‹ç†ç”±ã¯æç”»ç”¨ã®CommandListã¨åˆ†é›¢ã—ã¦æç”»ä¸­ã®CommandListã«ã‚³ãƒ”ãƒ¼å‘½ä»¤ã‚’æ··ãœãªã„ãŸã‚
+	ComPtr<ID3D12CommandAllocator>		pCmdAlloc;	// ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆãŒè¨˜éŒ²ã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ã®å®Ÿéš›ã®ãƒ¡ãƒ¢ãƒªé ˜åŸŸ
 	ComPtr<ID3D12GraphicsCommandList>	pCmdList;
 	ComPtr<ID3D12Fence>					pFence;
 
@@ -454,49 +454,49 @@ bool RHI::Texture::UploadToGPU(
 	}
 
 	hr = m_pDevice->CreateCommandList(
-		0,										// 0‚ÍNodeMaskBƒ}ƒ‹ƒ`GPU\¬‚Å‚àg‚¤‚à‚Ì
+		0,										// 0ã¯NodeMaskã€‚ãƒãƒ«ãƒGPUæ§‹æˆã§ã‚‚ä½¿ã†ã‚‚ã®
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		pCmdAlloc.Get(),
-		nullptr,								// PipelineStateBƒRƒs[‚ÍƒVƒF[ƒ_[‚ğg‚í‚È‚¢‚Ì‚Ånullptr
+		nullptr,								// PipelineStateã€‚ã‚³ãƒ”ãƒ¼ã¯ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã‚’ä½¿ã‚ãªã„ã®ã§nullptr
 		IID_PPV_ARGS(pCmdList.GetAddressOf()));
 	if (FAILED(hr))
 	{
 		return false;
 	}
 
-	// ƒTƒuƒŠƒ\[ƒX‚ğƒRƒs[iUpdateSubresources ‚Í d3dx12.h‚Ìƒwƒ‹ƒp[j
-	// 1. UPLOADƒoƒbƒtƒ@‚ÉCP‚¤‚©‚çƒsƒNƒZƒ‹ƒf[ƒ^‚ğmemcpy‚·‚é
-	// 2. CommandList‚ÉCopyTextureRegion–½—ß‚ğÏ‚ŞiUPLOADƒoƒbƒtƒ@ ¨ DEFAULTƒŠƒ\[ƒX‚Ö‚ÌƒRƒs[–½—ßj
+	// ã‚µãƒ–ãƒªã‚½ãƒ¼ã‚¹ã‚’ã‚³ãƒ”ãƒ¼ï¼ˆUpdateSubresources ã¯ d3dx12.hã®ãƒ˜ãƒ«ãƒ‘ãƒ¼ï¼‰
+	// 1. UPLOADãƒãƒƒãƒ•ã‚¡ã«CPã†ã‹ã‚‰ãƒ”ã‚¯ã‚»ãƒ«ãƒ‡ãƒ¼ã‚¿ã‚’memcpyã™ã‚‹
+	// 2. CommandListã«CopyTextureRegionå‘½ä»¤ã‚’ç©ã‚€ï¼ˆUPLOADãƒãƒƒãƒ•ã‚¡ â†’ DEFAULTãƒªã‚½ãƒ¼ã‚¹ã¸ã®ã‚³ãƒ”ãƒ¼å‘½ä»¤ï¼‰
 	UpdateSubresources(
 		pCmdList.Get(),
 		_outResource.Get(),
 		pUploadBuffer.Get(),
-		0, 0,					// UPLOADƒoƒbƒtƒ@‚ÌƒIƒtƒZƒbƒg‚Íæ“ª‚©‚çg‚¤‚Ì‚Å0BƒRƒs[ŠJnƒTƒuƒŠƒ\[ƒX”Ô†‚Í0”Ô–Ú‚©‚çƒRƒs[
+		0, 0,					// UPLOADãƒãƒƒãƒ•ã‚¡ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã¯å…ˆé ­ã‹ã‚‰ä½¿ã†ã®ã§0ã€‚ã‚³ãƒ”ãƒ¼é–‹å§‹ã‚µãƒ–ãƒªã‚½ãƒ¼ã‚¹ç•ªå·ã¯0ç•ªç›®ã‹ã‚‰ã‚³ãƒ”ãƒ¼
 		subresourceCount,
 		subresources.data());
 
-	// ƒŠƒ\[ƒXƒoƒŠƒA : COPY_DEST ¨ PIXEL_SHADER_RESOURCE
+	// ãƒªã‚½ãƒ¼ã‚¹ãƒãƒªã‚¢ : COPY_DEST â†’ PIXEL_SHADER_RESOURCE
 	D3D12_RESOURCE_BARRIER barrier = {};
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;		// ƒŠƒ\[ƒX‚Ì—p“r‚ğØ‚è‘Ö‚¦‚éƒoƒŠƒA
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;		// ãƒªã‚½ãƒ¼ã‚¹ã®ç”¨é€”ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹ãƒãƒªã‚¢
 	barrier.Transition.pResource = _outResource.Get();
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;		// ‘Sƒ~ƒbƒvE‘S”z—ñƒXƒƒbƒg‚ğˆêŠ‡‚Å‘JˆÚ
+	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;		// å…¨ãƒŸãƒƒãƒ—ãƒ»å…¨é…åˆ—ã‚¹ãƒ­ãƒƒãƒˆã‚’ä¸€æ‹¬ã§é·ç§»
 	pCmdList->ResourceBarrier(1, &barrier);
 
-	// ƒRƒ}ƒ“ƒhƒŠƒXƒg‚ğƒNƒ[ƒY‚µ‚ÄÀs
-	hr = pCmdList->Close();	// ‹L˜^‚ğI—¹
+	// ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒ­ãƒ¼ã‚ºã—ã¦å®Ÿè¡Œ
+	hr = pCmdList->Close();	// è¨˜éŒ²ã‚’çµ‚äº†
 	if (FAILED(hr))
 	{
 		return false;
 	}
 
-	// ExecuteCommandLists‚ÍCommandQueue‚ÉƒRƒ}ƒ“ƒhƒŠƒXƒg‚ğ“Š“ü
-	// ‚±‚ÌŠÖ”‚ÍCPU‘¤‚Å‚Í‚·‚®‹A‚éBGPU‚ªÀÛ‚ÉÀs‚·‚é‚Ì‚Í‚±‚êˆÈ~‚Ì”ñ“¯Šú‚Ìƒ^ƒCƒ~ƒ“ƒO
+	// ExecuteCommandListsã¯CommandQueueã«ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã‚’æŠ•å…¥
+	// ã“ã®é–¢æ•°ã¯CPUå´ã§ã¯ã™ãå¸°ã‚‹ã€‚GPUãŒå®Ÿéš›ã«å®Ÿè¡Œã™ã‚‹ã®ã¯ã“ã‚Œä»¥é™ã®éåŒæœŸã®ã‚¿ã‚¤ãƒŸãƒ³ã‚°
 	ID3D12CommandList* ppCmdLists[] = { pCmdList.Get() };
-	m_pQueue->ExecuteCommandLists(1, ppCmdLists);			// ”z—ñ‚Å“n‚µ‚Ä‚¢‚é‚Ì‚Í•¡”‚ÌCommandList‚ğ‚Ü‚Æ‚ß‚Ä“Š“ü‚Å‚«‚éAPI‚¾‚©‚ç
+	m_pQueue->ExecuteCommandLists(1, ppCmdLists);			// é…åˆ—ã§æ¸¡ã—ã¦ã„ã‚‹ã®ã¯è¤‡æ•°ã®CommandListã‚’ã¾ã¨ã‚ã¦æŠ•å…¥ã§ãã‚‹APIã ã‹ã‚‰
 
-	// GPUŠ®—¹‚ğƒtƒFƒ“ƒX‚Å“¯Šú‘Ò‚¿
+	// GPUå®Œäº†ã‚’ãƒ•ã‚§ãƒ³ã‚¹ã§åŒæœŸå¾…ã¡
 	hr = m_pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE,
 		IID_PPV_ARGS(pFence.GetAddressOf()));
 	if (FAILED(hr))
@@ -504,42 +504,42 @@ bool RHI::Texture::UploadToGPU(
 		return false;
 	}
 
-	// Windows‚ÌƒCƒxƒ“ƒgƒIƒuƒWƒFƒNƒg‚ğOS‚Éì‚ç‚¹‚Ä‚¢‚é
-	// WaitForSingleObject‚Å‚±‚ÌƒCƒxƒ“ƒg‚ª’Ê’m‚³‚ê‚é‚Ü‚ÅCPUƒXƒŒƒbƒh‚ğƒXƒŠ[ƒv
+	// Windowsã®ã‚¤ãƒ™ãƒ³ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’OSã«ä½œã‚‰ã›ã¦ã„ã‚‹
+	// WaitForSingleObjectã§ã“ã®ã‚¤ãƒ™ãƒ³ãƒˆãŒé€šçŸ¥ã•ã‚Œã‚‹ã¾ã§CPUã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ã‚¹ãƒªãƒ¼ãƒ—
 	HANDLE hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	if (!hEvent) { return false; }
 
-	// CommandQueue‚Ìˆ—‚ª‚±‚±‚Ü‚Å—ˆ‚½‚çƒtƒFƒ“ƒX‚Ì’l‚ğ1‚ÉƒZƒbƒg‚¹‚æ‚Æ‚¢‚¤–½—ß‚ğGPU‚É“Š“ü
+	// CommandQueueã®å‡¦ç†ãŒã“ã“ã¾ã§æ¥ãŸã‚‰ãƒ•ã‚§ãƒ³ã‚¹ã®å€¤ã‚’1ã«ã‚»ãƒƒãƒˆã›ã‚ˆã¨ã„ã†å‘½ä»¤ã‚’GPUã«æŠ•å…¥
 	m_pQueue->Signal(pFence.Get(), 1);
-	pFence->SetEventOnCompletion(1, hEvent);	// ƒtƒFƒ“ƒX‚Ì’l‚ª1‚É‚È‚Á‚½‚çhEvent‚ğ’Ê’m
-	WaitForSingleObject(hEvent, INFINITE);		// CPUƒXƒŒƒbƒh‚ğƒXƒŠ[ƒv‚³‚¹‚ÄGPUŠ®—¹‚ğ‘Ò‚Â
-	CloseHandle(hEvent);						// CPU‚ª‹N‚«‚é
+	pFence->SetEventOnCompletion(1, hEvent);	// ãƒ•ã‚§ãƒ³ã‚¹ã®å€¤ãŒ1ã«ãªã£ãŸã‚‰hEventã‚’é€šçŸ¥
+	WaitForSingleObject(hEvent, INFINITE);		// CPUã‚¹ãƒ¬ãƒƒãƒ‰ã‚’ã‚¹ãƒªãƒ¼ãƒ—ã•ã›ã¦GPUå®Œäº†ã‚’å¾…ã¤
+	CloseHandle(hEvent);						// CPUãŒèµ·ãã‚‹
 
-	// pUploadBuffer‚ÍGPUŠ®—¹Œã‚É‰ğ•ú‚³‚ê‚éiComPtr‚ªƒXƒR[ƒvƒAƒEƒg‚É©“®j
-	// GPU‚ªƒRƒs[‚ğI‚¦‚é‘O‚ÉUPLOADƒoƒbƒtƒ@‚ªÁ‚¦‚é‚Æ‰ó‚ê‚½ƒf[ƒ^‚ª“]‘—‚³‚ê‚é
-	// ‚»‚Ì‚½‚ßAƒtƒFƒ“ƒX‚Å‘Ò‚Â‚±‚Æ‚ÅGPU‚ªƒRƒs[‚ğI‚¦‚Ä‚©‚çŠÖ”‚ğ”²‚¯‚é‚æ‚¤‚É‚·‚é
+	// pUploadBufferã¯GPUå®Œäº†å¾Œã«è§£æ”¾ã•ã‚Œã‚‹ï¼ˆComPtrãŒã‚¹ã‚³ãƒ¼ãƒ—ã‚¢ã‚¦ãƒˆæ™‚ã«è‡ªå‹•ï¼‰
+	// GPUãŒã‚³ãƒ”ãƒ¼ã‚’çµ‚ãˆã‚‹å‰ã«UPLOADãƒãƒƒãƒ•ã‚¡ãŒæ¶ˆãˆã‚‹ã¨å£Šã‚ŒãŸãƒ‡ãƒ¼ã‚¿ãŒè»¢é€ã•ã‚Œã‚‹
+	// ãã®ãŸã‚ã€ãƒ•ã‚§ãƒ³ã‚¹ã§å¾…ã¤ã“ã¨ã§GPUãŒã‚³ãƒ”ãƒ¼ã‚’çµ‚ãˆã¦ã‹ã‚‰é–¢æ•°ã‚’æŠœã‘ã‚‹ã‚ˆã†ã«ã™ã‚‹
 
 	return true;
 }
 
 // -------------------------------------------------------------------------------
-// SRV‚Ìì¬‚ÆDescriptorPool‚Ö‚Ì“o˜^
+// SRVã®ä½œæˆã¨DescriptorPoolã¸ã®ç™»éŒ²
 // -------------------------------------------------------------------------------
 void RHI::Texture::CreateSRV(const DirectX::TexMetadata& _meta)
 {
-	// „Ÿ„Ÿ„Ÿ DescriptorPool ‚©‚çSRVƒnƒ“ƒhƒ‹‚ğ1‚ÂØ‚è‚é „Ÿ„Ÿ„Ÿ
+	// â”€â”€â”€ DescriptorPool ã‹ã‚‰SRVãƒãƒ³ãƒ‰ãƒ«ã‚’1ã¤å€Ÿã‚Šã‚‹ â”€â”€â”€
 	m_pHandle = m_pPool->AllocHandle();
-	assert(m_pHandle != nullptr && "DescriptorPool ‚ÌƒXƒƒbƒg‚ª•s‘«‚µ‚Ä‚¢‚Ü‚·");
+	assert(m_pHandle != nullptr && "DescriptorPool ã®ã‚¹ãƒ­ãƒƒãƒˆãŒä¸è¶³ã—ã¦ã„ã¾ã™");
 
-	// „Ÿ„Ÿ„Ÿ SRV Desc ‚Ì\’z „Ÿ„Ÿ„Ÿ
+	// â”€â”€â”€ SRV Desc ã®æ§‹ç¯‰ â”€â”€â”€
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Format = _meta.format;
 
-	// ƒeƒNƒXƒ`ƒƒ‚Ìí—ŞiƒLƒ…[ƒuƒ}ƒbƒv / ”z—ñ / ’Êí2Dj‚ğ©“®”»•Ê
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ç¨®é¡ï¼ˆã‚­ãƒ¥ãƒ¼ãƒ–ãƒãƒƒãƒ— / é…åˆ— / é€šå¸¸2Dï¼‰ã‚’è‡ªå‹•åˆ¤åˆ¥
 	if (_meta.IsCubemap())
 	{
-		// ƒLƒ…[ƒuƒ}ƒbƒv: ƒXƒJƒCƒ{ƒbƒNƒX“™‚Ég‚¤B6–Ê‚ğ1ƒŠƒ\[ƒX‚ÅŠÇ—‚·‚é
+		// ã‚­ãƒ¥ãƒ¼ãƒ–ãƒãƒƒãƒ—: ã‚¹ã‚«ã‚¤ãƒœãƒƒã‚¯ã‚¹ç­‰ã«ä½¿ã†ã€‚6é¢ã‚’1ãƒªã‚½ãƒ¼ã‚¹ã§ç®¡ç†ã™ã‚‹
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 		srvDesc.TextureCube.MipLevels = static_cast<UINT>(_meta.mipLevels);
 		srvDesc.TextureCube.MostDetailedMip = 0;
@@ -547,8 +547,8 @@ void RHI::Texture::CreateSRV(const DirectX::TexMetadata& _meta)
 	}
 	else if (_meta.arraySize > 1)
 	{
-		// ”z—ñƒeƒNƒXƒ`ƒƒ: •¡”–‡‚ğ1ƒŠƒ\[ƒX‚É‚Ü‚Æ‚ß‚½‚à‚Ì
-		// AnimToTexture‚ÌBATiBoneAnimationTexturej“™‚Ég‚¤
+		// é…åˆ—ãƒ†ã‚¯ã‚¹ãƒãƒ£: è¤‡æ•°æšã‚’1ãƒªã‚½ãƒ¼ã‚¹ã«ã¾ã¨ã‚ãŸã‚‚ã®
+		// AnimToTextureã®BATï¼ˆBoneAnimationTextureï¼‰ç­‰ã«ä½¿ã†
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 		srvDesc.Texture2DArray.MipLevels = static_cast<UINT>(_meta.mipLevels);
 		srvDesc.Texture2DArray.MostDetailedMip = 0;
@@ -558,14 +558,14 @@ void RHI::Texture::CreateSRV(const DirectX::TexMetadata& _meta)
 	}
 	else
 	{
-		// ’Êí‚ÌTexture2D
+		// é€šå¸¸ã®Texture2D
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = static_cast<UINT>(_meta.mipLevels);
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	}
 
-	// „Ÿ„Ÿ„Ÿ SRV ‚ğDescriptorPool ‚ª‚Âƒq[ƒv‚ÌƒXƒƒbƒg‚É‘‚«‚Ş „Ÿ„Ÿ„Ÿ
+	// â”€â”€â”€ SRV ã‚’DescriptorPool ãŒæŒã¤ãƒ’ãƒ¼ãƒ—ã®ã‚¹ãƒ­ãƒƒãƒˆã«æ›¸ãè¾¼ã‚€ â”€â”€â”€
 	m_pDevice->CreateShaderResourceView(
 		m_pResource.Get(),
 		&srvDesc,
@@ -573,7 +573,7 @@ void RHI::Texture::CreateSRV(const DirectX::TexMetadata& _meta)
 }
 
 // -------------------------------------------------------------------------------
-// SRV¶¬iƒŠƒ\[ƒX’¼Úw’èj
+// SRVç”Ÿæˆï¼ˆãƒªã‚½ãƒ¼ã‚¹ç›´æ¥æŒ‡å®šï¼‰
 // -------------------------------------------------------------------------------
 void RHI::Texture::CreateSRVFromResource(
 	ID3D12Resource*		_pResource,
@@ -617,14 +617,14 @@ void RHI::Texture::CreateSRVFromResource(
 }
 
 // -------------------------------------------------------------------------------
-// Šù‘¶‚ÌGPUƒŠƒ\[ƒX‚É‘Î‚µ‚ÄUAV‚ğì¬‚·‚é
+// æ—¢å­˜ã®GPUãƒªã‚½ãƒ¼ã‚¹ã«å¯¾ã—ã¦UAVã‚’ä½œæˆã™ã‚‹
 // -------------------------------------------------------------------------------
 void RHI::Texture::CreateUAVFromResource(
 	ID3D12Resource* _pResource,
 	DXGI_FORMAT		_format)
 {
 	m_pUAVHandle = m_pPool->AllocHandle();
-	assert(m_pUAVHandle != nullptr && "DescriptorPool ‚ÌƒXƒƒbƒg‚ª•s‘«‚µ‚Ä‚¢‚Ü‚·");
+	assert(m_pUAVHandle != nullptr && "DescriptorPool ã®ã‚¹ãƒ­ãƒƒãƒˆãŒä¸è¶³ã—ã¦ã„ã¾ã™");
 
 	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 	uavDesc.Format					= _format;

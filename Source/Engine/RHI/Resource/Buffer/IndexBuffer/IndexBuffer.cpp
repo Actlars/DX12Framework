@@ -8,24 +8,24 @@
 // -------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::IndexBuffer::IndexBuffer()
 	: m_pIB(nullptr) 
 { memset(&m_View, 0, sizeof(m_View)); }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::IndexBuffer::~IndexBuffer() 
 { Term(); }
 
 // -------------------------------------------------------------------------------
-//		‰Šú‰»ˆ—‚ğs‚¤
+//		åˆæœŸåŒ–å‡¦ç†ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 bool RHI::IndexBuffer::Init(ID3D12Device* _pDevice, size_t _size, const uint32_t* _pInitData)
 {
-	// ƒq[ƒvƒvƒƒpƒeƒB
+	// ãƒ’ãƒ¼ãƒ—ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
 	D3D12_HEAP_PROPERTIES prop = {};
 	prop.Type					= D3D12_HEAP_TYPE_UPLOAD;
 	prop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -33,7 +33,7 @@ bool RHI::IndexBuffer::Init(ID3D12Device* _pDevice, size_t _size, const uint32_t
 	prop.CreationNodeMask		= 1;
 	prop.VisibleNodeMask		= 1;
 
-	// ƒŠƒ\[ƒX‚Ìİ’è
+	// ãƒªã‚½ãƒ¼ã‚¹ã®è¨­å®š
 	D3D12_RESOURCE_DESC desc = {};
 	desc.Dimension			= D3D12_RESOURCE_DIMENSION_BUFFER;
 	desc.Alignment			= 0;
@@ -47,7 +47,7 @@ bool RHI::IndexBuffer::Init(ID3D12Device* _pDevice, size_t _size, const uint32_t
 	desc.Layout				= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	desc.Flags				= D3D12_RESOURCE_FLAG_NONE;
 
-	// ƒŠƒ\[ƒX‚ğ¶¬
+	// ãƒªã‚½ãƒ¼ã‚¹ã‚’ç”Ÿæˆ
 	auto hr = _pDevice->CreateCommittedResource(
 		&prop,
 		D3D12_HEAP_FLAG_NONE,
@@ -58,12 +58,12 @@ bool RHI::IndexBuffer::Init(ID3D12Device* _pDevice, size_t _size, const uint32_t
 	if (FAILED(hr)) 
 	{ return false; }
 
-	// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒrƒ…[‚Ìİ’è
+	// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®è¨­å®š
 	m_View.BufferLocation	= m_pIB->GetGPUVirtualAddress();
 	m_View.Format			= DXGI_FORMAT_R32_UINT;
 	m_View.SizeInBytes		= UINT(_size);
 
-	// ‰Šú‰»ƒf[ƒ^‚ª‚ ‚ê‚ÎA‘‚«‚ñ‚Å‚¨‚­
+	// åˆæœŸåŒ–ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Œã°ã€æ›¸ãè¾¼ã‚“ã§ãŠã
 	if (_pInitData != nullptr)
 	{
 		void* ptr = Map();
@@ -75,12 +75,12 @@ bool RHI::IndexBuffer::Init(ID3D12Device* _pDevice, size_t _size, const uint32_t
 		m_pIB->Unmap(0, nullptr);
 	}
 
-	// ³íI—¹
+	// æ­£å¸¸çµ‚äº†
 	return true;
 }
 
 // -------------------------------------------------------------------------------
-//		I—¹ˆ—‚ğs‚¤
+//		çµ‚äº†å‡¦ç†ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 void RHI::IndexBuffer::Term()
 {
@@ -89,7 +89,7 @@ void RHI::IndexBuffer::Term()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒƒ‚ƒŠƒ}ƒbƒsƒ“ƒO‚ğs‚¤
+//		ãƒ¡ãƒ¢ãƒªãƒãƒƒãƒ”ãƒ³ã‚°ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 uint32_t* RHI::IndexBuffer::Map()
 {
@@ -102,13 +102,13 @@ uint32_t* RHI::IndexBuffer::Map()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒƒ‚ƒŠƒ}ƒbƒsƒ“ƒO‚ğ‰ğœ
+//		ãƒ¡ãƒ¢ãƒªãƒãƒƒãƒ”ãƒ³ã‚°ã‚’è§£é™¤
 // -------------------------------------------------------------------------------
 void RHI::IndexBuffer::Unmap() 
 { m_pIB->Unmap(0, nullptr); }
 
 // -------------------------------------------------------------------------------
-//		ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒrƒ…[‚ğæ“¾
+//		ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 D3D12_INDEX_BUFFER_VIEW RHI::IndexBuffer::GetView() const
 { return m_View; }

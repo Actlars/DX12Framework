@@ -10,7 +10,7 @@
 #include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
-// InputLayout’è‹`iPolygonMeshResource ‚ÌPSO ¶¬‚ÉQÆj
+// InputLayoutå®šç¾©ï¼ˆPolygonMeshResource ã®PSO ç”Ÿæˆæ™‚ã«å‚ç…§ï¼‰
 // -------------------------------------------------------------------------------
 #define FMT3	DXGI_FORMAT_R32G32B32_FLOAT
 #define FMT2	DXGI_FORMAT_R32G32_FLOAT
@@ -41,7 +41,7 @@ const D3D12_INPUT_LAYOUT_DESC ResMeshVertex::InputLayout =
 namespace {
 
 	// -------------------------------------------------------------------------------
-	// aiMesh ¨ ResMesh•ÏŠ·
+	// aiMesh â†’ ResMeshå¤‰æ›
 	// -------------------------------------------------------------------------------
 	void ParseMesh(ResMesh& _dst, const aiMesh* _pSrc)
 	{
@@ -49,7 +49,7 @@ namespace {
 
 		const aiVector3D zero(0.0f, 0.0f, 0.0f);
 
-		// ’¸“_ƒf[ƒ^
+		// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿
 		_dst.Vertices.resize(_pSrc->mNumVertices);
 
 		for (auto i = 0u; i < _pSrc->mNumVertices; ++i)
@@ -57,7 +57,7 @@ namespace {
 			const auto& pos = _pSrc->mVertices[i];
 			const auto& n	= _pSrc->mNormals[i];
 
-			// UVEÚüE]–@ü‚Í‘¶İ‚µ‚È‚¢ê‡‚àƒ[ƒ‚Å•âŠ®
+			// UVãƒ»æ¥ç·šãƒ»å¾“æ³•ç·šã¯å­˜åœ¨ã—ãªã„å ´åˆã‚‚ã‚¼ãƒ­ã§è£œå®Œ
 			const auto& uv		= _pSrc->HasTextureCoords(0)
 				? _pSrc->mTextureCoords[0][i] : zero;
 			const auto& tan		= _pSrc->HasTangentsAndBitangents()
@@ -73,8 +73,8 @@ namespace {
 				{ btan.x,	btan.y,	btan.z });
 		}
 
-		// ƒCƒ“ƒfƒbƒNƒXƒf[ƒ^
-		// aiProcess_Triangulate‚ÅOŠpŒ`‰»Ï‚İ‚È‚Ì‚ÅmNumIndices == 3‚ª•ÛØ‚³‚ê‚é
+		// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒ‡ãƒ¼ã‚¿
+		// aiProcess_Triangulateã§ä¸‰è§’å½¢åŒ–æ¸ˆã¿ãªã®ã§mNumIndices == 3ãŒä¿è¨¼ã•ã‚Œã‚‹
 		_dst.Indices.reserve(_pSrc->mNumFaces * 3);
 		_dst.Indices.resize	(_pSrc->mNumFaces * 3);
 
@@ -90,7 +90,7 @@ namespace {
 	}
 
 	// -------------------------------------------------------------------------------
-	// aiMaterial ¨ ResMaterial•ÏŠ·
+	// aiMaterial â†’ ResMaterialå¤‰æ›
 	// -------------------------------------------------------------------------------
 	void ParseMaterial(
 		ResMaterial& _dst,
@@ -123,7 +123,7 @@ namespace {
 			}
 		}
 
-		// Fƒpƒ‰ƒ[ƒ^
+		// è‰²ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
 		{
 			aiColor3D c(0.5f, 0.5f, 0.5f);
 			if (_pSrc->Get(AI_MATKEY_COLOR_DIFFUSE, c) == AI_SUCCESS)
@@ -150,9 +150,9 @@ namespace {
 			{ _dst.Alpha = v; }
 		}
 
-		// ƒ‚ƒfƒ‹‚ª•Ô‚·ƒeƒNƒXƒ`ƒƒƒpƒX‚ğÀƒtƒ@ƒCƒ‹‚Ìâ‘ÎƒpƒX‚É‰ğŒˆ‚·‚é
-		// •¡”‚ÌaiTextureType‚ğ—Dæ‡‚É‚·iƒtƒH[ƒ}ƒbƒg·ˆÙ‚ğ‹zûj
-		// â‘ÎƒpƒX‘Î‰ / ‹æØ‚è•¶š³‹K‰» / ƒtƒ@ƒCƒ‹–¼ƒtƒH[ƒ‹ƒoƒbƒN
+		// ãƒ¢ãƒ‡ãƒ«ãŒè¿”ã™ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‘ã‚¹ã‚’å®Ÿãƒ•ã‚¡ã‚¤ãƒ«ã®çµ¶å¯¾ãƒ‘ã‚¹ã«è§£æ±ºã™ã‚‹
+		// è¤‡æ•°ã®aiTextureTypeã‚’å„ªå…ˆé †ã«è©¦ã™ï¼ˆãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆå·®ç•°ã‚’å¸åï¼‰
+		// çµ¶å¯¾ãƒ‘ã‚¹å¯¾å¿œ / åŒºåˆ‡ã‚Šæ–‡å­—æ­£è¦åŒ– / ãƒ•ã‚¡ã‚¤ãƒ«åãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯
 		auto resolveTexPath = [&](std::initializer_list<aiTextureType> _candidaes)->std::wstring
 			{
 				for (const aiTextureType type : _candidaes)
@@ -164,30 +164,30 @@ namespace {
 					if (_pSrc->GetTexture(type, 0, &raw) != AI_SUCCESS) 
 					{ continue; }
 
-					// –„‚ß‚İƒeƒNƒXƒ`ƒƒi"*0"Œ`®j‚ÍƒpƒXƒx[ƒX‚Å‚Íˆµ‚¦‚È‚¢‚Ì‚Å’e‚­
+					// åŸ‹ã‚è¾¼ã¿ãƒ†ã‚¯ã‚¹ãƒãƒ£ï¼ˆ"*0"å½¢å¼ï¼‰ã¯ãƒ‘ã‚¹ãƒ™ãƒ¼ã‚¹ã§ã¯æ‰±ãˆãªã„ã®ã§å¼¾ã
 					if (raw.length > 0 && raw.data[0] == '*')
 					{
 						ELOG("Texture is embedded(%s) path loader skips it", raw.C_Str());
 						continue;
 					}
 
-					// ‹æØ‚è•¶š‚ğ'/'‚É³‹K‰»
+					// åŒºåˆ‡ã‚Šæ–‡å­—ã‚’'/'ã«æ­£è¦åŒ–
 					std::wstring rel = StringUtil::ToWString(raw.C_Str());
 					for (auto& c : rel) { if (c == L'\\') { c = '/'; } }
 					std::filesystem::path p(rel);
 
-					// 1) Œ³‚©‚çâ‘ÎƒpƒX & Àİ ¨ ‚»‚Ì‚Ü‚Üg‚¤
+					// 1) å…ƒã‹ã‚‰çµ¶å¯¾ãƒ‘ã‚¹ & å®Ÿåœ¨ â†’ ãã®ã¾ã¾ä½¿ã†
 					if (p.is_absolute() && std::filesystem::exists(p))
 					{
 						return p.wstring();
 					}
-					// 2) modelDir + ‘Š‘ÎƒpƒX
+					// 2) modelDir + ç›¸å¯¾ãƒ‘ã‚¹
 					auto joined = std::filesystem::path(_modelDir) / rel;
 					if (std::filesystem::exists(joined))
 					{
 						return joined.wstring();
 					}
-					// 3) ƒtƒ@ƒCƒ‹–¼‚¾‚¯‚É‚µ‚Ä modelDir ’¼‰º‚ğ’T‚·iƒTƒuƒtƒHƒ‹ƒ_w’èƒYƒŒ‚Ì•ÛŒ¯j
+					// 3) ãƒ•ã‚¡ã‚¤ãƒ«åã ã‘ã«ã—ã¦ modelDir ç›´ä¸‹ã‚’æ¢ã™ï¼ˆã‚µãƒ–ãƒ•ã‚©ãƒ«ãƒ€æŒ‡å®šã‚ºãƒ¬ã®ä¿é™ºï¼‰
 					auto byName = std::filesystem::path(_modelDir) / p.filename();
 					if (std::filesystem::exists(byName))
 					{
@@ -200,12 +200,12 @@ namespace {
 				return L"";
 			};
 
-		// ŠeƒXƒƒbƒg‚ÉŒó•âƒ^ƒCƒv‚ğ—Dæ‡‚Åw’è
+		// å„ã‚¹ãƒ­ãƒƒãƒˆã«å€™è£œã‚¿ã‚¤ãƒ—ã‚’å„ªå…ˆé †ã§æŒ‡å®š
 		_dst.DiffuseMap = resolveTexPath({ aiTextureType_BASE_COLOR,   // PBR/glTF
-											 aiTextureType_DIFFUSE,      // ‹Œ—ˆ Phong
-											 aiTextureType_EMISSIVE });  // ÅŒã‚Ì•ÛŒ¯
+											 aiTextureType_DIFFUSE,      // æ—§æ¥ Phong
+											 aiTextureType_EMISSIVE });  // æœ€å¾Œã®ä¿é™º
 		_dst.NormalMap = resolveTexPath({ aiTextureType_NORMALS,
-											 aiTextureType_HEIGHT });    // OBJ ‚Ì bump ‚Í‚±‚±‚É—ˆ‚é
+											 aiTextureType_HEIGHT });    // OBJ ã® bump ã¯ã“ã“ã«æ¥ã‚‹
 		_dst.SpecularMap = resolveTexPath({ aiTextureType_SPECULAR,
 											 aiTextureType_METALNESS });
 		_dst.ShininessMap = resolveTexPath({ aiTextureType_SHININESS,
@@ -221,26 +221,26 @@ bool MeshLoader::Load(
 	std::vector<ResMesh>&		_meshes,
 	std::vector<ResMaterial>&	_materials)
 {
-	// ƒtƒ@ƒCƒ‹‘¶İŠm”F
+	// ãƒ•ã‚¡ã‚¤ãƒ«å­˜åœ¨ç¢ºèª
 	if (!std::filesystem::exists(_path))
 	{
 		ELOG("MeshLoader::Load() File not found.path = %ls", _path.c_str());
 		return false; 
 	}
 
-	// Assimp‚Åƒ[ƒh
+	// Assimpã§ãƒ­ãƒ¼ãƒ‰
 	Assimp::Importer importer;
 
 	const unsigned int flags =
-			aiProcess_Triangulate				// ‘Sƒ|ƒŠƒSƒ“‚ğOŠpŒ`‚É•ÏŠ·
-		|	aiProcess_ConvertToLeftHanded		// ¶èŒn‚ÌŒvZ‚É•ÏŠ·
-		|	aiProcess_PreTransformVertices		// ƒm[ƒhŠK‘w‚ğƒtƒ‰ƒbƒg‰»
-		|	aiProcess_CalcTangentSpace			// ÚüE]–@ü‚ğ©“®ŒvZ
-		|	aiProcess_GenSmoothNormals			// –@ü‚ª‚È‚¢ê‡‚É•½ŠŠ–@ü‚ğ¶¬
-		|	aiProcess_GenUVCoords				// UV‚ª‚È‚¢ê‡‚É©“®¶¬
-		|	aiProcess_RemoveRedundantMaterials	// d•¡ƒ}ƒeƒŠƒAƒ‹‚ğíœ
-		|	aiProcess_OptimizeMeshes			// ƒƒbƒVƒ…‚ğÅ¬‰»
-		|	aiProcess_JoinIdenticalVertices;	// d•¡’¸“_‚ğƒ}[ƒW‚µ‚ÄƒCƒ“ƒfƒbƒNƒX‚ğÅ“K‰»
+			aiProcess_Triangulate				// å…¨ãƒãƒªã‚´ãƒ³ã‚’ä¸‰è§’å½¢ã«å¤‰æ›
+		|	aiProcess_ConvertToLeftHanded		// å·¦æ‰‹ç³»ã®è¨ˆç®—ã«å¤‰æ›
+		|	aiProcess_PreTransformVertices		// ãƒãƒ¼ãƒ‰éšå±¤ã‚’ãƒ•ãƒ©ãƒƒãƒˆåŒ–
+		|	aiProcess_CalcTangentSpace			// æ¥ç·šãƒ»å¾“æ³•ç·šã‚’è‡ªå‹•è¨ˆç®—
+		|	aiProcess_GenSmoothNormals			// æ³•ç·šãŒãªã„å ´åˆã«å¹³æ»‘æ³•ç·šã‚’ç”Ÿæˆ
+		|	aiProcess_GenUVCoords				// UVãŒãªã„å ´åˆã«è‡ªå‹•ç”Ÿæˆ
+		|	aiProcess_RemoveRedundantMaterials	// é‡è¤‡ãƒãƒ†ãƒªã‚¢ãƒ«ã‚’å‰Šé™¤
+		|	aiProcess_OptimizeMeshes			// ãƒ¡ãƒƒã‚·ãƒ¥ã‚’æœ€å°åŒ–
+		|	aiProcess_JoinIdenticalVertices;	// é‡è¤‡é ‚ç‚¹ã‚’ãƒãƒ¼ã‚¸ã—ã¦ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æœ€é©åŒ–
 	
 	const auto* pScene = importer.ReadFile(StringUtil::ToUTF8(_path), flags);
 	if (pScene == nullptr)
@@ -249,17 +249,17 @@ bool MeshLoader::Load(
 		return false;
 	}
 
-	// ƒ‚ƒfƒ‹‚ÌƒfƒBƒŒƒNƒgƒŠ‚ğæ“¾iƒeƒNƒXƒ`ƒƒƒpƒX‰ğŒˆ‚Ég‚¤j
+	// ãƒ¢ãƒ‡ãƒ«ã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’å–å¾—ï¼ˆãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‘ã‚¹è§£æ±ºã«ä½¿ã†ï¼‰
 	const auto modelDir = std::filesystem::path(_path)
 		.parent_path().wstring();
 
-	// ƒƒbƒVƒ…‚Ì•ÏŠ·
+	// ãƒ¡ãƒƒã‚·ãƒ¥ã®å¤‰æ›
 	_meshes.clear();
 	_meshes.resize(pScene->mNumMeshes);
 	for (auto i = 0u; i < pScene->mNumMeshes; ++i)
 	{ ParseMesh(_meshes[i], pScene->mMeshes[i]); }
 
-	// ƒ}ƒeƒŠƒAƒ‹‚Ì•ÏŠ·
+	// ãƒãƒ†ãƒªã‚¢ãƒ«ã®å¤‰æ›
 	_materials.clear();
 	_materials.resize(pScene->mNumMaterials);
 	for (auto i = 0u; i < pScene->mNumMaterials; ++i) 

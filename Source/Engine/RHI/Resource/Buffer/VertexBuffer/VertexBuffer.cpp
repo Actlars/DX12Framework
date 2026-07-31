@@ -8,28 +8,28 @@
 // -------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::VertexBuffer::VertexBuffer()
 	:m_pVB(nullptr) 
 { memset(&m_View, 0, sizeof(m_View)); }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::VertexBuffer::~VertexBuffer() 
 { Term(); }
 
 // -------------------------------------------------------------------------------
-//		‰Šú‰»ˆ—‚ğs‚¤
+//		åˆæœŸåŒ–å‡¦ç†ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 bool RHI::VertexBuffer::Init(ID3D12Device* _pDevice, size_t _size, size_t _stride, const void* _pInitData)
 {
-	// ˆø”ƒ`ƒFƒbƒN
+	// å¼•æ•°ãƒã‚§ãƒƒã‚¯
 	if (_pDevice == nullptr || _size == 0 || _stride == 0) 
 	{ return false; }
 
-	// ƒq[ƒvƒvƒƒpƒeƒB
+	// ãƒ’ãƒ¼ãƒ—ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
 	D3D12_HEAP_PROPERTIES prop = {};
 	prop.Type					= D3D12_HEAP_TYPE_UPLOAD;
 	prop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -37,7 +37,7 @@ bool RHI::VertexBuffer::Init(ID3D12Device* _pDevice, size_t _size, size_t _strid
 	prop.CreationNodeMask		= 1;
 	prop.VisibleNodeMask		= 1;
 
-	// ƒŠƒ\[ƒX‚Ìİ’è
+	// ãƒªã‚½ãƒ¼ã‚¹ã®è¨­å®š
 	D3D12_RESOURCE_DESC desc = {};
 	desc.Dimension			= D3D12_RESOURCE_DIMENSION_BUFFER;
 	desc.Alignment			= 0;
@@ -51,7 +51,7 @@ bool RHI::VertexBuffer::Init(ID3D12Device* _pDevice, size_t _size, size_t _strid
 	desc.Layout				= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	desc.Flags				= D3D12_RESOURCE_FLAG_NONE;
 
-	// ƒŠƒ\[ƒX‚ğ¶¬
+	// ãƒªã‚½ãƒ¼ã‚¹ã‚’ç”Ÿæˆ
 	auto hr = _pDevice->CreateCommittedResource(
 		&prop,
 		D3D12_HEAP_FLAG_NONE,
@@ -62,12 +62,12 @@ bool RHI::VertexBuffer::Init(ID3D12Device* _pDevice, size_t _size, size_t _strid
 	if (FAILED(hr)) 
 	{ return false; }
 
-	// ’¸“_ƒoƒbƒtƒ@ƒrƒ…[‚Ìİ’è
+	// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®è¨­å®š
 	m_View.BufferLocation	= m_pVB->GetGPUVirtualAddress();
 	m_View.StrideInBytes	= UINT(_stride);
 	m_View.SizeInBytes		= UINT(_size);
 
-	// ‰Šú‰»ƒf[ƒ^‚ª‚ ‚ê‚Î‘‚«‚ñ‚Å‚¨‚­
+	// åˆæœŸåŒ–ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Œã°æ›¸ãè¾¼ã‚“ã§ãŠã
 	if (_pInitData != nullptr)
 	{
 		void* ptr = Map();
@@ -79,12 +79,12 @@ bool RHI::VertexBuffer::Init(ID3D12Device* _pDevice, size_t _size, size_t _strid
 		m_pVB->Unmap(0, nullptr);
 	}
 
-	// ³íI—¹
+	// æ­£å¸¸çµ‚äº†
 	return true;
 }
 
 // -------------------------------------------------------------------------------
-//		I—¹ˆ—‚ğs‚¤
+//		çµ‚äº†å‡¦ç†ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 void RHI::VertexBuffer::Term()
 {
@@ -93,7 +93,7 @@ void RHI::VertexBuffer::Term()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒƒ‚ƒŠƒ}ƒbƒsƒ“ƒO‚ğs‚¤
+//		ãƒ¡ãƒ¢ãƒªãƒãƒƒãƒ”ãƒ³ã‚°ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 void* RHI::VertexBuffer::Map()
 {
@@ -106,13 +106,13 @@ void* RHI::VertexBuffer::Map()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒƒ‚ƒŠƒ}ƒbƒsƒ“ƒO‚ğ‰ğœ
+//		ãƒ¡ãƒ¢ãƒªãƒãƒƒãƒ”ãƒ³ã‚°ã‚’è§£é™¤
 // -------------------------------------------------------------------------------
 void RHI::VertexBuffer::Unmap()
 { m_pVB->Unmap(0, nullptr); }
 
 // -------------------------------------------------------------------------------
-//		’¸“_ƒoƒbƒtƒ@ƒrƒ…[‚ğæ“¾
+//		é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 D3D12_VERTEX_BUFFER_VIEW RHI::VertexBuffer::GetView() const 
 { return m_View; }

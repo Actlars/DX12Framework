@@ -4,16 +4,17 @@
 #include "Widgets.h"
 #include <Engine/EditorUI/Widgets/Layout/Layout.h>
 #include <Engine/EditorUI/Widgets/WidgetInteraction.h>
+#include <Engine/EditorUI/Text/Font/Font.h>
 
 // ボタン
-bool EditorUI::Button(Context& _ctx, std::string_view _label, DirectX::XMFLOAT2 _size)
+bool EditorUI::Button(Context& _ctx, std::string_view _label, Font& _font, DirectX::XMFLOAT2 _size)
 {
 	WindowFrame* pFrame = _ctx.GetCurrentWindow();
 	if (pFrame->SkipContents) 
 	{ return false; }	// 折り畳み中は何もしない
 
 	// ラベルからこのボタンのIDを決める。
-	[[maybe_unsed]] const Id id = _ctx.GetIdStack().GetId(_label);
+	[[maybe_unused]] const Id id = _ctx.GetIdStack().GetId(_label);
 
 	const Style& style = _ctx.GetStyle();
 	const Rect2D bounds = PlaceWidget(pFrame, _size, style.ItemSpacing);
@@ -26,6 +27,16 @@ bool EditorUI::Button(Context& _ctx, std::string_view _label, DirectX::XMFLOAT2 
 	pFrame->Draw.AddRectFilled(bounds, color);
 	pFrame->Draw.AddRectOutline(bounds, style.ColorBorder, style.BorderThickness);
 
+	// ラベルをボタン中央に描く
+	std::wstring wlabel(_label.begin(), _label.end());
+	const float textWidth = static_cast<float>(wlabel.size()) * (_font.GetLineHeight() * 0.5f);
+	const DirectX::XMFLOAT2 textPos =
+	{
+		bounds.Min.x + (bounds.Width() - textWidth) * 0.5f,
+		bounds.Min.y + (bounds.Height() - _font.GetLineHeight()) * 0.5f
+	};
+	pFrame->Draw.AddText(textPos, style.ColorText, wlabel, _font);
+
 	return interaction.Clicked;
 }
 
@@ -36,7 +47,7 @@ bool EditorUI::Checkbox(Context& _ctx, std::string_view _label, bool* _pValue, f
 	if (pFrame->SkipContents) 
 	{ return false; }
 
-	[[maybe_unsed]] const Id id = _ctx.GetIdStack().GetId(_label);
+	[[maybe_unused]] const Id id = _ctx.GetIdStack().GetId(_label);
 
 	const Style& style = _ctx.GetStyle();
 	const Rect2D bounds = PlaceWidget(pFrame, { _boxSize, _boxSize }, style.ItemSpacing);

@@ -8,7 +8,7 @@
 #include <Engine/EditorUI/Widgets/Layout/Layout.h>
 
 // -------------------------------------------------------------------------------
-// ’è”
+// å®šæ•°
 // -------------------------------------------------------------------------------
 namespace
 {
@@ -17,7 +17,7 @@ namespace
 } // namespace
 
 // -------------------------------------------------------------------------------
-// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 Application::Application(uint32_t _width, uint32_t _height)
     : m_Width(_width)
@@ -26,14 +26,14 @@ Application::Application(uint32_t _width, uint32_t _height)
 }
 
 // -------------------------------------------------------------------------------
-// ƒfƒXƒgƒ‰ƒNƒ^
+// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 Application::~Application()
 { /* DO_NOTHING */
 }
 
 // -------------------------------------------------------------------------------
-// Às
+// å®Ÿè¡Œ
 // -------------------------------------------------------------------------------
 void Application::Run()
 {
@@ -48,19 +48,19 @@ void Application::Run()
 }
 
 // -------------------------------------------------------------------------------
-// ‰Šú‰»
+// åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool Application::Init()
 {
-    // „Ÿ„Ÿ„Ÿ ƒEƒBƒ“ƒhƒE¶¬ „Ÿ„Ÿ„Ÿ
+    // â”€â”€â”€ ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ç”Ÿæˆ â”€â”€â”€
     if (!InitWnd())
     {
         ELOG("Application::InitWnd() failed.");
         return false;
     }
 
-    // „Ÿ„Ÿ„Ÿ GraphicsDevice ‰Šú‰» „Ÿ„Ÿ„Ÿ
-    // DX12 ‚Ì’áƒŒƒxƒ‹ˆ—‚Í‘S‚Ä GraphicsDevice ‚ÉˆÏ÷‚·‚é
+    // â”€â”€â”€ GraphicsDevice åˆæœŸåŒ– â”€â”€â”€
+    // DX12 ã®ä½ãƒ¬ãƒ™ãƒ«å‡¦ç†ã¯å…¨ã¦ GraphicsDevice ã«å§”è­²ã™ã‚‹
     /*RHI::Device::Desc gfxDesc;
     gfxDesc.hWnd        = m_hWnd;
     gfxDesc.Width       = m_Width;
@@ -71,18 +71,18 @@ bool Application::Init()
 
     m_GraphicsView.Init(m_hWnd, m_Width, m_Height);
 
-    // SceneManager‚Ì‰Šú‰»
+    // SceneManagerã®åˆæœŸåŒ–
     m_SceneManager.Init(m_GraphicsView.GetDevice());
 
-    // InputManager‚Ì‰Šú‰»
+    // InputManagerã®åˆæœŸåŒ–
     if (!m_InputManager.Init(m_hWnd))
     {
         ELOG("InputManager::Init() failed");
         return false;
     }
 
-    // „Ÿ„Ÿ„Ÿ Å‰‚ÌƒV[ƒ“‚ğ“o˜^‚µ‚Ä‘¦Ø‚è‘Ö‚¦ „Ÿ„Ÿ„Ÿ
-    // ’x‰„Ø‚è‘Ö‚¦‚¾‚ªÅ‰‚ÌƒV[ƒ“‚Í‘¦“K—p‚·‚é
+    // â”€â”€â”€ æœ€åˆã®ã‚·ãƒ¼ãƒ³ã‚’ç™»éŒ²ã—ã¦å³æ™‚åˆ‡ã‚Šæ›¿ãˆ â”€â”€â”€
+    // é…å»¶åˆ‡ã‚Šæ›¿ãˆã ãŒæœ€åˆã®ã‚·ãƒ¼ãƒ³ã¯å³æ™‚é©ç”¨ã™ã‚‹
     GameScene::Desc sceneDesc;
     sceneDesc.ModelPath         = L"C:/DX12NextPlay/DX12Framework/Assets/Model/Elinyaa/Elinyaa.fbx";
     sceneDesc.pInputManager     = &m_InputManager;
@@ -94,23 +94,29 @@ bool Application::Init()
     sceneDesc.CameraFar         = 10000.0f;
 
     m_SceneManager.ChangeScene(std::make_unique<GameScene>(sceneDesc));
-    m_SceneManager.ProcessSceneChange(); // Å‰‚ÌƒV[ƒ“‚Í‘¦Ø‚è‘Ö‚¦
+    m_SceneManager.ProcessSceneChange(); // æœ€åˆã®ã‚·ãƒ¼ãƒ³ã¯å³æ™‚åˆ‡ã‚Šæ›¿ãˆ
 
-    // „Ÿ„Ÿ„Ÿ ƒ^ƒCƒ}[‰Šú‰» „Ÿ„Ÿ„Ÿ
+    // â”€â”€â”€ ã‚¿ã‚¤ãƒãƒ¼åˆæœŸåŒ– â”€â”€â”€
     QueryPerformanceFrequency(&m_Frequency);
     QueryPerformanceCounter(&m_PrevTime);
 
-    // ƒV[ƒ“‰Šú‰»’†‚ÉƒeƒNƒXƒ`ƒƒƒAƒbƒvƒ[ƒh‚ÅƒLƒ…[‚ğg‚¤‚½‚ß
-    // ƒtƒŒ[ƒ€ƒCƒ“ƒfƒbƒNƒX‚ğÅVó‘Ô‚É“¯Šú‚·‚é
+    // ã‚·ãƒ¼ãƒ³åˆæœŸåŒ–ä¸­ã«ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã§ã‚­ãƒ¥ãƒ¼ã‚’ä½¿ã†ãŸã‚
+    // ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æœ€æ–°çŠ¶æ…‹ã«åŒæœŸã™ã‚‹
     m_GraphicsView.UpdateFrameIndexAfterSceneChange();
 
     m_EditorUIRenderer.Init(m_GraphicsView.GetDevice(), 2);
+
+    if (!m_Font.Build(L"Yu Gothic UI", 16.0f, m_GraphicsView.GetDevice(), &m_EditorUIRenderer))
+    {
+        ELOG("Application::Init() : Font::Build failed");
+        return false;
+    }
 
     return true;
 }
 
 // -------------------------------------------------------------------------------
-// ƒƒCƒ“ƒ‹[ƒv
+// ãƒ¡ã‚¤ãƒ³ãƒ«ãƒ¼ãƒ—
 // -------------------------------------------------------------------------------
 void Application::MainLoop()
 {
@@ -131,40 +137,42 @@ void Application::MainLoop()
 }
 
 // -------------------------------------------------------------------------------
-// I—¹ˆ—
+// çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void Application::Term()
 {
-    // GPU‚Ì‘Sˆ—‚ªŠ®—¹‚·‚é‚Ì‚ğ‘Ò‹@‚·‚é
+    // GPUã®å…¨å‡¦ç†ãŒå®Œäº†ã™ã‚‹ã®ã‚’å¾…æ©Ÿã™ã‚‹
     m_GraphicsView.WaitForGPU();
 
-    // InputManager‚ÌI—¹
+    // InputManagerã®çµ‚äº†
     m_InputManager.Term();
 
-    // SceneManager‚ğæ‚ÉI—¹‚·‚éiGPUƒŠƒ\[ƒX‚ğ‚Â‚Ì‚ÅAGraphicsDevice‚æ‚è‘Oj
+    // SceneManagerã‚’å…ˆã«çµ‚äº†ã™ã‚‹ï¼ˆGPUãƒªã‚½ãƒ¼ã‚¹ã‚’æŒã¤ã®ã§ã€GraphicsDeviceã‚ˆã‚Šå‰ï¼‰
     m_SceneManager.Term();
 
     m_EditorUIRenderer.Term();
 
-    // Renderer‚ÆDevice‚ÌI—¹‚ğ“à•”‚Ås‚¤
+    m_Font.Term();
+
+    // Rendererã¨Deviceã®çµ‚äº†ã‚’å†…éƒ¨ã§è¡Œã†
     m_GraphicsView.Term();
 
     TermWnd();
 }
 
 // -------------------------------------------------------------------------------
-// XVˆ—‚Æ•`‰æˆ—
+// æ›´æ–°å‡¦ç†ã¨æç”»å‡¦ç†
 // -------------------------------------------------------------------------------
 void Application::Tick()
 {
-    // Esc‚ÅI—¹
+    // Escã§çµ‚äº†
     if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
     {
         PostQuitMessage(0);
         return;
     }
 
-    // ƒfƒ‹ƒ^ƒ^ƒCƒ€ŒvZ
+    // ãƒ‡ãƒ«ã‚¿ã‚¿ã‚¤ãƒ è¨ˆç®—
     LARGE_INTEGER now;
     QueryPerformanceCounter(&now);
     const float deltaTime = static_cast<float>(now.QuadPart - m_PrevTime.QuadPart)
@@ -172,10 +180,10 @@ void Application::Tick()
 
     m_PrevTime = now;
 
-    // “ü—ÍXV
+    // å…¥åŠ›æ›´æ–°
     m_InputManager.Update();
 
-    // UIŠJn
+    // UIé–‹å§‹
     EditorUI::InputState input = PollInputState();
     m_EditorUIContext.NewFrame(input);
 
@@ -188,8 +196,8 @@ void Application::Tick()
         static bool s_Enabled = false;
         if (showContents)
         {
-            // ƒ{ƒ^ƒ“ˆ—‚È‚Ç
-            if (EditorUI::Button(m_EditorUIContext, "OK"))
+            // ãƒœã‚¿ãƒ³å‡¦ç†ãªã©
+            if (EditorUI::Button(m_EditorUIContext, "OK", m_Font))
             {
                 ELOG("Button OK clicked");
             }
@@ -197,28 +205,30 @@ void Application::Tick()
             EditorUI::Checkbox(m_EditorUIContext, "Enable Feature", &s_Enabled);
             EditorUI::Separator(m_EditorUIContext);
 
-            EditorUI::Button(m_EditorUIContext, "A");
+            EditorUI::Button(m_EditorUIContext, "A", m_Font);
             EditorUI::SameLine(m_EditorUIContext.GetCurrentWindow(), m_EditorUIContext.GetStyle().ItemSpacing);
-            EditorUI::Button(m_EditorUIContext, "B");
+            EditorUI::Button(m_EditorUIContext, "B", m_Font);
         }
 
         m_EditorUIContext.EndWindow();
     }
 
-    // UI\’zI—¹
+    // UIæ§‹ç¯‰çµ‚äº†
     m_EditorUIContext.EndFrame();
 
-    // UIã‚ÅƒNƒŠƒbƒN‚µ‚½‚©AƒV[ƒ“ã‚ÅƒNƒŠƒbƒN‚µ‚½‚©‚ğŒˆ’è
+    m_Font.Flush(m_GraphicsView.GetDevice());
+
+    // UIä¸Šã§ã‚¯ãƒªãƒƒã‚¯ã—ãŸã‹ã€ã‚·ãƒ¼ãƒ³ä¸Šã§ã‚¯ãƒªãƒƒã‚¯ã—ãŸã‹ã‚’æ±ºå®š
     m_InputManager.ResolveMouseCapture(m_EditorUIContext.IsMouseOverAnyWindow());
 
-    // ƒV[ƒ“‚ÌXV
+    // ã‚·ãƒ¼ãƒ³ã®æ›´æ–°
     m_SceneManager.Update(deltaTime);
 
-    // •`‰æ
+    // æç”»
     auto* pCmdVoid = m_GraphicsView.BeginFrame();
     if (pCmdVoid != nullptr)
     {
-        // SceneManager‚ÉvoidŒ^‚ğ“n‚µ‚Ä‚àg‚¦‚È‚¢‚Ì‚ÅA‚±‚±‚Å‚¾‚¯ƒLƒƒƒXƒg‚·‚é
+        // SceneManagerã«voidå‹ã‚’æ¸¡ã—ã¦ã‚‚ä½¿ãˆãªã„ã®ã§ã€ã“ã“ã§ã ã‘ã‚­ãƒ£ã‚¹ãƒˆã™ã‚‹
         auto* pCmd = static_cast<ID3D12GraphicsCommandList*>(pCmdVoid);
         m_SceneManager.Render(pCmd);
 
@@ -229,11 +239,11 @@ void Application::Tick()
 
         m_GraphicsView.EndFrame(pCmdVoid);
 
-        // ‰æ–Ê•\¦
+        // ç”»é¢è¡¨ç¤º
         m_GraphicsView.Present(1);
     }
 
-    // ƒV[ƒ“Ø‚è‘Ö‚¦ˆ—i’x‰„j
+    // ã‚·ãƒ¼ãƒ³åˆ‡ã‚Šæ›¿ãˆå‡¦ç†ï¼ˆé…å»¶ï¼‰
     m_SceneManager.ProcessSceneChange();
 }
 
@@ -254,7 +264,7 @@ EditorUI::InputState Application::PollInputState() const
 }
 
 // -------------------------------------------------------------------------------
-// ƒEƒBƒ“ƒhƒE‰Šú‰»
+// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool Application::InitWnd()
 {
@@ -281,7 +291,7 @@ bool Application::InitWnd()
 
     m_hInst = hInst;
 
-    // ƒNƒ‰ƒCƒAƒ“ƒg—Ìˆæ‚ª Width ~ Height ‚É‚È‚é‚æ‚¤‚ÉƒEƒBƒ“ƒhƒEƒTƒCƒY‚ğ’²®
+    // ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆé ˜åŸŸãŒ Width Ã— Height ã«ãªã‚‹ã‚ˆã†ã«ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚µã‚¤ã‚ºã‚’èª¿æ•´
     RECT rc = { 0, 0, static_cast<LONG>(m_Width), static_cast<LONG>(m_Height) };
     const auto style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
     AdjustWindowRect(&rc, style, FALSE);
@@ -313,7 +323,7 @@ bool Application::InitWnd()
 }
 
 // -------------------------------------------------------------------------------
-// ƒEƒBƒ“ƒhƒEI—¹ˆ—
+// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void Application::TermWnd()
 {
@@ -332,7 +342,7 @@ void Application::TermWnd()
 }
 
 // -------------------------------------------------------------------------------
-// ƒEƒBƒ“ƒhƒEƒvƒƒV[ƒWƒƒ
+// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒ—ãƒ­ã‚·ãƒ¼ã‚¸ãƒ£
 // -------------------------------------------------------------------------------
 LRESULT CALLBACK Application::WndProc(HWND _hWnd, UINT _msg, WPARAM _wp, LPARAM _lp)
 {

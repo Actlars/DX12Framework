@@ -13,7 +13,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 // -------------------------------------------------------------------------------
-// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 GameScene::GameScene(const Desc& _desc)
     : m_Desc(_desc)
@@ -21,7 +21,7 @@ GameScene::GameScene(const Desc& _desc)
 }
 
 // -------------------------------------------------------------------------------
-// ‰Šú‰»
+// åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool GameScene::OnInit(RHI::Device* _pDevice)
 {
@@ -48,7 +48,7 @@ bool GameScene::OnInit(RHI::Device* _pDevice)
     //if (!m_NTCRunner.Run(m_pDevice))
     //{
     //    ELOG("NTCImageDecodeTestRunner::Run() failed");
-    //    // ¸”s‚µ‚Ä‚àƒQ[ƒ€©‘Ì‚Í‘±s‚³‚¹‚½‚¢‚È‚çreturn‚µ‚È‚¢
+    //    // å¤±æ•—ã—ã¦ã‚‚ã‚²ãƒ¼ãƒ è‡ªä½“ã¯ç¶šè¡Œã•ã›ãŸã„ãªã‚‰returnã—ãªã„
     //}
     //else
     //{
@@ -61,14 +61,14 @@ bool GameScene::OnInit(RHI::Device* _pDevice)
 }
 
 // -------------------------------------------------------------------------------
-// I—¹ˆ—
+// çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void GameScene::OnTerm()
 {
     ShowCursor(TRUE);
 
-    // GameObjectManager ‚ğæ‚É‰ğ•ú‚·‚é
-    // MeshComponent ‚ª Mesh / Material ‚ğQÆ‚µ‚Ä‚¢‚é‚½‚ß
+    // GameObjectManager ã‚’å…ˆã«è§£æ”¾ã™ã‚‹
+    // MeshComponent ãŒ Mesh / Material ã‚’å‚ç…§ã—ã¦ã„ã‚‹ãŸã‚
     m_MeshComponents.clear();
     m_MeshletComponents = nullptr;
     m_ObjectManager.Clear();
@@ -81,7 +81,7 @@ void GameScene::OnTerm()
 }
 
 // -------------------------------------------------------------------------------
-// –ˆƒtƒŒ[ƒ€‚ÌXVˆ—
+// æ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã®æ›´æ–°å‡¦ç†
 // -------------------------------------------------------------------------------
 void GameScene::OnUpdate(float _deltaTime)
 {
@@ -94,15 +94,15 @@ void GameScene::OnUpdate(float _deltaTime)
         { UpdateInput(_deltaTime); }
     }
 
-    // ‘S MeshComponent ‚ÉÅV‚ÌƒJƒƒ‰s—ñ‚ÆƒtƒŒ[ƒ€ƒCƒ“ƒfƒbƒNƒX‚ğ“n‚·
+    // å…¨ MeshComponent ã«æœ€æ–°ã®ã‚«ãƒ¡ãƒ©è¡Œåˆ—ã¨ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æ¸¡ã™
     UpdateViewProj();
 
-    // ‘S GameObject ‚Ì Update ‚ğŒÄ‚Ô
+    // å…¨ GameObject ã® Update ã‚’å‘¼ã¶
     m_ObjectManager.Update(_deltaTime);
 }
 
 // -------------------------------------------------------------------------------
-// –ˆƒtƒŒ[ƒ€‚Ì•`‰æƒRƒ}ƒ“ƒh‘g‚İ—§‚Ä
+// æ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã®æç”»ã‚³ãƒãƒ³ãƒ‰çµ„ã¿ç«‹ã¦
 // -------------------------------------------------------------------------------
 void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
 {
@@ -115,7 +115,7 @@ void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
 
 
 // -------------------------------------------------------------------------------
-// ƒJƒƒ‰‰Šú‰»
+// ã‚«ãƒ¡ãƒ©åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 void GameScene::InitCamera()
 {
@@ -134,7 +134,7 @@ void GameScene::InitCamera()
 }
 
 // -------------------------------------------------------------------------------
-// ƒƒbƒVƒ…Eƒ}ƒeƒŠƒAƒ‹‚Ìƒ[ƒh
+// ãƒ¡ãƒƒã‚·ãƒ¥ãƒ»ãƒãƒ†ãƒªã‚¢ãƒ«ã®ãƒ­ãƒ¼ãƒ‰
 // -------------------------------------------------------------------------------
 bool GameScene::InitMeshes()
 {
@@ -201,7 +201,7 @@ bool GameScene::InitMeshlets()
 }
 
 // -------------------------------------------------------------------------------
-// GameObjectManager ‚Ö‚Ì“o˜^
+// GameObjectManager ã¸ã®ç™»éŒ²
 // -------------------------------------------------------------------------------
 bool GameScene::InitGameObjects()
 {
@@ -209,7 +209,7 @@ bool GameScene::InitGameObjects()
     auto* pPool     = m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES);
     const auto fc   = m_pDevice->GetFrameCount();
 
-    // ŠeƒƒbƒVƒ…‚É‘Î‚µ‚Ä GameObject ‚ğ1‚Â¶¬‚·‚é
+    // å„ãƒ¡ãƒƒã‚·ãƒ¥ã«å¯¾ã—ã¦ GameObject ã‚’1ã¤ç”Ÿæˆã™ã‚‹
     for (auto i = 0u; i < m_Meshes.size(); ++i)
     {
         const auto materialId = m_Meshes[i]->GetMaterialId();
@@ -218,15 +218,15 @@ bool GameScene::InitGameObjects()
         const auto name = "Mesh_" + std::to_string(i);
         auto* pObj = m_ObjectManager.Add<GameObject>(name);
 
-        // TransformComponent ‚Ì’Ç‰Á
+        // TransformComponent ã®è¿½åŠ 
         auto* pTransform = pObj->AddComponent<TransformComponent>();
         pTransform->SetPosition({ 0.0f, 0.0f, 0.0f });
         pTransform->SetScale({ 1.0f, 1.0f, 1.0f });
 
-        // MeshComponent ‚Ì’Ç‰Á
+        // MeshComponent ã®è¿½åŠ 
         auto* pMeshComp = pObj->AddComponent<MeshComponent>();
 
-        // ’è”ƒoƒbƒtƒ@‚Ì‰Šú‰»iFrameCount •ªj
+        // å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®åˆæœŸåŒ–ï¼ˆFrameCount åˆ†ï¼‰
         if (!pMeshComp->Init(pDevice, pPool, fc))
         {
             ELOG("MeshComponent::Init() failed. index=%u", i);
@@ -234,11 +234,11 @@ bool GameScene::InitGameObjects()
         }
 
         pMeshComp->SetMesh(m_Meshes[i].get(), pMaterial);
-        // RootSignature ‚ÌƒXƒƒbƒg”Ô†‚ğİ’èiGameScene ‚Ì’è‹`‚Æ‡‚í‚¹‚éj
+        // RootSignature ã®ã‚¹ãƒ­ãƒƒãƒˆç•ªå·ã‚’è¨­å®šï¼ˆGameScene ã®å®šç¾©ã¨åˆã‚ã›ã‚‹ï¼‰
         pMeshComp->SetRootLayout(m_SceneRenderer.GetMeshRootSignatureLayout());
         pMeshComp->SetRootLayoutBindless(m_SceneRenderer.GetMeshRootSignatureLayoutBIndless());
 
-        // UpdateViewProj() ‚Åg‚¤‚½‚ß‚ÉƒLƒƒƒbƒVƒ…‚µ‚Ä‚¨‚­
+        // UpdateViewProj() ã§ä½¿ã†ãŸã‚ã«ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã—ã¦ãŠã
         m_MeshComponents.emplace_back(pMeshComp);
     }
 
@@ -249,7 +249,7 @@ bool GameScene::InitGameObjects()
 }
 
 // -------------------------------------------------------------------------------
-// “ü—Íˆ—‚ÆƒJƒƒ‰XV
+// å…¥åŠ›å‡¦ç†ã¨ã‚«ãƒ¡ãƒ©æ›´æ–°
 // -------------------------------------------------------------------------------
 void GameScene::UpdateInput(float _deltaTime)
 {
@@ -260,7 +260,7 @@ void GameScene::UpdateInput(float _deltaTime)
     if (GetAsyncKeyState('E') & 0x8000) { m_Camera.MoveUp(_deltaTime); }
     if (GetAsyncKeyState('Q') & 0x8000) { m_Camera.MoveDown(_deltaTime); }
 
-    // MƒL[‚ÅƒƒbƒVƒ…ƒŒƒbƒg•\¦Ø‚è‘Ö‚¦iƒGƒbƒWŒŸoj
+    // Mã‚­ãƒ¼ã§ãƒ¡ãƒƒã‚·ãƒ¥ãƒ¬ãƒƒãƒˆè¡¨ç¤ºåˆ‡ã‚Šæ›¿ãˆï¼ˆã‚¨ãƒƒã‚¸æ¤œå‡ºï¼‰
     static bool sPrevMKey = false;
     const bool curMKey = (GetAsyncKeyState('M') & 0x8000) != 0;
     if (curMKey && !sPrevMKey)
@@ -287,7 +287,7 @@ void GameScene::UpdateInput(float _deltaTime)
 }
 
 // -------------------------------------------------------------------------------
-// ‘S MeshComponent ‚ÉƒJƒƒ‰s—ñ‚ÆƒtƒŒ[ƒ€ƒCƒ“ƒfƒbƒNƒX‚ğ“n‚·
+// å…¨ MeshComponent ã«ã‚«ãƒ¡ãƒ©è¡Œåˆ—ã¨ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æ¸¡ã™
 // -------------------------------------------------------------------------------
 void GameScene::UpdateViewProj()
 {

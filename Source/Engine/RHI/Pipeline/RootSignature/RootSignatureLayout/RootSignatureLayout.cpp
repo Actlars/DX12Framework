@@ -1,4 +1,4 @@
-﻿#include "RootSignatureLayout.h"
+#include "RootSignatureLayout.h"
 #include <Engine/Utility/Debug/Logger/Logger.h>
 #include <Engine/Utility/FileUtil/FileUtil.h>
 #include <Engine/Utility/JsonLoader/JsonLoader.h>

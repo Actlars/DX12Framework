@@ -9,36 +9,36 @@
 #include <typeindex>
 
 // -------------------------------------------------------------------------------
-// ‘O•ûéŒ¾
+// å‰æ–¹å®£è¨€
 // -------------------------------------------------------------------------------
 class RenderQueue;
 
 // -------------------------------------------------------------------------------
 // GameObject class
 // 
-// ŠT—v : 
-//	ƒV[ƒ“ã‚Ì‘SƒIƒuƒWƒFƒNƒg‚ÌŠî’êƒNƒ‰ƒX
-//	Component‚ğ’Ç‰Á‚·‚é‚±‚Æ‚Å‹@”\‚ğŠg’£‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒgwŒüİŒv
+// æ¦‚è¦ : 
+//	ã‚·ãƒ¼ãƒ³ä¸Šã®å…¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åŸºåº•ã‚¯ãƒ©ã‚¹
+//	Componentã‚’è¿½åŠ ã™ã‚‹ã“ã¨ã§æ©Ÿèƒ½ã‚’æ‹¡å¼µã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆæŒ‡å‘è¨­è¨ˆ
 // 
-//	•`‰æ‚ª•K—v‚ÈƒRƒ“ƒ|[ƒlƒ“ƒg‚ÍIRenderable‚ğÀ‘•‚µADraw‚Å•`‰æƒRƒ}ƒ“ƒh‚ğÏ‚Ş
-//	•`‰æ‚ª•s—v‚ÈƒRƒ“ƒ|[ƒlƒ“ƒg‚ÍComponent‚Ì‚İ‚ğŒp³‚·‚é
+//	æç”»ãŒå¿…è¦ãªã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¯IRenderableã‚’å®Ÿè£…ã—ã€Drawã§æç”»ã‚³ãƒãƒ³ãƒ‰ã‚’ç©ã‚€
+//	æç”»ãŒä¸è¦ãªã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¯Componentã®ã¿ã‚’ç¶™æ‰¿ã™ã‚‹
 // 
-// ƒ}ƒ‹ƒ`ƒXƒŒƒbƒh‘Î‰ : 
-//	Update‚ÆDraw‚Í–¾Šm‚É•ª—£‚³‚ê‚Ä‚¢‚é
-//	«—ˆGameObjectManager‚ªUpdate‚ğ•À—ñ‰»‚·‚é‚±‚Æ‚É‚È‚Á‚½Û
-//	ŠeGameObject‚ÌUpdate‚ª“Æ—§‚µ‚ÄÀs‚Å‚«‚é‚æ‚¤ComponentŠÔ‚ÌQÆ‚ğ”ğ‚¯‚é
+// ãƒãƒ«ãƒã‚¹ãƒ¬ãƒƒãƒ‰å¯¾å¿œ : 
+//	Updateã¨Drawã¯æ˜ç¢ºã«åˆ†é›¢ã•ã‚Œã¦ã„ã‚‹
+//	å°†æ¥GameObjectManagerãŒUpdateã‚’ä¸¦åˆ—åŒ–ã™ã‚‹ã“ã¨ã«ãªã£ãŸéš›
+//	å„GameObjectã®UpdateãŒç‹¬ç«‹ã—ã¦å®Ÿè¡Œã§ãã‚‹ã‚ˆã†Componenté–“ã®å‚ç…§ã‚’é¿ã‘ã‚‹
 // 
-// g‚¢•û : 
+// ä½¿ã„æ–¹ : 
 //	auto obj = std::make_unique<GameObject>("Player");
 // 
-//	ƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì’Ç‰Á
+//	ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®è¿½åŠ 
 //	auto* pTransform = obj->AddComponent<TansformComponent>();
 //	pTransform->SetPosition({0.0f, 0.0f, 0.0f});
 // 
 //	auto* pMesh = obj->AddComponent<Mesh>();
 //	pMesh->SetMesh(pMesh, pMaterial);
 // 
-//	–ˆƒtƒŒ[ƒ€
+//	æ¯ãƒ•ãƒ¬ãƒ¼ãƒ 
 //	obj->Update(deltaTime);
 //	obj->Draw(pCmd);
 // -------------------------------------------------------------------------------
@@ -47,45 +47,45 @@ class GameObject
 public:
 
 	// -------------------------------------------------------------------------------
-	// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	// -------------------------------------------------------------------------------
 	explicit GameObject(const std::string& _name = "GameObject");
 
 	// -------------------------------------------------------------------------------
-	// ƒfƒXƒgƒ‰ƒNƒ^
+	// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	// -------------------------------------------------------------------------------
 	~GameObject();
 
 	// -------------------------------------------------------------------------------
-	// @brief	–ˆƒtƒŒ[ƒ€‚ÌXVˆ—
-	//			ƒAƒNƒeƒBƒu‚È‘SComponent‚ÌUpdate‚ğŒÄ‚Ô
+	// @brief	æ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã®æ›´æ–°å‡¦ç†
+	//			ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªå…¨Componentã®Updateã‚’å‘¼ã¶
 	// 
-	// @param[in]	_deltaTime	‘OƒtƒŒ[ƒ€‚©‚ç‚ÌŒo‰ßŠÔ
+	// @param[in]	_deltaTime	å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã‹ã‚‰ã®çµŒéæ™‚é–“
 	// -------------------------------------------------------------------------------
 	virtual void Update(float _deltaTime);
 
 	// -------------------------------------------------------------------------------
-	// @brief	–ˆƒtƒŒ[ƒ€‚Ì•`‰æˆ—
-	//			IRenderable‚ğÀ‘•‚µ‚Ä‚¢‚éƒAƒNƒeƒBƒu‚ÈComponent‚ÌDraw‚ğŒÄ‚Ô
-	//			•`‰æƒRƒ}ƒ“ƒh‚ğÏ‚Ş‚¾‚¯‚ÅÀÛ‚ÌGPUÀs‚ÍEndFrameŒã‚És‚Á‚Ä‚¢‚é
+	// @brief	æ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã®æç”»å‡¦ç†
+	//			IRenderableã‚’å®Ÿè£…ã—ã¦ã„ã‚‹ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªComponentã®Drawã‚’å‘¼ã¶
+	//			æç”»ã‚³ãƒãƒ³ãƒ‰ã‚’ç©ã‚€ã ã‘ã§å®Ÿéš›ã®GPUå®Ÿè¡Œã¯EndFrameå¾Œã«è¡Œã£ã¦ã„ã‚‹
 	// 
-	// @param[in]	_pCmd	‹L˜^’†‚ÌƒRƒ}ƒ“ƒhƒŠƒXƒg
+	// @param[in]	_pCmd	è¨˜éŒ²ä¸­ã®ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆ
 	// -------------------------------------------------------------------------------
 	virtual void Submit(RenderQueue* _pQueue);
 
-	// @brief	–ˆƒtƒŒ[ƒ€‚Ì•`‰æƒRƒ}ƒ“ƒh‚ğÏ‚Şˆ—
+	// @brief	æ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã®æç”»ã‚³ãƒãƒ³ãƒ‰ã‚’ç©ã‚€å‡¦ç†
 	virtual void SubmitMeshlet(MeshletRenderQueue* _pQueue);
 
 	// -------------------------------------------------------------------------------
-	// @brief	ƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ’Ç‰Á‚·‚é
+	// @brief	ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’è¿½åŠ ã™ã‚‹
 	// 
-	//	ƒeƒ“ƒvƒŒ[ƒg‚ÅŒ^‚ğw’è‚µ‚Ä¶¬E“o˜^‚·‚é
-	//	“¯‚¶Œ^‚Í1‚Â‚Ü‚Åid•¡’Ç‰Á‚ÍŠù‘¶‚Ì‚à‚Ì‚ğ•Ô‚·j
-	//	AddComponentŒã‚ÉComponent::Attach‚ª©“®‚ÅŒÄ‚Î‚ê‚é
+	//	ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã§å‹ã‚’æŒ‡å®šã—ã¦ç”Ÿæˆãƒ»ç™»éŒ²ã™ã‚‹
+	//	åŒã˜å‹ã¯1ã¤ã¾ã§ï¼ˆé‡è¤‡è¿½åŠ ã¯æ—¢å­˜ã®ã‚‚ã®ã‚’è¿”ã™ï¼‰
+	//	AddComponentå¾Œã«Component::AttachãŒè‡ªå‹•ã§å‘¼ã°ã‚Œã‚‹
 	// 
-	// @return	’Ç‰Á‚µ‚½ƒRƒ“ƒ|[ƒlƒ“ƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
+	// @return	è¿½åŠ ã—ãŸã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿
 	// 
-	// g‚¢•û : 
+	// ä½¿ã„æ–¹ : 
 	//	auto* pTransform = obj->AddComponent<TransformComponent>();
 	// -------------------------------------------------------------------------------
 	template<typename T>
@@ -93,12 +93,12 @@ public:
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T must derive from Component");
 
-		// ‚·‚Å‚É“¯‚¶Œ^‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ª‚ ‚éê‡‚»‚ê‚ğ•Ô‚·
+		// ã™ã§ã«åŒã˜å‹ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒã‚ã‚‹å ´åˆãã‚Œã‚’è¿”ã™
 		auto* existing = GetComponent<T>();
 		if (existing != nullptr) 
 		{ return existing; }
 
-		// ƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ¶¬‚µ‚Ä“o˜^
+		// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’ç”Ÿæˆã—ã¦ç™»éŒ²
 		auto comp = std::make_unique<T>();
 		comp->SetOwner(this);
 		comp->OnAttach();
@@ -108,11 +108,11 @@ public:
 		m_ComponentMap[typeIdx] = pComp;
 		m_Components.emplace_back(std::move(comp));
 
-		// IRenderable‚ğÀ‘•‚µ‚Ä‚¢‚ê‚Î•`‰æƒŠƒXƒg‚É‚à’Ç‰Á
+		// IRenderableã‚’å®Ÿè£…ã—ã¦ã„ã‚Œã°æç”»ãƒªã‚¹ãƒˆã«ã‚‚è¿½åŠ 
 		if (auto* pRenderable = dynamic_cast<IRenderable*>(pComp)) 
 		{ m_Renderables.emplace_back(pRenderable); }
 
-		// IMeshletRenderable‚ğÀ‘•‚µ‚Ä‚¢‚ê‚Î•`‰æƒŠƒXƒg‚É‚à’Ç‰Á
+		// IMeshletRenderableã‚’å®Ÿè£…ã—ã¦ã„ã‚Œã°æç”»ãƒªã‚¹ãƒˆã«ã‚‚è¿½åŠ 
 		if (auto* pMeshletRenderable = dynamic_cast<IMeshletRenderable*>(pComp)) 
 		{ m_MeshletRenderables.emplace_back(pMeshletRenderable); }
 
@@ -120,11 +120,11 @@ public:
 	}
 
 	// -------------------------------------------------------------------------------
-	// @brief	ƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ“¾‚·‚é
+	// @brief	ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–å¾—ã™ã‚‹
 	// 
-	// @return	Œ©‚Â‚©‚Á‚½ƒRƒ“ƒ|[ƒlƒ“ƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^B‚È‚¯‚ê‚Înullptr
+	// @return	è¦‹ã¤ã‹ã£ãŸã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿ã€‚ãªã‘ã‚Œã°nullptr
 	// 
-	// g‚¢•û : 
+	// ä½¿ã„æ–¹ : 
 	//	auto* pTransform = obj->GetComponent<TransformComponent>();
 	//	if(pTransform) { pTransform->SetPosition(...); }
 	// -------------------------------------------------------------------------------
@@ -142,10 +142,10 @@ public:
 	}
 
 	// -------------------------------------------------------------------------------
-	// @brief	ƒRƒ“ƒ|[ƒlƒ“ƒg‚ğíœ‚·‚é
+	// @brief	ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å‰Šé™¤ã™ã‚‹
 	// 
-	// @return	true	íœ¬Œ÷
-	// @return	false	Œ©‚Â‚©‚ç‚È‚©‚Á‚½
+	// @return	true	å‰Šé™¤æˆåŠŸ
+	// @return	false	è¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸ
 	// -------------------------------------------------------------------------------
 	template<typename T>
 	bool RemoveComponent()
@@ -160,7 +160,7 @@ public:
 		auto* pComp = mapIt->second;
 		pComp->OnDetach();
 
-		// •`‰æƒŠƒXƒg‚©‚çíœ
+		// æç”»ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤
 		if (auto* pRenderable = dynamic_cast<IRenderable*>(pComp))
 		{
 			m_Renderables.erase(
@@ -168,7 +168,7 @@ public:
 				m_Renderables.end());
 		}
 
-		// ƒƒbƒVƒ…ƒŒƒbƒg•`‰æƒŠƒXƒg‚©‚çíœ
+		// ãƒ¡ãƒƒã‚·ãƒ¥ãƒ¬ãƒƒãƒˆæç”»ãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤
 		if (auto* pMeshletRenderable = dynamic_cast<IMeshletRenderable*>(pComp))
 		{
 			m_MeshletRenderables.erase(
@@ -176,7 +176,7 @@ public:
 				m_MeshletRenderables.end());
 		}
 
-		// ƒRƒ“ƒ|[ƒlƒ“ƒgƒŠƒXƒg‚©‚çíœ
+		// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãƒªã‚¹ãƒˆã‹ã‚‰å‰Šé™¤
 		m_Components.erase(
 			std::remove_if(m_Components.begin(), m_Components.end(), [pComp](const std::unique_ptr<Component>& c)
 				{return c.get() == pComp; }), m_Components.end());
@@ -184,19 +184,19 @@ public:
 		return true;
 	}
 
-	// @brief	ƒIƒuƒWƒFƒNƒg–¼‚ğ•Ô‚·
+	// @brief	ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆåã‚’è¿”ã™
 	const std::string& GetName() const;
 
-	// @brief	ƒIƒuƒWƒFƒNƒg–¼‚ğİ’è‚·‚é
+	// @brief	ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆåã‚’è¨­å®šã™ã‚‹
 	void SetName(const std::string& _name);
 
-	// @brief	ƒ†ƒj[ƒNID‚ğ•Ô‚·iƒ}ƒ‹ƒ`ƒXƒŒƒbƒh¯•Ê—pj
+	// @brief	ãƒ¦ãƒ‹ãƒ¼ã‚¯IDã‚’è¿”ã™ï¼ˆãƒãƒ«ãƒã‚¹ãƒ¬ãƒƒãƒ‰è­˜åˆ¥ç”¨ï¼‰
 	uint64_t GetID() const;
 
-	// @brief	ƒAƒNƒeƒBƒu‚©‚Ç‚¤‚©‚ğ•Ô‚·
+	// @brief	ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‹ã©ã†ã‹ã‚’è¿”ã™
 	bool IsActive() const { return m_IsActive; }
 
-	// @brief	ƒAƒNƒeƒBƒuó‘Ô‚ğİ’è‚·‚é
+	// @brief	ã‚¢ã‚¯ãƒ†ã‚£ãƒ–çŠ¶æ…‹ã‚’è¨­å®šã™ã‚‹
 	void SetActive(bool _active) { m_IsActive = _active; }
 
 protected:
@@ -204,21 +204,21 @@ protected:
 	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
-	std::string m_Name;				// ƒIƒuƒWƒFƒNƒg–¼
-	uint64_t	m_ID;				// ƒ†ƒj[ƒNIDi¶¬‚É©“®Ì”Ôj
+	std::string m_Name;				// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆå
+	uint64_t	m_ID;				// ãƒ¦ãƒ‹ãƒ¼ã‚¯IDï¼ˆç”Ÿæˆæ™‚ã«è‡ªå‹•æ¡ç•ªï¼‰
 	bool		m_IsActive = true;
 
-	// ƒRƒ“ƒ|[ƒlƒ“ƒgƒŠƒXƒgiŠ—LŒ ‚ğ‚Âj
+	// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãƒªã‚¹ãƒˆï¼ˆæ‰€æœ‰æ¨©ã‚’æŒã¤ï¼‰
 	std::vector<std::unique_ptr<Component>>	m_Components;
 
-	// Œ^ ¨ Component* ‚Ìƒ}ƒbƒviGetComponent<T>()‚Ì‚‘¬ŒŸõ—pj
+	// å‹ â†’ Component* ã®ãƒãƒƒãƒ—ï¼ˆGetComponent<T>()ã®é«˜é€Ÿæ¤œç´¢ç”¨ï¼‰
 	std::unordered_map<std::type_index, Component*> m_ComponentMap;
 
-	// IRenderable‚ğÀ‘•‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg‚Ö‚ÌQÆƒŠƒXƒgiŠ—LŒ ‚È‚µj
-	// Draw‚Å‚±‚±‚¾‚¯‚ğƒ‹[ƒv‚·‚é‚±‚Æ‚Å”ñ•`‰æƒRƒ“ƒ|[ƒlƒ“ƒg‚ğƒXƒLƒbƒv‚·‚é
+	// IRenderableã‚’å®Ÿè£…ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¸ã®å‚ç…§ãƒªã‚¹ãƒˆï¼ˆæ‰€æœ‰æ¨©ãªã—ï¼‰
+	// Drawã§ã“ã“ã ã‘ã‚’ãƒ«ãƒ¼ãƒ—ã™ã‚‹ã“ã¨ã§éæç”»ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’ã‚¹ã‚­ãƒƒãƒ—ã™ã‚‹
 	std::vector<IRenderable*>						m_Renderables;
 
-	// IMeshletRenderable‚ğÀ‘•‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg‚Ö‚ÌQÆƒŠƒXƒgiŠ—LŒ ‚È‚µj
+	// IMeshletRenderableã‚’å®Ÿè£…ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¸ã®å‚ç…§ãƒªã‚¹ãƒˆï¼ˆæ‰€æœ‰æ¨©ãªã—ï¼‰
 	std::vector<IMeshletRenderable*>				m_MeshletRenderables;
 
 
@@ -226,7 +226,7 @@ protected:
 private:
 
 	// -------------------------------------------------------------------------------
-	// @brief	ƒ†ƒj[ƒNID‚ğ¶¬‚·‚éiƒXƒŒƒbƒhƒZ[ƒtj
+	// @brief	ãƒ¦ãƒ‹ãƒ¼ã‚¯IDã‚’ç”Ÿæˆã™ã‚‹ï¼ˆã‚¹ãƒ¬ãƒƒãƒ‰ã‚»ãƒ¼ãƒ•ï¼‰
 	// -------------------------------------------------------------------------------
 	static uint64_t GenerateID();
 

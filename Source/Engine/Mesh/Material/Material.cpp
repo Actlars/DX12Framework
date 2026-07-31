@@ -6,19 +6,19 @@
 #include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
-//      ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//      ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 Material::Material() 
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//      ƒfƒXƒgƒ‰ƒNƒ^
+//      ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 Material::~Material()
 { Term(); }
 
 // -------------------------------------------------------------------------------
-//      ‰Šú‰»
+//      åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool Material::Init(
     RHI::Device*        _pRHIDevice,
@@ -38,9 +38,9 @@ bool Material::Init(
     m_pPool = pPool;
     m_pPool->AddRef();
 
-    // „Ÿ„Ÿ„Ÿ ’è”ƒoƒbƒtƒ@‚Ì¶¬ „Ÿ„Ÿ„Ÿ
-    // D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT (256) ƒoƒCƒg‹«ŠE‚É‡‚í‚¹‚é
-    // MaterialCB ‚Í alignas(256) ‚È‚Ì‚Å sizeof ‚ª‚·‚Å‚É 256 ‚Ì”{”‚É‚È‚Á‚Ä‚¢‚é
+    // â”€â”€â”€ å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆ â”€â”€â”€
+    // D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT (256) ãƒã‚¤ãƒˆå¢ƒç•Œã«åˆã‚ã›ã‚‹
+    // MaterialCB ã¯ alignas(256) ãªã®ã§ sizeof ãŒã™ã§ã« 256 ã®å€æ•°ã«ãªã£ã¦ã„ã‚‹
     {
         D3D12_HEAP_PROPERTIES heapProp = {};
         heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -69,7 +69,7 @@ bool Material::Init(
             return false;
         }
 
-        // Map ‚µ‚½‚Ü‚Ü•ÛŽ‚·‚éiUPLOADƒq[ƒv‚ÍíŽžƒ}ƒbƒv‚ª„§j
+        // Map ã—ãŸã¾ã¾ä¿æŒã™ã‚‹ï¼ˆUPLOADãƒ’ãƒ¼ãƒ—ã¯å¸¸æ™‚ãƒžãƒƒãƒ—ãŒæŽ¨å¥¨ï¼‰
         hr = m_pCB->Map(0, nullptr, reinterpret_cast<void**>(&m_pMappedPtr));
         if (FAILED(hr))
         {
@@ -77,14 +77,14 @@ bool Material::Init(
             return false;
         }
 
-        // ResMaterial ‚Ìƒpƒ‰ƒ[ƒ^‚ð’è”ƒoƒbƒtƒ@‚É‘‚«ž‚Þ
+        // ResMaterial ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’å®šæ•°ãƒãƒƒãƒ•ã‚¡ã«æ›¸ãè¾¼ã‚€
         m_pMappedPtr->Diffuse = _resMat.Diffuse;
         m_pMappedPtr->Specular = _resMat.Specular;
         m_pMappedPtr->Emissive = _resMat.Emissive;
         m_pMappedPtr->Alpha = _resMat.Alpha;
         m_pMappedPtr->Shininess = _resMat.Shininess;
 
-        // CBV ‚ð DescriptorPool ‚É“o˜^
+        // CBV ã‚’ DescriptorPool ã«ç™»éŒ²
         m_pCBHandle = m_pPool->AllocHandle();
         if (m_pCBHandle == nullptr)
         {
@@ -98,8 +98,8 @@ bool Material::Init(
         pDevice->CreateConstantBufferView(&cbvDesc, m_pCBHandle->HandleCPU);
     }
 
-    // „Ÿ„Ÿ„Ÿ ƒeƒNƒXƒ`ƒƒ‚Ìƒ[ƒh „Ÿ„Ÿ„Ÿ
-    // ƒeƒNƒXƒ`ƒƒƒpƒX‚ª‹ó‚Ü‚½‚Íƒtƒ@ƒCƒ‹‚ª‘¶Ý‚µ‚È‚¢ê‡‚Íƒ_ƒ~[‚ðŽg‚¤
+    // â”€â”€â”€ ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ãƒ­ãƒ¼ãƒ‰ â”€â”€â”€
+    // ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ‘ã‚¹ãŒç©ºã¾ãŸã¯ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ãªã„å ´åˆã¯ãƒ€ãƒŸãƒ¼ã‚’ä½¿ã†
     const std::wstring* texPaths[TEXTURE_COUNT] =
     {
         &_resMat.DiffuseMap,&_resMat.NormalMap,
@@ -110,8 +110,8 @@ bool Material::Init(
     {
         const auto& path = *texPaths[i];
 
-        // ƒpƒX‚ª‹ó ¨ ƒ_ƒ~[‚Íì‚ç‚¸ƒtƒ‰ƒO‚¾‚¯—Ž‚Æ‚·
-        // GetTextureHandle / GetTextureIndex ‚ª Device::GetDummyTexture() ‚ðŽQÆ‚·‚é
+        // ãƒ‘ã‚¹ãŒç©º â†’ ãƒ€ãƒŸãƒ¼ã¯ä½œã‚‰ãšãƒ•ãƒ©ã‚°ã ã‘è½ã¨ã™
+        // GetTextureHandle / GetTextureIndex ãŒ Device::GetDummyTexture() ã‚’å‚ç…§ã™ã‚‹
         if (path.empty() || !std::filesystem::exists(path))
         {
             m_HasTexture[i] = false;
@@ -132,17 +132,17 @@ bool Material::Init(
 }
 
 // -------------------------------------------------------------------------------
-//      I—¹ˆ—
+//      çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void Material::Term()
 {
-    // ƒeƒNƒXƒ`ƒƒ‚ð‰ð•úiTexture::Term() “à‚Å SRV ƒnƒ“ƒhƒ‹‚ðƒv[ƒ‹‚É•Ô‹pj
+    // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’è§£æ”¾ï¼ˆTexture::Term() å†…ã§ SRV ãƒãƒ³ãƒ‰ãƒ«ã‚’ãƒ—ãƒ¼ãƒ«ã«è¿”å´ï¼‰
     for (auto& tex : m_Textures)
     {
         tex.Term();
     }
 
-    // ’è”ƒoƒbƒtƒ@‚ÌƒAƒ“ƒ}ƒbƒv
+    // å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®ã‚¢ãƒ³ãƒžãƒƒãƒ—
     if (m_pCB != nullptr)
     {
         m_pCB->Unmap(0, nullptr);
@@ -150,14 +150,14 @@ void Material::Term()
     }
     m_pMappedPtr = nullptr;
 
-    // CBV ƒnƒ“ƒhƒ‹‚ðƒv[ƒ‹‚É•Ô‹p
+    // CBV ãƒãƒ³ãƒ‰ãƒ«ã‚’ãƒ—ãƒ¼ãƒ«ã«è¿”å´
     if (m_pPool != nullptr && m_pCBHandle != nullptr)
     {
         m_pPool->FreeHandle(m_pCBHandle);
         m_pCBHandle = nullptr;
     }
 
-    // ƒv[ƒ‹‚ÌŽQÆƒJƒEƒ“ƒg‚ðŒ¸‚ç‚·
+    // ãƒ—ãƒ¼ãƒ«ã®å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆã‚’æ¸›ã‚‰ã™
     if (m_pPool != nullptr)
     {
         m_pPool->Release();

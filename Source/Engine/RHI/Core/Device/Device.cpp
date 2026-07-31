@@ -5,27 +5,27 @@
 #include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::Device::Device()
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::Device::~Device() 
 { Term(); }
 
 
 // -------------------------------------------------------------------------------
-//		‰Šú‰»
+//		åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool RHI::Device::Init(const Desc& _desc)
 {
 	m_Desc = _desc;
 
-	// ŠeƒTƒuƒVƒXƒeƒ€‚ğ‡”Ô‚É‰Šú‰»
-	// ¸”s‚µ‚½“_‚ÅI—¹ˆ—‚ğŒÄ‚ñ‚ÅˆÀ‘S‚É”²‚¯‚é
+	// å„ã‚µãƒ–ã‚·ã‚¹ãƒ†ãƒ ã‚’é †ç•ªã«åˆæœŸåŒ–
+	// å¤±æ•—ã—ãŸæ™‚ç‚¹ã§çµ‚äº†å‡¦ç†ã‚’å‘¼ã‚“ã§å®‰å…¨ã«æŠœã‘ã‚‹
 	if (!InitDevice())					{ Term(); return false; }
 	if (!InitCommandQueue())			{ Term(); return false; }
 	if (!InitSwapChain())				{ Term(); return false; }
@@ -41,12 +41,12 @@ bool RHI::Device::Init(const Desc& _desc)
 }
 
 // -------------------------------------------------------------------------------
-//		I—¹ˆ—
+//		çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void RHI::Device::Term()
 {
 
-	// ŠeƒŠƒ\[ƒX‚ğ‹t‡‚É‰ğ•ú
+	// å„ãƒªã‚½ãƒ¼ã‚¹ã‚’é€†é †ã«è§£æ”¾
 	m_DummyTexture.Term();
 	m_TransientResourcePool.ReleaseAll();
 	m_Fence.Term();
@@ -57,7 +57,7 @@ void RHI::Device::Term()
 	//{ ct->Term(); }
 	m_ColorTargets.clear();
 
-	// DescriptorPool ‚ÍQÆƒJƒEƒ“ƒgŠÇ—‚È‚Ì‚ÅRelease()‚ğŒÄ‚Ô
+	// DescriptorPool ã¯å‚ç…§ã‚«ã‚¦ãƒ³ãƒˆç®¡ç†ãªã®ã§Release()ã‚’å‘¼ã¶
 	for (auto i = 0u; i < POOL_COUNT; ++i)
 	{
 		if (m_pPool[i] != nullptr)
@@ -73,11 +73,11 @@ void RHI::Device::Term()
 }
 
 // -------------------------------------------------------------------------------
-//		GPUŠ®—¹‘Ò‚¿
+//		GPUå®Œäº†å¾…ã¡
 // -------------------------------------------------------------------------------
 void RHI::Device::WaitForGPU()
 {
-	// m_pQueue‚ªnullptr‚È‚ç‰½‚à‚µ‚È‚¢
+	// m_pQueueãŒnullptrãªã‚‰ä½•ã‚‚ã—ãªã„
 	if (m_pQueue == nullptr) 
 	{ return; }
 
@@ -85,7 +85,7 @@ void RHI::Device::WaitForGPU()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒQƒbƒ^[
+//		ã‚²ãƒƒã‚¿ãƒ¼
 // -------------------------------------------------------------------------------
 ID3D12Device*				RHI::Device::GetDevice()				const { return m_pDevice.Get(); }
 ID3D12CommandQueue*			RHI::Device::GetQueue()					const { return m_pQueue.Get(); }
@@ -127,13 +127,13 @@ RHI::ColorTarget* RHI::Device::GetColorTarget(uint32_t _index) const
 // -------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------
-//		ƒfƒoƒCƒX¶¬
+//		ãƒ‡ãƒã‚¤ã‚¹ç”Ÿæˆ
 // -------------------------------------------------------------------------------
 bool RHI::Device::InitDevice()
 {
 #if defined(DEBUG) || defined(_DEBUG)
-	// ƒfƒoƒbƒOƒrƒ‹ƒh‚ÍƒfƒoƒbƒOƒŒƒCƒ„[‚ğ—LŒø‰»
-	// ƒfƒoƒbƒOƒŒƒCƒ„[‚ÍDX12‚Ìg—p–@ƒGƒ‰[‚ğƒƒO‚Éo—Í‚·‚é
+	// ãƒ‡ãƒãƒƒã‚°ãƒ“ãƒ«ãƒ‰æ™‚ã¯ãƒ‡ãƒãƒƒã‚°ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’æœ‰åŠ¹åŒ–
+	// ãƒ‡ãƒãƒƒã‚°ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¯DX12ã®ä½¿ç”¨æ³•ã‚¨ãƒ©ãƒ¼ã‚’ãƒ­ã‚°ã«å‡ºåŠ›ã™ã‚‹
 	{
 		ComPtr<ID3D12Debug> pDebug;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(pDebug.GetAddressOf()))))
@@ -141,7 +141,7 @@ bool RHI::Device::InitDevice()
 	}
 #endif
 
-	// DXGIFactory6 ‚ğ¶¬iEnumAdapterByGpuPreference ‚Ì‚½‚ß‚É•K—vj
+	// DXGIFactory6 ã‚’ç”Ÿæˆï¼ˆEnumAdapterByGpuPreference ã®ãŸã‚ã«å¿…è¦ï¼‰
 	ComPtr<IDXGIFactory6> pFactory;
 	if (FAILED(CreateDXGIFactory2(0, IID_PPV_ARGS(pFactory.GetAddressOf()))))
 	{
@@ -149,7 +149,7 @@ bool RHI::Device::InitDevice()
 		return false;
 	}
 
-	// ƒnƒCƒpƒtƒH[ƒ}ƒ“ƒXGPU—Dæ‚ÅƒAƒ_ƒvƒ^‚ğ—ñ‹“‚µAÅ‰‚Éì‚ê‚½‚à‚Ì‚ğÌ—p
+	// ãƒã‚¤ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹GPUå„ªå…ˆã§ã‚¢ãƒ€ãƒ—ã‚¿ã‚’åˆ—æŒ™ã—ã€æœ€åˆã«ä½œã‚ŒãŸã‚‚ã®ã‚’æ¡ç”¨
 	ComPtr<IDXGIAdapter1> pAdapter;
 	for (UINT i = 0;
 		pFactory->EnumAdapterByGpuPreference(
@@ -161,13 +161,13 @@ bool RHI::Device::InitDevice()
 		DXGI_ADAPTER_DESC1 adapterDesc = {};
 		pAdapter->GetDesc1(&adapterDesc);
 
-		// ƒ\ƒtƒgƒEƒFƒAƒAƒ_ƒvƒ^(WARP)‚ÍœŠO
+		// ã‚½ãƒ•ãƒˆã‚¦ã‚§ã‚¢ã‚¢ãƒ€ãƒ—ã‚¿(WARP)ã¯é™¤å¤–
 		if (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
 		{
 			continue;
 		}
 
-		// levels ‚ğã‚©‚ç‚·
+		// levels ã‚’ä¸Šã‹ã‚‰è©¦ã™
 		for (auto lv : levels)
 		{
 			if (SUCCEEDED(D3D12CreateDevice(
@@ -176,7 +176,7 @@ bool RHI::Device::InitDevice()
 				IID_PPV_ARGS(m_pDevice.ReleaseAndGetAddressOf()))))
 			{
 				ELOG("Selected GPU : %ls", adapterDesc.Description);
-				return true;   // Ì—p‚µ‚Ä‘¦”²‚¯‚é
+				return true;   // æ¡ç”¨ã—ã¦å³æŠœã‘ã‚‹
 			}
 		}
 	}
@@ -186,12 +186,12 @@ bool RHI::Device::InitDevice()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ}ƒ“ƒhƒLƒ…[¶¬
+//		ã‚³ãƒãƒ³ãƒ‰ã‚­ãƒ¥ãƒ¼ç”Ÿæˆ
 // -------------------------------------------------------------------------------
 bool RHI::Device::InitCommandQueue()
 {
 	D3D12_COMMAND_QUEUE_DESC desc = {};
-	desc.Type		= D3D12_COMMAND_LIST_TYPE_DIRECT;		// Graphics / Compute/ Copy ‚·‚×‚ÄÀs‰Â”\
+	desc.Type		= D3D12_COMMAND_LIST_TYPE_DIRECT;		// Graphics / Compute/ Copy ã™ã¹ã¦å®Ÿè¡Œå¯èƒ½
 	desc.Priority	= D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 	desc.Flags		= D3D12_COMMAND_QUEUE_FLAG_NONE;
 	desc.NodeMask	= 0;
@@ -205,12 +205,12 @@ bool RHI::Device::InitCommandQueue()
 	return true;
 }
 // -------------------------------------------------------------------------------
-//		ƒXƒƒbƒvƒ`ƒFƒCƒ“¶¬
+//		ã‚¹ãƒ¯ãƒƒãƒ—ãƒã‚§ã‚¤ãƒ³ç”Ÿæˆ
 // -------------------------------------------------------------------------------
 bool RHI::Device::InitSwapChain()
 {
-	// DXGIFactory ‚ğ¶¬
-	// ƒXƒƒbƒvƒ`ƒFƒCƒ“‚ÍDXGIiDirectX Graphics Infrastructurej‚ªŠÇ—‚·‚é
+	// DXGIFactory ã‚’ç”Ÿæˆ
+	// ã‚¹ãƒ¯ãƒƒãƒ—ãƒã‚§ã‚¤ãƒ³ã¯DXGIï¼ˆDirectX Graphics Infrastructureï¼‰ãŒç®¡ç†ã™ã‚‹
 	ComPtr<IDXGIFactory4> pFactory;
 	auto hr = CreateDXGIFactory2(0, IID_PPV_ARGS(pFactory.GetAddressOf()));
 	if(FAILED(hr))
@@ -219,7 +219,7 @@ bool RHI::Device::InitSwapChain()
 		return false;
 	}
 
-	// ƒXƒƒbƒvƒ`ƒFƒCƒ“‚Ìİ’è
+	// ã‚¹ãƒ¯ãƒƒãƒ—ãƒã‚§ã‚¤ãƒ³ã®è¨­å®š
 	DXGI_SWAP_CHAIN_DESC1 desc = {};
 	desc.Width				= m_Desc.Width;
 	desc.Height				= m_Desc.Height;
@@ -228,15 +228,15 @@ bool RHI::Device::InitSwapChain()
 	desc.SampleDesc.Count	= 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BufferUsage		= DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	desc.BufferCount		= m_Desc.FrameCount;				// ƒoƒbƒNƒoƒbƒtƒ@”
-	desc.Scaling			= DXGI_SCALING_STRETCH;				// ƒoƒbƒNƒoƒbƒtƒ@[‚ÍL‚Ñk‚İ‰Â”\
-	desc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;	// ƒtƒŠƒbƒvŒã‚Í‘¬‚â‚©‚É”jŠü
+	desc.BufferCount		= m_Desc.FrameCount;				// ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡æ•°
+	desc.Scaling			= DXGI_SCALING_STRETCH;				// ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ãƒ¼ã¯ä¼¸ã³ç¸®ã¿å¯èƒ½
+	desc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;	// ãƒ•ãƒªãƒƒãƒ—å¾Œã¯é€Ÿã‚„ã‹ã«ç ´æ£„
 	desc.AlphaMode			= DXGI_ALPHA_MODE_UNSPECIFIED;
-	desc.Flags				= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;	// ƒEƒBƒ“ƒhƒEÌƒtƒ‹ƒXƒNƒŠ[ƒ“Ø‚è‘Ö‚¦‰Â”\
+	desc.Flags				= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦â‡”ãƒ•ãƒ«ã‚¹ã‚¯ãƒªãƒ¼ãƒ³åˆ‡ã‚Šæ›¿ãˆå¯èƒ½
 
 	ComPtr<IDXGISwapChain1> pSwapChain1;
 	hr = pFactory->CreateSwapChainForHwnd(
-		m_pQueue.Get(),		// ƒRƒ}ƒ“ƒhƒLƒ…[‚ğ“n‚·
+		m_pQueue.Get(),		// ã‚³ãƒãƒ³ãƒ‰ã‚­ãƒ¥ãƒ¼ã‚’æ¸¡ã™
 		m_Desc.hWnd,
 		&desc,
 		nullptr,
@@ -245,23 +245,23 @@ bool RHI::Device::InitSwapChain()
 	if (FAILED(hr)) 
 	{ return false; }
 
-	// IDXGISwapChain3 ‚É•ÏŠ·iGetCurrentBackBufferIndex()‚Ì‚½‚ß‚É•K—vj
+	// IDXGISwapChain3 ã«å¤‰æ›ï¼ˆGetCurrentBackBufferIndex()ã®ãŸã‚ã«å¿…è¦ï¼‰
 	hr = pSwapChain1.As(&m_pSwapChain);
 	if (FAILED(hr)) 
 	{ return false; }
 
-	// ‰ŠúƒtƒŒ[ƒ€ƒCƒ“ƒfƒbƒNƒX‚ğæ“¾
+	// åˆæœŸãƒ•ãƒ¬ãƒ¼ãƒ ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’å–å¾—
 	m_FrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
 	return true;
 }
 
 // -------------------------------------------------------------------------------
-//		DescriptorPool ¶¬i4í—Şj
+//		DescriptorPool ç”Ÿæˆï¼ˆ4ç¨®é¡ï¼‰
 // -------------------------------------------------------------------------------
 bool RHI::Device::InitDescriptorPools()
 {
-	// Šeƒv[ƒ‹‚Ìİ’è‚ğ‚Ü‚Æ‚ß‚Ä’è‹`
+	// å„ãƒ—ãƒ¼ãƒ«ã®è¨­å®šã‚’ã¾ã¨ã‚ã¦å®šç¾©
 	const struct
 	{
 		D3D12_DESCRIPTOR_HEAP_TYPE	Type;
@@ -269,13 +269,13 @@ bool RHI::Device::InitDescriptorPools()
 		D3D12_DESCRIPTOR_HEAP_FLAGS	Flags;
 	}descs[] =
 	{
-		// POOL_TYPE_RES : CBV / SRV / UAV ƒVƒF[ƒ_[‚©‚çQÆ‚·‚é‚½‚ßSHADER_VISIBLE•K{
+		// POOL_TYPE_RES : CBV / SRV / UAV ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã‹ã‚‰å‚ç…§ã™ã‚‹ãŸã‚SHADER_VISIBLEå¿…é ˆ
 		{D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,	MAX_COUNT_RES, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE},
-		// POOL_TYPE_RTV : RTV				CPU‚©‚ç‚µ‚©g‚í‚È‚¢‚Ì‚ÅNONE
+		// POOL_TYPE_RTV : RTV				CPUã‹ã‚‰ã—ã‹ä½¿ã‚ãªã„ã®ã§NONE
 		{D3D12_DESCRIPTOR_HEAP_TYPE_RTV,			MAX_COUNT_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE			},
-		// POOL_TYPE_DSV : DSV				CPU‚©‚ç‚µ‚©g‚í‚È‚¢‚Ì‚ÅNONE
+		// POOL_TYPE_DSV : DSV				CPUã‹ã‚‰ã—ã‹ä½¿ã‚ãªã„ã®ã§NONE
 		{D3D12_DESCRIPTOR_HEAP_TYPE_DSV,			MAX_COUNT_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE			},
-		// POOL_TYPE_SMP : Sampler			ƒVƒF[ƒ_[‚©‚çQÆ‚·‚é‚½‚ßSHADER_VISIBlE•K{
+		// POOL_TYPE_SMP : Sampler			ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã‹ã‚‰å‚ç…§ã™ã‚‹ãŸã‚SHADER_VISIBlEå¿…é ˆ
 		{D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,		MAX_COUNT_SMP, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE},
 	};
 
@@ -295,7 +295,7 @@ bool RHI::Device::InitDescriptorPools()
 }
 
 // -------------------------------------------------------------------------------
-//		ColorTarget ¶¬iFrameCount•ªj
+//		ColorTarget ç”Ÿæˆï¼ˆFrameCountåˆ†ï¼‰
 // -------------------------------------------------------------------------------
 bool RHI::Device::InitColorTargets()
 {
@@ -303,7 +303,7 @@ bool RHI::Device::InitColorTargets()
 
 	for (auto i = 0u; i < m_Desc.FrameCount; ++i)
 	{
-		// InitFrameBackBuffer‚ÍƒXƒƒbƒvƒ`ƒFƒCƒ“‚Ìƒoƒbƒtƒ@‚ğæ“¾‚µ‚ÄRTV‚ğì‚é
+		// InitFrameBackBufferã¯ã‚¹ãƒ¯ãƒƒãƒ—ãƒã‚§ã‚¤ãƒ³ã®ãƒãƒƒãƒ•ã‚¡ã‚’å–å¾—ã—ã¦RTVã‚’ä½œã‚‹
 		auto ct = std::make_unique<RHI::ColorTarget>();
 		if (!ct->InitFromBackBuffer(
 			m_pDevice.Get(),
@@ -316,7 +316,7 @@ bool RHI::Device::InitColorTargets()
 		m_ColorTargets.emplace_back(std::move(ct));
 	}
 
-	// ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚ÌƒŠƒ\[ƒX‚Ì“o˜^
+	// ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®ãƒªã‚½ãƒ¼ã‚¹ã®ç™»éŒ²
 	for (auto& ct : m_ColorTargets)
 	{
 		m_ResourceStateTracker.RegisterResource(ct->GetResource(), D3D12_RESOURCE_STATE_PRESENT);
@@ -326,7 +326,7 @@ bool RHI::Device::InitColorTargets()
 }
 
 // -------------------------------------------------------------------------------
-//		DepthTarget¶¬
+//		DepthTargetç”Ÿæˆ
 // -------------------------------------------------------------------------------
 bool RHI::Device::InitDepthTarget()
 {
@@ -340,20 +340,20 @@ bool RHI::Device::InitDepthTarget()
 		return false;
 	}
 
-	// ƒfƒvƒXƒ^[ƒQƒbƒg‚ÌƒŠƒ\[ƒX‚Ì“o˜^
+	// ãƒ‡ãƒ—ã‚¹ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®ãƒªã‚½ãƒ¼ã‚¹ã®ç™»éŒ²
 	m_ResourceStateTracker.RegisterResource(m_DepthTarget.GetResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 	return true;
 }
 
 // -------------------------------------------------------------------------------
-//		CommandList¶¬
+//		CommandListç”Ÿæˆ
 // -------------------------------------------------------------------------------
 bool RHI::Device::InitCommandList()
 {
-	// ƒAƒƒP[ƒ^” = FrameCount
-	// ƒtƒŒ[ƒ€‚²‚Æ‚É•Ê‚ÌƒAƒƒP[ƒ^‚ğg‚¢‚Ü‚í‚·‚±‚Æ‚Å
-	// GPUg—p’†‚ÌƒAƒƒP[ƒ^‚ğƒŠƒZƒbƒg‚·‚éƒGƒ‰[‚ğ–h‚®
+	// ã‚¢ãƒ­ã‚±ãƒ¼ã‚¿æ•° = FrameCount
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ã”ã¨ã«åˆ¥ã®ã‚¢ãƒ­ã‚±ãƒ¼ã‚¿ã‚’ä½¿ã„ã¾ã‚ã™ã“ã¨ã§
+	// GPUä½¿ç”¨ä¸­ã®ã‚¢ãƒ­ã‚±ãƒ¼ã‚¿ã‚’ãƒªã‚»ãƒƒãƒˆã™ã‚‹ã‚¨ãƒ©ãƒ¼ã‚’é˜²ã
 	if (!m_CommandList.Init(
 		m_pDevice.Get(),
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -366,7 +366,7 @@ bool RHI::Device::InitCommandList()
 }
 
 // -------------------------------------------------------------------------------
-//		Fence¶¬
+//		Fenceç”Ÿæˆ
 // -------------------------------------------------------------------------------
 bool RHI::Device::InitFence()
 {
@@ -389,7 +389,7 @@ bool RHI::Device::InitTransientResourcePool()
 }
 
 // -------------------------------------------------------------------------------
-// ‹¤—Lƒ_ƒ~[ƒeƒNƒXƒ`ƒƒ¶¬
+// å…±æœ‰ãƒ€ãƒŸãƒ¼ãƒ†ã‚¯ã‚¹ãƒãƒ£ç”Ÿæˆ
 // -------------------------------------------------------------------------------
 //bool RHI::Device::InitDummyTexture()
 //{
@@ -475,7 +475,7 @@ bool RHI::Device::InitTransientResourcePool()
 //		m_pDevice.Get(), m_pPool[POOL_TYPE_RES], pResource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM);
 //}
 
-// Device.cpp: InitDummyTexture() ‚ÌC³”Å
+// Device.cpp: InitDummyTexture() ã®ä¿®æ­£ç‰ˆ
 bool RHI::Device::InitDummyTexture()
 {
 	const uint32_t whitePixel = 0xFFFFFFFF;
@@ -535,9 +535,9 @@ bool RHI::Device::InitDummyTexture()
 	subResource.SlicePitch = 4;
 
 	// -------------------------------------------------------------------------------
-	// C³: ‹¤—L‚Ì m_CommandList / m_Fence ‚ğ‰¡æ‚è‚¹‚¸A
-	// ‚±‚Ì‰Šú‰»ê—p‚Ìg‚¢Ì‚ÄƒRƒ}ƒ“ƒhƒAƒƒP[ƒ^/ƒŠƒXƒg/ƒtƒFƒ“ƒX‚ğ‚»‚Ìê‚Åì‚éB
-	// ƒtƒŒ[ƒ€•`‰æ‘¤‚Ìó‘Ô(‹L˜^’†‚©‚Ç‚¤‚©)‚ÉˆêØˆË‘¶‚µ‚È‚­‚È‚éB
+	// ä¿®æ­£: å…±æœ‰ã® m_CommandList / m_Fence ã‚’æ¨ªå–ã‚Šã›ãšã€
+	// ã“ã®åˆæœŸåŒ–å°‚ç”¨ã®ä½¿ã„æ¨ã¦ã‚³ãƒãƒ³ãƒ‰ã‚¢ãƒ­ã‚±ãƒ¼ã‚¿/ãƒªã‚¹ãƒˆ/ãƒ•ã‚§ãƒ³ã‚¹ã‚’ãã®å ´ã§ä½œã‚‹ã€‚
+	// ãƒ•ãƒ¬ãƒ¼ãƒ æç”»å´ã®çŠ¶æ…‹(è¨˜éŒ²ä¸­ã‹ã©ã†ã‹)ã«ä¸€åˆ‡ä¾å­˜ã—ãªããªã‚‹ã€‚
 	// -------------------------------------------------------------------------------
 	ComPtr<ID3D12CommandAllocator>		pAlloc;
 	ComPtr<ID3D12GraphicsCommandList>	pCmd;

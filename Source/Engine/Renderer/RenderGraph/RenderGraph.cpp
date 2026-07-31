@@ -1,4 +1,4 @@
-﻿#include "RenderGraph.h"
+#include "RenderGraph.h"
 #include <Engine/Utility/Debug/Logger/Logger.h>
 #include <pix3.h>
 

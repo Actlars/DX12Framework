@@ -8,46 +8,46 @@
 // -------------------------------------------------------------------------------
 // PolygonMeshResource class
 // 
-// ŠT—v : 
-//	]—ˆ‚ÌInputAssemblerƒpƒCƒvƒ‰ƒCƒ“iVB/IBj‚ğg‚Á‚½MeshResourceÀ‘•
-//	ResMesh‚ğó‚¯æ‚èAVertexBuffer‚ÆIndexBuffer‚ğUPLOADƒq[ƒv‚É¶¬
-//	Draw()‚ÍIASetVertexBuffers / IASetIndexBuffer / DrawIndexedInstanced‚ğŒÄ‚Ô
+// æ¦‚è¦ : 
+//	å¾“æ¥ã®InputAssemblerãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ï¼ˆVB/IBï¼‰ã‚’ä½¿ã£ãŸMeshResourceå®Ÿè£…
+//	ResMeshã‚’å—ã‘å–ã‚Šã€VertexBufferã¨IndexBufferã‚’UPLOADãƒ’ãƒ¼ãƒ—ã«ç”Ÿæˆ
+//	Draw()ã¯IASetVertexBuffers / IASetIndexBuffer / DrawIndexedInstancedã‚’å‘¼ã¶
 //	
-// ƒƒbƒVƒ…ƒVƒF[ƒ_[‚Ö‚ÌˆÚs : 
-//	MeshletResource‚ğV‚½‚ÉÀ‘•‚µAMeshƒNƒ‰ƒX‚ª•Û‚·‚éƒ|ƒCƒ“ƒ^‚ğ
-//	PolygonMeshResource‚©‚çMeshletResource‚É·‚µ‘Ö‚¦‚é‚¾‚¯‚ÅˆÚs‚Å‚«‚é
+// ãƒ¡ãƒƒã‚·ãƒ¥ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã¸ã®ç§»è¡Œ : 
+//	MeshletResourceã‚’æ–°ãŸã«å®Ÿè£…ã—ã€Meshã‚¯ãƒ©ã‚¹ãŒä¿æŒã™ã‚‹ãƒã‚¤ãƒ³ã‚¿ã‚’
+//	PolygonMeshResourceã‹ã‚‰MeshletResourceã«å·®ã—æ›¿ãˆã‚‹ã ã‘ã§ç§»è¡Œã§ãã‚‹
 // -------------------------------------------------------------------------------
 class PolygonMeshResource final : public MeshResource
 {
 public:
 
 	// -------------------------------------------------------------------------------
-	// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	// -------------------------------------------------------------------------------
 	PolygonMeshResource();
 
 	// -------------------------------------------------------------------------------
-	// ƒfƒXƒgƒ‰ƒNƒ^
+	// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	// -------------------------------------------------------------------------------
 	~PolygonMeshResource();
 
 	// -------------------------------------------------------------------------------
-	// @brief	‰Šú‰»iResMesh‚©‚çGPUƒŠƒ\[ƒX‚ğ¶¬j
+	// @brief	åˆæœŸåŒ–ï¼ˆResMeshã‹ã‚‰GPUãƒªã‚½ãƒ¼ã‚¹ã‚’ç”Ÿæˆï¼‰
 	// 
-	// @param[in]	_pDevice	ƒfƒoƒCƒX
-	// @param[in]	_resMesh	ƒ[ƒhÏ‚İ‚Ì¶ƒƒbƒVƒ…ƒf[ƒ^
-	// @retval	true	¬Œ÷
-	// @retval	false	¸”s
+	// @param[in]	_pDevice	ãƒ‡ãƒã‚¤ã‚¹
+	// @param[in]	_resMesh	ãƒ­ãƒ¼ãƒ‰æ¸ˆã¿ã®ç”Ÿãƒ¡ãƒƒã‚·ãƒ¥ãƒ‡ãƒ¼ã‚¿
+	// @retval	true	æˆåŠŸ
+	// @retval	false	å¤±æ•—
 	// -------------------------------------------------------------------------------
 	bool Init(ID3D12Device* _pDevice, const ResMesh& _resMesh);
 
 	// -------------------------------------------------------------------------------
-	// @brief	I—¹ˆ—
+	// @brief	çµ‚äº†å‡¦ç†
 	// -------------------------------------------------------------------------------
 	void Term();
 
-	// MeshResourceƒCƒ“ƒ^[ƒtƒF[ƒXÀ‘•
-	// @brief	IA + DrawIndexedInstanced‚ğg‚Á‚Ä•`‰æƒRƒ}ƒ“ƒh‚ğÏ‚Ş
+	// MeshResourceã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹å®Ÿè£…
+	// @brief	IA + DrawIndexedInstancedã‚’ä½¿ã£ã¦æç”»ã‚³ãƒãƒ³ãƒ‰ã‚’ç©ã‚€
 	void Draw(
 		ID3D12GraphicsCommandList*	_pCmd,
 		uint32_t					_isntanceCount = 1)override;
@@ -59,7 +59,7 @@ public:
 private:
 
 	// -------------------------------------------------------------------------------
-	// @brief	ƒoƒbƒtƒ@‚ğUPLOADƒq[ƒv‚É¶¬‚µ‚Ä‰Šúƒf[ƒ^‚ğ‘‚«‚Ş
+	// @brief	ãƒãƒƒãƒ•ã‚¡ã‚’UPLOADãƒ’ãƒ¼ãƒ—ã«ç”Ÿæˆã—ã¦åˆæœŸãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã‚€
 	// -------------------------------------------------------------------------------
 	bool CreateBuffer(
 		ID3D12Device*			_pDevice,
@@ -70,12 +70,12 @@ private:
 	// -------------------------------------------------------------------------------
 	// private variables
 	// -------------------------------------------------------------------------------
-	ComPtr<ID3D12Resource>		m_pVB;					// ’¸“_ƒoƒbƒtƒ@
-	ComPtr<ID3D12Resource>		m_pIB;					// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@
-	D3D12_VERTEX_BUFFER_VIEW	m_VBV			= {};	// ’¸“_ƒoƒbƒtƒ@ƒrƒ…[
-	D3D12_INDEX_BUFFER_VIEW		m_IBV			= {};	// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒrƒ…[
-	uint32_t					m_IndexCount	= 0;	// ƒCƒ“ƒfƒbƒNƒX”
-	uint32_t					m_VertexCount	= 0;	// ’¸“_”
+	ComPtr<ID3D12Resource>		m_pVB;					// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡
+	ComPtr<ID3D12Resource>		m_pIB;					// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡
+	D3D12_VERTEX_BUFFER_VIEW	m_VBV			= {};	// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼
+	D3D12_INDEX_BUFFER_VIEW		m_IBV			= {};	// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼
+	uint32_t					m_IndexCount	= 0;	// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹æ•°
+	uint32_t					m_VertexCount	= 0;	// é ‚ç‚¹æ•°
 
 	PolygonMeshResource	(const PolygonMeshResource&) = delete;
 	void operator =		(const PolygonMeshResource&) = delete;

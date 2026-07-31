@@ -11,19 +11,19 @@
 #include <Engine/Mesh/MeshLoader/MeshLoader.h>
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 MeshletComponent::MeshletComponent()
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 MeshletComponent::~MeshletComponent() 
 { OnDetach(); }
 
 // -------------------------------------------------------------------------------
-//		‰Šú‰»iƒ‚ƒfƒ‹‚Ìƒ[ƒhAƒƒbƒVƒ…ƒŒƒbƒg¶¬A’è”ƒoƒbƒtƒ@Šm•Ûj
+//		åˆæœŸåŒ–ï¼ˆãƒ¢ãƒ‡ãƒ«ã®ãƒ­ãƒ¼ãƒ‰ã€ãƒ¡ãƒƒã‚·ãƒ¥ãƒ¬ãƒƒãƒˆç”Ÿæˆã€å®šæ•°ãƒãƒƒãƒ•ã‚¡ç¢ºä¿ï¼‰
 // -------------------------------------------------------------------------------
 bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath)
 {
@@ -34,7 +34,7 @@ bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath
 	auto* pQueue	= _pDevice->GetQueue();
 	auto* pResPool	= _pDevice->GetPool(RHI::Device::POOL_TYPE_RES);
 
-	// ƒ‚ƒfƒ‹‚Ìƒ[ƒh
+	// ãƒ¢ãƒ‡ãƒ«ã®ãƒ­ãƒ¼ãƒ‰
 	std::vector<ResMesh>		resMeshes;
 	std::vector<ResMaterial>	resMaterials;
 	if (!MeshLoader::Load(_modelPath, resMeshes, resMaterials))
@@ -49,7 +49,7 @@ bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath
 		return false;
 	}
 
-	// ƒ}ƒeƒŠƒAƒ‹iƒeƒNƒXƒ`ƒƒj‚ğ¶¬
+	// ãƒãƒ†ãƒªã‚¢ãƒ«ï¼ˆãƒ†ã‚¯ã‚¹ãƒãƒ£ï¼‰ã‚’ç”Ÿæˆ
 	m_Materials.reserve(resMaterials.size());
 	for (auto& resMat : resMaterials)
 	{
@@ -62,7 +62,7 @@ bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath
 		m_Materials.emplace_back(std::move(mat));
 	}
 
-	// ‘SƒƒbƒVƒ…‚Ô‚ñMeshletResource‚ğì‚é
+	// å…¨ãƒ¡ãƒƒã‚·ãƒ¥ã¶ã‚“MeshletResourceã‚’ä½œã‚‹
 	m_Meshes.reserve(resMeshes.size());
 	for (auto& resMesh : resMeshes)
 	{
@@ -76,7 +76,7 @@ bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath
 		ModelMeshletEntry entry;
 		entry.Mesh = std::move(meshlet);
 
-		// ‘Î‰‚·‚éƒ}ƒeƒŠƒAƒ‹‚©‚çƒeƒNƒXƒ`ƒƒIndex‚ğæ“¾
+		// å¯¾å¿œã™ã‚‹ãƒãƒ†ãƒªã‚¢ãƒ«ã‹ã‚‰ãƒ†ã‚¯ã‚¹ãƒãƒ£Indexã‚’å–å¾—
 		const auto matId = resMesh.MaterialId;
 		if (matId < m_Materials.size())
 		{
@@ -86,7 +86,7 @@ bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath
 		m_Meshes.emplace_back(std::move(entry));
 	}
 
-	// ƒtƒŒ[ƒ€ƒJƒEƒ“ƒg•ª‚ÌTransformCB‚ğì‚é
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ã‚«ã‚¦ãƒ³ãƒˆåˆ†ã®TransformCBã‚’ä½œã‚‹
 	const auto frameCount = _pDevice->GetFrameCount();
 	m_TransformCBs.reserve(frameCount);
 	for (auto i = 0u; i < frameCount; ++i)
@@ -104,7 +104,7 @@ bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath
 }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒ^ƒbƒ`‚Ìˆ—i’è”ƒoƒbƒtƒ@‚Ì‰ğ•új
+//		ãƒ‡ã‚¿ãƒƒãƒæ™‚ã®å‡¦ç†ï¼ˆå®šæ•°ãƒãƒƒãƒ•ã‚¡ã®è§£æ”¾ï¼‰
 // -------------------------------------------------------------------------------
 void MeshletComponent::OnDetach()
 {
@@ -114,7 +114,7 @@ void MeshletComponent::OnDetach()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒJƒƒ‰‚Ìs—ñiGameScene‚©‚ç–ˆƒtƒŒ[ƒ€ŒÄ‚Ôj
+//		ã‚«ãƒ¡ãƒ©ã®è¡Œåˆ—ï¼ˆGameSceneã‹ã‚‰æ¯ãƒ•ãƒ¬ãƒ¼ãƒ å‘¼ã¶ï¼‰
 // -------------------------------------------------------------------------------
 void MeshletComponent::SetViewProj(
 	const DirectX::XMMATRIX& _view,
@@ -135,7 +135,7 @@ void MeshletComponent::SetFrameIndex(uint32_t _frameIndex)
 }
 
 // -------------------------------------------------------------------------------
-//		RootSignatureLayout‚ğİ’è
+//		RootSignatureLayoutã‚’è¨­å®š
 // -------------------------------------------------------------------------------
 void MeshletComponent::SetRootLayout(const RHI::RootSignatureLayout* _pRootLayout)
 {
@@ -168,14 +168,14 @@ void MeshletComponent::SetVisible(bool _visible)
 }
 
 // -------------------------------------------------------------------------------
-//		•`‰æƒRƒ}ƒ“ƒh‚ğÏ‚Ş
+//		æç”»ã‚³ãƒãƒ³ãƒ‰ã‚’ç©ã‚€
 // -------------------------------------------------------------------------------
 void MeshletComponent::Submit(MeshletRenderQueue* _pQueue)
 {
 	if (_pQueue == nullptr || m_Meshes.empty()) 
 	{ return; }
 
-	// TransformComponent‚©‚çƒ[ƒ‹ƒhs—ñ‚ğæ“¾
+	// TransformComponentã‹ã‚‰ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã‚’å–å¾—
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
 	if (m_pOwner != nullptr)
 	{
@@ -183,7 +183,7 @@ void MeshletComponent::Submit(MeshletRenderQueue* _pQueue)
 		if (pTransform != nullptr) { world = pTransform->GetWorldMatrix(); }
 	}
 
-	// TransformCB‚Ö‚Ì‘‚«‚İ‚Í‘SƒƒbƒVƒ…‹¤’Ê‚È‚Ì‚Åˆê‰ñ‚¾‚¯‚Å‚æ‚¢
+	// TransformCBã¸ã®æ›¸ãè¾¼ã¿ã¯å…¨ãƒ¡ãƒƒã‚·ãƒ¥å…±é€šãªã®ã§ä¸€å›ã ã‘ã§ã‚ˆã„
 	D3D12_GPU_VIRTUAL_ADDRESS transformAddr = 0;
 	if (m_FrameIndex < m_TransformCBs.size() && m_TransformCBs[m_FrameIndex])
 	{

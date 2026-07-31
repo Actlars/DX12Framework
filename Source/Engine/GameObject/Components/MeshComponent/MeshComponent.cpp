@@ -9,19 +9,19 @@
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 MeshComponent::MeshComponent()
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 MeshComponent::~MeshComponent() 
 { OnDetach(); }
 
 // -------------------------------------------------------------------------------
-//		’è”ƒoƒbƒtƒ@‚Ì‰Šú‰»
+//		å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool MeshComponent::Init(
 	ID3D12Device*			_pDevice,
@@ -31,7 +31,7 @@ bool MeshComponent::Init(
 	if (_pDevice == nullptr || _pPool == nullptr || _frameCount == 0)
 	{ return false; }
 
-	// FrameCount•ª‚Ì’è”ƒoƒbƒtƒ@‚ğì¬‚·‚é
+	// FrameCountåˆ†ã®å®šæ•°ãƒãƒƒãƒ•ã‚¡ã‚’ä½œæˆã™ã‚‹
 	m_TransformCBs.reserve(_frameCount);
 	for (auto i = 0u; i < _frameCount; ++i)
 	{
@@ -60,7 +60,7 @@ bool MeshComponent::Init(
 }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒ^ƒbƒ`‚Ìˆ—i’è”ƒoƒbƒtƒ@‚Ì‰ğ•új
+//		ãƒ‡ã‚¿ãƒƒãƒæ™‚ã®å‡¦ç†ï¼ˆå®šæ•°ãƒãƒƒãƒ•ã‚¡ã®è§£æ”¾ï¼‰
 // -------------------------------------------------------------------------------
 void MeshComponent::OnDetach()
 {
@@ -71,7 +71,7 @@ void MeshComponent::OnDetach()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒƒbƒVƒ…‚Æƒ}ƒeƒŠƒAƒ‹‚Ìİ’è
+//		ãƒ¡ãƒƒã‚·ãƒ¥ã¨ãƒãƒ†ãƒªã‚¢ãƒ«ã®è¨­å®š
 // -------------------------------------------------------------------------------
 void MeshComponent::SetMesh(Mesh* _pMesh, Material* _pMaterial)
 {
@@ -80,7 +80,7 @@ void MeshComponent::SetMesh(Mesh* _pMesh, Material* _pMaterial)
 }
 
 // -------------------------------------------------------------------------------
-//		RootParameter‚ÌƒXƒƒbƒg”Ô†
+//		RootParameterã®ã‚¹ãƒ­ãƒƒãƒˆç•ªå·
 // -------------------------------------------------------------------------------
 void MeshComponent::SetRootParamSlots(
 	uint32_t _transformSlot,
@@ -93,7 +93,7 @@ void MeshComponent::SetRootParamSlots(
 }
 
 // -------------------------------------------------------------------------------
-//		ƒJƒƒ‰‚Ìs—ñiGameScene‚©‚ç–ˆƒtƒŒ[ƒ€ŒÄ‚Ôj
+//		ã‚«ãƒ¡ãƒ©ã®è¡Œåˆ—ï¼ˆGameSceneã‹ã‚‰æ¯ãƒ•ãƒ¬ãƒ¼ãƒ å‘¼ã¶ï¼‰
 // -------------------------------------------------------------------------------
 void MeshComponent::SetViewProj(
 	const DirectX::XMMATRIX& _view,
@@ -113,14 +113,14 @@ void MeshComponent::SetFrameIndex(uint32_t _frameIndex)
 }
 
 // -------------------------------------------------------------------------------
-//		RootSignatureLayout‚ğİ’è
+//		RootSignatureLayoutã‚’è¨­å®š
 // -------------------------------------------------------------------------------
 void MeshComponent::SetRootLayout(const RHI::RootSignatureLayout* _pRootLayout)
 {
 	if (_pRootLayout == nullptr) 
 	{ return; }
 
-	// ƒXƒƒbƒg”Ô†‚ğ–¼‘O‚©‚çæ“¾‚·‚é
+	// ã‚¹ãƒ­ãƒƒãƒˆç•ªå·ã‚’åå‰ã‹ã‚‰å–å¾—ã™ã‚‹
 	m_TransformSlot = _pRootLayout->GetSlot("Transform");
 	m_MaterialSlot	= _pRootLayout->GetSlot("Material");
 	m_TextureSlot	= _pRootLayout->GetSlot("Texture");
@@ -140,14 +140,14 @@ void MeshComponent::SetVisible(bool _visible)
 }
 
 // -------------------------------------------------------------------------------
-//		•`‰æƒRƒ}ƒ“ƒh‚ğÏ‚Ş
+//		æç”»ã‚³ãƒãƒ³ãƒ‰ã‚’ç©ã‚€
 // -------------------------------------------------------------------------------
 void MeshComponent::Submit(RenderQueue* _pQueue)
 {
 	if (m_pMesh == nullptr) 
 	{ return; }
 
-	// TransformComponent‚©‚çƒ[ƒ‹ƒhs—ñ‚ğæ“¾
+	// TransformComponentã‹ã‚‰ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã‚’å–å¾—
 	DirectX::XMMATRIX world = DirectX::XMMatrixIdentity();
 	if (m_pOwner != nullptr)
 	{
@@ -162,7 +162,7 @@ void MeshComponent::Submit(RenderQueue* _pQueue)
 	item.TextureSlot	= m_TextureSlot;
 	item.MaterialIndicesSlot = m_MaterialIndicesSlot;
 
-	// TransformCB‚Ö‚Ì‘‚«‚İ memcpy‚È‚Ì‚ÅDX12API‚Å‚Í‚È‚¢‚Ì‚ÅˆÀ‘S‚É•À—ñ‰»‚Å‚«‚é
+	// TransformCBã¸ã®æ›¸ãè¾¼ã¿ memcpyãªã®ã§DX12APIã§ã¯ãªã„ã®ã§å®‰å…¨ã«ä¸¦åˆ—åŒ–ã§ãã‚‹
 	if (m_FrameIndex < m_TransformCBs.size() && m_TransformCBs[m_FrameIndex])
 	{
 		auto* pCB	= m_TransformCBs[m_FrameIndex]->GetPtr<TransformCB>();
@@ -184,7 +184,7 @@ void MeshComponent::Submit(RenderQueue* _pQueue)
 			item.HasTexture		= true;
 		}
 
-		// Bindless—p : ƒ}ƒeƒŠƒAƒ‹‚ÌƒeƒNƒXƒ`ƒƒIndex‚ğCB‚Ö‘‚«‚Ş
+		// Bindlessç”¨ : ãƒãƒ†ãƒªã‚¢ãƒ«ã®ãƒ†ã‚¯ã‚¹ãƒãƒ£Indexã‚’CBã¸æ›¸ãè¾¼ã‚€
 		if (m_FrameIndex < m_MaterialIndicesCBs.size() && m_MaterialIndicesCBs[m_FrameIndex])
 		{
 			auto* pIndicesCB = m_MaterialIndicesCBs[m_FrameIndex]->GetPtr<MaterialIndicesCB>();

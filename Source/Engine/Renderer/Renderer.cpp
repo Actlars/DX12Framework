@@ -6,19 +6,19 @@
 #include <Engine/RHI/Resource/ResourceStateTracker/ResourceStateTracker.h>
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 Renderer::Renderer()
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 Renderer::~Renderer() 
 { Term(); }
 
 // -------------------------------------------------------------------------------
-//		‰Šú‰»
+//		åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool Renderer::Init(RHI::Device* _pGraphicsDevice)
 {
@@ -30,7 +30,7 @@ bool Renderer::Init(RHI::Device* _pGraphicsDevice)
 
 	m_pDevice = _pGraphicsDevice;
 
-	// ƒrƒ…[ƒ|[ƒg‚Ìİ’è
+	// ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆã®è¨­å®š
 	m_ViewPort.TopLeftX = 0.0f;
 	m_ViewPort.TopLeftY = 0.0f;
 	m_ViewPort.Width	= static_cast<float>(m_pDevice->GetWidth());
@@ -38,7 +38,7 @@ bool Renderer::Init(RHI::Device* _pGraphicsDevice)
 	m_ViewPort.MinDepth = 0.0f;
 	m_ViewPort.MaxDepth = 1.0f;
 
-	// ƒVƒU[‹éŒ`‚Ìİ’è
+	// ã‚·ã‚¶ãƒ¼çŸ©å½¢ã®è¨­å®š
 	m_Scissor.left		= 0.0f;
 	m_Scissor.top		= 0.0f;
 	m_Scissor.right		= static_cast<LONG>(m_pDevice->GetWidth());
@@ -48,7 +48,7 @@ bool Renderer::Init(RHI::Device* _pGraphicsDevice)
 }
 
 // -------------------------------------------------------------------------------
-//		I—¹ˆ—
+//		çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void Renderer::Term()
 {
@@ -56,17 +56,17 @@ void Renderer::Term()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒtƒŒ[ƒ€ŠJnˆ—
+//		ãƒ•ãƒ¬ãƒ¼ãƒ é–‹å§‹å‡¦ç†
 // -------------------------------------------------------------------------------
 ID3D12GraphicsCommandList* Renderer::BeginFrame()
 {
 	if (m_pDevice == nullptr) 
 	{ return nullptr; }
 
-	// Œ»İ‚ÌƒtƒŒ[ƒ€ƒCƒ“ƒfƒbƒNƒX‚ğæ“¾
+	// ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’å–å¾—
 	const auto frameIndex = m_pDevice->GetFrameIndex();
 
-	// ƒRƒ}ƒ“ƒhƒŠƒXƒg‚ÌƒŠƒZƒbƒgiFence‚ğ“n‚µ‚ÄA•K—v‚È‚¾‚¯‘Ò‹@‚³‚¹‚éj
+	// ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã®ãƒªã‚»ãƒƒãƒˆï¼ˆFenceã‚’æ¸¡ã—ã¦ã€å¿…è¦ãªæ™‚ã ã‘å¾…æ©Ÿã•ã›ã‚‹ï¼‰
 	auto* pCmd = m_pDevice->GetCommandList()->Reset(m_pDevice->GetFence());
 	if (pCmd == nullptr)
 	{
@@ -74,7 +74,7 @@ ID3D12GraphicsCommandList* Renderer::BeginFrame()
 		return nullptr;
 	}
 
-	//// ƒoƒbƒNƒoƒbƒtƒ@‚ğ•`‰ææ‚ÉØ‚è‘Ö‚¦‚éƒoƒŠƒA
+	//// ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã‚’æç”»å…ˆã«åˆ‡ã‚Šæ›¿ãˆã‚‹ãƒãƒªã‚¢
 	//auto* pTarget = m_pDevice->GetColorTarget(frameIndex)->GetResource();
 	//D3D12_RESOURCE_BARRIER barrier = {};
 	//barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -86,22 +86,22 @@ ID3D12GraphicsCommandList* Renderer::BeginFrame()
 	//pCmd->ResourceBarrier(1, &barrier);
 
 	auto* pTarget = m_pDevice->GetColorTarget(frameIndex)->GetResource();
-	// è“®ƒoƒŠƒA\’z‚Ì‘ã‚í‚è‚Éƒgƒ‰ƒbƒJ[‚ÖˆÚ÷
+	// æ‰‹å‹•ãƒãƒªã‚¢æ§‹ç¯‰ã®ä»£ã‚ã‚Šã«ãƒˆãƒ©ãƒƒã‚«ãƒ¼ã¸ç§»è­²
 	auto* pTracker = m_pDevice->GetResourceStateTracker();
 	pTracker->TransitionResource(pTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	pTracker->FlushBarriers(pCmd);
 
-	// ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚Æ[“xƒoƒbƒtƒ@‚ÌƒNƒŠƒA
+	// ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¨æ·±åº¦ãƒãƒƒãƒ•ã‚¡ã®ã‚¯ãƒªã‚¢
 	auto handleRTV = m_pDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
 	auto handleDSV = m_pDevice->GetDepthTarget()->GetHandleDSV()->HandleCPU;
 
 	pCmd->ClearRenderTargetView(handleRTV, CLEAR_COLOR, 0, nullptr);
 	pCmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-	// ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚Ìİ’è
+	// ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®è¨­å®š
 	pCmd->OMSetRenderTargets(1, &handleRTV, FALSE, &handleDSV);
 
-	// ƒrƒ…[ƒ|[ƒg / ƒVƒU[‹éŒ`‚Ìİ’è
+	// ãƒ“ãƒ¥ãƒ¼ãƒãƒ¼ãƒˆ / ã‚·ã‚¶ãƒ¼çŸ©å½¢ã®è¨­å®š
 	pCmd->RSSetViewports(1, &m_ViewPort);
 	pCmd->RSSetScissorRects(1, &m_Scissor);
 
@@ -109,7 +109,7 @@ ID3D12GraphicsCommandList* Renderer::BeginFrame()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒtƒŒ[ƒ€I—¹ˆ—
+//		ãƒ•ãƒ¬ãƒ¼ãƒ çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 {
@@ -120,7 +120,7 @@ void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 
 	const auto frameIndex = m_pDevice->GetFrameIndex();
 
-	// ƒoƒbƒNƒoƒbƒtƒ@‚ğ•\¦—p‚ÉØ‚è‘Ö‚¦‚éƒoƒŠƒA
+	// ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã‚’è¡¨ç¤ºç”¨ã«åˆ‡ã‚Šæ›¿ãˆã‚‹ãƒãƒªã‚¢
 	auto* pTarget = m_pDevice->GetColorTarget(frameIndex)->GetResource();
 	/*D3D12_RESOURCE_BARRIER barrier = {};
 	barrier.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -135,14 +135,14 @@ void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 	pTracker->TransitionResource(pTarget, D3D12_RESOURCE_STATE_PRESENT);
 	pTracker->FlushBarriers(_pCmd);
 
-	// ƒRƒ}ƒ“ƒhƒŠƒXƒg‚ğƒNƒ[ƒY‚µ‚ÄGPU‚É“Š“ü
+	// ã‚³ãƒãƒ³ãƒ‰ãƒªã‚¹ãƒˆã‚’ã‚¯ãƒ­ãƒ¼ã‚ºã—ã¦GPUã«æŠ•å…¥
 	_pCmd->Close();
 
 	ID3D12CommandList* ppLists[] = { _pCmd };
 	m_pDevice->GetQueue()->ExecuteCommandLists(1, ppLists);
 
-	// Às’¼Œã‚ÉSignal‚ğ”­s‚µ‚Äi‘Ò‚½‚È‚¢j
-	// ¡g‚Á‚½ƒAƒƒP[ƒ^‚ÌŠ®—¹ƒtƒFƒ“ƒX’l‚Æ‚µ‚Ä‹L˜^‚·‚é
+	// å®Ÿè¡Œç›´å¾Œã«Signalã‚’ç™ºè¡Œã—ã¦ï¼ˆå¾…ãŸãªã„ï¼‰
+	// ä»Šä½¿ã£ãŸã‚¢ãƒ­ã‚±ãƒ¼ã‚¿ã®å®Œäº†ãƒ•ã‚§ãƒ³ã‚¹å€¤ã¨ã—ã¦è¨˜éŒ²ã™ã‚‹
 	auto value = m_pDevice->GetFence()->Signal(m_pDevice->GetQueue());
 	m_pDevice->GetCommandList()->RecordFenceValue(value);
 
@@ -150,28 +150,28 @@ void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 }
 
 // -------------------------------------------------------------------------------
-//		‰æ–Ê•\¦
+//		ç”»é¢è¡¨ç¤º
 // -------------------------------------------------------------------------------
 void Renderer::Present(uint32_t _syncInterval)
 {
 	if (m_pDevice == nullptr) 
 	{ return; }
 
-	// ƒoƒbƒNƒoƒbƒtƒ@‚ğ‰æ–Ê‚É•\¦
+	// ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã‚’ç”»é¢ã«è¡¨ç¤º
 	m_pDevice->GetSwapChain()->Present(_syncInterval, 0);
 
-	// ƒtƒŒ[ƒ€ƒCƒ“ƒfƒbƒNƒX‚ğXV‚·‚é
-	// ƒXƒƒbƒvƒ`ƒFƒCƒ“‚ªŠÇ—‚·‚éƒoƒbƒNƒoƒbƒtƒ@”Ô†‚É‡‚í‚¹‚é
-	// ¦ m_FrameIndex ‚Í GraphicsDevice ‘¤‚ÅŠÇ—‚·‚é‚½‚ß
-	//   ‚±‚±‚Å‚Í’¼Ú•ÏX‚Å‚«‚È‚¢BGraphicsDevice ‚É UpdateFrameIndex() ‚ğ’Ç‰Á‚·‚é‚©A
-	//   Present Œã‚É GetCurrentBackBufferIndex() ‚ğŒÄ‚Ô•K—v‚ª‚ ‚éB
-	// Œ»ó‚Í GraphicsDevice::Present() ‚ğ•ª—£‚µ‚½‚Ì‚Å GraphicsDevice ‘¤‚ÅŠÇ—‚·‚éB
+	// ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’æ›´æ–°ã™ã‚‹
+	// ã‚¹ãƒ¯ãƒƒãƒ—ãƒã‚§ã‚¤ãƒ³ãŒç®¡ç†ã™ã‚‹ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ç•ªå·ã«åˆã‚ã›ã‚‹
+	// â€» m_FrameIndex ã¯ GraphicsDevice å´ã§ç®¡ç†ã™ã‚‹ãŸã‚
+	//   ã“ã“ã§ã¯ç›´æ¥å¤‰æ›´ã§ããªã„ã€‚GraphicsDevice ã« UpdateFrameIndex() ã‚’è¿½åŠ ã™ã‚‹ã‹ã€
+	//   Present å¾Œã« GetCurrentBackBufferIndex() ã‚’å‘¼ã¶å¿…è¦ãŒã‚ã‚‹ã€‚
+	// ç¾çŠ¶ã¯ GraphicsDevice::Present() ã‚’åˆ†é›¢ã—ãŸã®ã§ GraphicsDevice å´ã§ç®¡ç†ã™ã‚‹ã€‚
 	m_pDevice->UpdateFrameIndex();
 	m_pDevice->GetTransientResourcePool()->ReleaseAll();
 }
 
 // -------------------------------------------------------------------------------
-//		ƒtƒŒ[ƒ€ƒCƒ“ƒfƒbƒNƒX‚Ìæ“¾
+//		ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã®å–å¾—
 // -------------------------------------------------------------------------------
 uint32_t Renderer::GetFrameIndex() const
 {

@@ -4,19 +4,19 @@
 #include "FPSCamera.h"
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 FPSCamera::FPSCamera()
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 FPSCamera::~FPSCamera()
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		‰Šú‰»
+//		åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 void FPSCamera::Init(const Desc& _desc)
 {
@@ -26,27 +26,27 @@ void FPSCamera::Init(const Desc& _desc)
 	m_MoveSpeed = _desc.MoveSpeed;
 	m_RotSpeed	= _desc.RotSpeed;
 
-	// ‰Šúó‘Ô‚Ì•ûŒüƒxƒNƒgƒ‹‚Æƒrƒ…[s—ñ‚ðŒvŽZ‚µ‚Ä‚¨‚­
-	// ƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñ‚ÍŠî’êƒNƒ‰ƒX‚ÌUpdateProj()‚ªŠÇ—‚·‚é
+	// åˆæœŸçŠ¶æ…‹ã®æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã¨ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—ã‚’è¨ˆç®—ã—ã¦ãŠã
+	// ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—ã¯åŸºåº•ã‚¯ãƒ©ã‚¹ã®UpdateProj()ãŒç®¡ç†ã™ã‚‹
 	UpdateVectors();
 	Update();
 }
 
 // -------------------------------------------------------------------------------
-//		–ˆƒtƒŒ[ƒ€XV
+//		æ¯Žãƒ•ãƒ¬ãƒ¼ãƒ æ›´æ–°
 // -------------------------------------------------------------------------------
 void FPSCamera::Update()
 {
-	// Pitch‚ÌƒNƒ‰ƒ“ƒv
-	// ^ãE^‰º‚ðŒü‚­‚Æs—ñ‚ª•sˆÀ’è‚É‚È‚é‚Ì‚Å +-89 “x‚É§ŒÀ‚·‚é
+	// Pitchã®ã‚¯ãƒ©ãƒ³ãƒ—
+	// çœŸä¸Šãƒ»çœŸä¸‹ã‚’å‘ãã¨è¡Œåˆ—ãŒä¸å®‰å®šã«ãªã‚‹ã®ã§ +-89 åº¦ã«åˆ¶é™ã™ã‚‹
 	m_Pitch = std::clamp(m_Pitch, PITCH_MIN, PITCH_MAX);
 
-	// •ûŒüƒxƒNƒgƒ‹‚ÌÄŒvŽZ
+	// æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã®å†è¨ˆç®—
 	UpdateVectors();
 
-	// ƒrƒ…[s—ñ‚ÌÄŒvŽZ
-	// Position + Forward ‚©‚ç LookAt s—ñ‚ð¶¬‚·‚é
-	// LookAt(eye, target, up) ‚Ì target ‚Í eye + forward
+	// ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—ã®å†è¨ˆç®—
+	// Position + Forward ã‹ã‚‰ LookAt è¡Œåˆ—ã‚’ç”Ÿæˆã™ã‚‹
+	// LookAt(eye, target, up) ã® target ã¯ eye + forward
 	const auto eye		= DirectX::XMLoadFloat3(&m_Position);
 	const auto fwd		= DirectX::XMLoadFloat3(&m_Forward);
 	const auto worldUp	= DirectX::XMLoadFloat3(&WORLD_UP);
@@ -55,24 +55,24 @@ void FPSCamera::Update()
 	m_View = DirectX::XMMatrixLookAtLH(eye, target, worldUp);
 }
 
-// ƒrƒ…[s—ñ‚ð•Ô‚·
+// ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—ã‚’è¿”ã™
 DirectX::XMMATRIX FPSCamera::GetView() const
 { return m_View; }
 
-// ƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñ‚ð•Ô‚·iŠî’êƒNƒ‰ƒX‚ÌƒLƒƒƒbƒVƒ…‚ð•Ô‚·j
+// ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—ã‚’è¿”ã™ï¼ˆåŸºåº•ã‚¯ãƒ©ã‚¹ã®ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã‚’è¿”ã™ï¼‰
 DirectX::XMMATRIX FPSCamera::GetProj() const
 { return m_Proj; }
 
-// Œ»ÝˆÊ’u‚ð•Ô‚·
+// ç¾åœ¨ä½ç½®ã‚’è¿”ã™
 DirectX::XMFLOAT3 FPSCamera::GetPosition() const 
 { return m_Position; }
 
 // -------------------------------------------------------------------------------
-//		‘Oi
+//		å‰é€²
 // -------------------------------------------------------------------------------
 void FPSCamera::MoveForward(float _deltaTime)
 {
-	// Forward ƒxƒNƒgƒ‹•ûŒü‚É MoveSpeed * DeltaTime‚¾‚¯ˆÚ“®‚·‚é
+	// Forward ãƒ™ã‚¯ãƒˆãƒ«æ–¹å‘ã« MoveSpeed * DeltaTimeã ã‘ç§»å‹•ã™ã‚‹
 	const auto pos = DirectX::XMLoadFloat3(&m_Position);
 	const auto fwd = DirectX::XMLoadFloat3(&m_Forward);
 	const auto vel = DirectX::XMVectorScale(fwd, m_MoveSpeed * _deltaTime);
@@ -80,19 +80,19 @@ void FPSCamera::MoveForward(float _deltaTime)
 }
 
 // -------------------------------------------------------------------------------
-//		Œã‘Þ
+//		å¾Œé€€
 // -------------------------------------------------------------------------------
 void FPSCamera::MoveBack(float _deltaTime)
 {
 	const auto pos = DirectX::XMLoadFloat3(&m_Position);
 	const auto fwd = DirectX::XMLoadFloat3(&m_Forward);
 	const auto vel = DirectX::XMVectorScale(fwd, m_MoveSpeed * _deltaTime);
-	// is•ûŒü‚Æ‹t
+	// é€²è¡Œæ–¹å‘ã¨é€†
 	DirectX::XMStoreFloat3(&m_Position, DirectX::XMVectorSubtract(pos, vel));
 }
 
 // -------------------------------------------------------------------------------
-//		¶
+//		å·¦
 // -------------------------------------------------------------------------------
 void FPSCamera::MoveLeft(float _deltaTime)
 {
@@ -103,7 +103,7 @@ void FPSCamera::MoveLeft(float _deltaTime)
 }
 
 // -------------------------------------------------------------------------------
-//		‰E
+//		å³
 // -------------------------------------------------------------------------------
 void FPSCamera::MoveRight(float _deltaTime)
 {
@@ -114,7 +114,7 @@ void FPSCamera::MoveRight(float _deltaTime)
 }
 
 // -------------------------------------------------------------------------------
-//		 ã¸iƒ[ƒ‹ƒhYŽ²•ûŒüj
+//		 ä¸Šæ˜‡ï¼ˆãƒ¯ãƒ¼ãƒ«ãƒ‰Yè»¸æ–¹å‘ï¼‰
 // -------------------------------------------------------------------------------
 void FPSCamera::MoveUp(float _deltaTime)
 {
@@ -122,7 +122,7 @@ void FPSCamera::MoveUp(float _deltaTime)
 }
 
 // -------------------------------------------------------------------------------
-//		‰º~iƒ[ƒ‹ƒhYŽ²•ûŒüj
+//		ä¸‹é™ï¼ˆãƒ¯ãƒ¼ãƒ«ãƒ‰Yè»¸æ–¹å‘ï¼‰
 // -------------------------------------------------------------------------------
 void FPSCamera::MoveDown(float _deltaTime)
 {
@@ -130,34 +130,34 @@ void FPSCamera::MoveDown(float _deltaTime)
 }
 
 // -------------------------------------------------------------------------------
-//		¶‰E‰ñ“]
+//		å·¦å³å›žè»¢
 // -------------------------------------------------------------------------------
 void FPSCamera::AddYaw(float _deltaTime)
 {
 	m_Yaw += m_RotSpeed * _deltaTime;
 
-	// 0 ` 360 “x‚Ì”ÍˆÍ‚É³‹K‰»iƒI[ƒo[ƒtƒ[–hŽ~j
+	// 0 ï½ž 360 åº¦ã®ç¯„å›²ã«æ­£è¦åŒ–ï¼ˆã‚ªãƒ¼ãƒãƒ¼ãƒ•ãƒ­ãƒ¼é˜²æ­¢ï¼‰
 	if (m_Yaw > 360.0f)	 { m_Yaw -= 360.0f; }
 	if (m_Yaw < -360.0f) { m_Yaw += 360.0f; }
 }
 
 // -------------------------------------------------------------------------------
-//		ã‰º‰ñ“]
+//		ä¸Šä¸‹å›žè»¢
 // -------------------------------------------------------------------------------
 void FPSCamera::AddPitch(float _deltaTime)
 {
-	// ƒNƒ‰ƒ“ƒv‚ÍUpdate()‚Ås‚¤‚Ì‚Å‚±‚±‚Å‚Í‰ÁŽZ‚Ì‚Ýs‚¤
+	// ã‚¯ãƒ©ãƒ³ãƒ—ã¯Update()ã§è¡Œã†ã®ã§ã“ã“ã§ã¯åŠ ç®—ã®ã¿è¡Œã†
 	m_Pitch += m_RotSpeed * _deltaTime;
 }
 
 // -------------------------------------------------------------------------------
-//		ˆÊ’u‚Ì’¼ÚÝ’è
+//		ä½ç½®ã®ç›´æŽ¥è¨­å®š
 // -------------------------------------------------------------------------------
 void FPSCamera::SetPosition(const DirectX::XMFLOAT3& _pos)
 { m_Position = _pos; }
 
 // -------------------------------------------------------------------------------
-//		‰ñ“]‚Ì’¼ÚÝ’è
+//		å›žè»¢ã®ç›´æŽ¥è¨­å®š
 // -------------------------------------------------------------------------------
 void FPSCamera::SetRotation(float _yaw, float _pitch) 
 {
@@ -196,27 +196,27 @@ DirectX::XMFLOAT3 FPSCamera::GetRight() const
 }
 
 // -------------------------------------------------------------------------------
-//		•ûŒüƒxƒNƒgƒ‹‚ÌÄŒvŽZ
+//		æ–¹å‘ãƒ™ã‚¯ãƒˆãƒ«ã®å†è¨ˆç®—
 // -------------------------------------------------------------------------------
-// Yaw / Pitchi“xj‚©‚ç Forward / Right ƒxƒNƒgƒ‹‚ð‹‚ß‚é
+// Yaw / Pitchï¼ˆåº¦ï¼‰ã‹ã‚‰ Forward / Right ãƒ™ã‚¯ãƒˆãƒ«ã‚’æ±‚ã‚ã‚‹
 // 
-// ŒvŽZ•û–@i‰EŽèÀ•WŒnj : 
-//	Yaw		= YŽ²‰ñ‚è‚Ì‰ñ“]i³ = ‰E‰ñ“]j
-//	Pitch	= XŽ²‰ñ‚è‚Ì‰ñ“]i³ = ‰ºŒü‚«j
+// è¨ˆç®—æ–¹æ³•ï¼ˆå³æ‰‹åº§æ¨™ç³»ï¼‰ : 
+//	Yaw		= Yè»¸å›žã‚Šã®å›žè»¢ï¼ˆæ­£ = å³å›žè»¢ï¼‰
+//	Pitch	= Xè»¸å›žã‚Šã®å›žè»¢ï¼ˆæ­£ = ä¸‹å‘ãï¼‰
 // 
 //	Forward.x = cos(Pitch) * sin(Yaw)
-//	Forward.y = -sin(Pitch)		•‰‚É‚·‚é‚±‚Æ‚Å³‚ÌPitch = ‰ºŒü‚«
+//	Forward.y = -sin(Pitch)		è² ã«ã™ã‚‹ã“ã¨ã§æ­£ã®Pitch = ä¸‹å‘ã
 // 
-//	Forward.z = -cos(Pitch) * cos(Yaw)	‰EŽèŒn‚È‚Ì‚ÅZ•ûŒü‚Í•‰
+//	Forward.z = -cos(Pitch) * cos(Yaw)	å³æ‰‹ç³»ãªã®ã§Zæ–¹å‘ã¯è² 
 // 
-//  Right = normalize(Forward * WorldUp) ŠOÏ‚Å‰E•ûŒü‚ð‹‚ß‚é
+//  Right = normalize(Forward * WorldUp) å¤–ç©ã§å³æ–¹å‘ã‚’æ±‚ã‚ã‚‹
 // -------------------------------------------------------------------------------
 void FPSCamera::UpdateVectors()
 {
 	const float yawRad		= DirectX::XMConvertToRadians(m_Yaw);
 	const float pitchRad	= DirectX::XMConvertToRadians(m_Pitch);
 
-	// ForwardƒxƒNƒgƒ‹
+	// Forwardãƒ™ã‚¯ãƒˆãƒ«
 	DirectX::XMFLOAT3 fwd;
 	fwd.x = cosf(pitchRad) * sinf(yawRad);
 	fwd.y = -sinf(pitchRad);
@@ -226,10 +226,10 @@ void FPSCamera::UpdateVectors()
 		&m_Forward,
 		DirectX::XMVector3Normalize(DirectX::XMLoadFloat3(&fwd)));
 	
-	// RightƒxƒNƒgƒ‹
-	// Forward * WorldUp ‚ÌŠOÏ‚ð³‹K‰»
-	// WorldUp ‚Æ Forward ‚ª•½si^ã/^‰º‚ðŒü‚­j‚É‚È‚é‚ÆŠOÏ‚ª‚O‚É‚È‚é‚½‚ß
-	// Pitch‚ð}89“x‚ÉƒNƒ‰ƒ“ƒv‚·‚é‚±‚Æ‚Å”­¶‚µ‚È‚¢
+	// Rightãƒ™ã‚¯ãƒˆãƒ«
+	// Forward * WorldUp ã®å¤–ç©ã‚’æ­£è¦åŒ–
+	// WorldUp ã¨ Forward ãŒå¹³è¡Œï¼ˆçœŸä¸Š/çœŸä¸‹ã‚’å‘ãï¼‰ã«ãªã‚‹ã¨å¤–ç©ãŒï¼ã«ãªã‚‹ãŸã‚
+	// Pitchã‚’Â±89åº¦ã«ã‚¯ãƒ©ãƒ³ãƒ—ã™ã‚‹ã“ã¨ã§ç™ºç”Ÿã—ãªã„
 	const auto worldUp = DirectX::XMLoadFloat3(&WORLD_UP);
 	const auto forward = DirectX::XMLoadFloat3(&m_Forward);
 

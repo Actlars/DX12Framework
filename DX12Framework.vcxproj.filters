@@ -250,33 +250,6 @@
     <Filter Include="ソース ファイル\Engine\Test\NTCImageTestRunner">
       <UniqueIdentifier>{d5e4464f-1c5e-4212-8ee3-7a656a2d72b0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Engine\UI">
-      <UniqueIdentifier>{e7ea9f71-fc24-4236-9d4d-0848ab8ba8f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\UI\Core">
-      <UniqueIdentifier>{7e21dd50-af8f-4a84-a7b1-faf2eacb5069}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\UI\Layout">
-      <UniqueIdentifier>{2b644f40-a4b8-4186-b851-34b8ed213f44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\UI\Widgets">
-      <UniqueIdentifier>{89afe730-5156-4fc6-8d9c-a5a294a0f0f4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\UI\Render">
-      <UniqueIdentifier>{9b824b62-6c2e-48e8-b502-091abe5cd24b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\UI\Docking">
-      <UniqueIdentifier>{68b7cd6b-a4c1-4e93-ad1e-09039b6deb43}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\UI\Input">
-      <UniqueIdentifier>{57060b6b-eda2-46ba-9edc-87b08c0dde8a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\UI\Render\EditorUIRenderer">
-      <UniqueIdentifier>{1da1a79b-08e9-4723-8d32-1349a1589b39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\UI\Render\UIFrameGeometry">
-      <UniqueIdentifier>{3deef0e4-90b9-49af-aba1-65c0a6cd308e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Engine\Shader\EditorUIShader">
       <UniqueIdentifier>{3798a225-52fb-4de7-a06f-2336d462a0c8}</UniqueIdentifier>
     </Filter>
@@ -292,8 +265,41 @@
     <Filter Include="ソース ファイル\Engine\Input\MouseInput">
       <UniqueIdentifier>{cfe28f26-5f15-4db2-8f7d-de742673e415}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Engine\UI\Widgets\Layout">
+    <Filter Include="ソース ファイル\Engine\EditorUI">
+      <UniqueIdentifier>{e7ea9f71-fc24-4236-9d4d-0848ab8ba8f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Core">
+      <UniqueIdentifier>{7e21dd50-af8f-4a84-a7b1-faf2eacb5069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Layout">
+      <UniqueIdentifier>{2b644f40-a4b8-4186-b851-34b8ed213f44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Widgets">
+      <UniqueIdentifier>{89afe730-5156-4fc6-8d9c-a5a294a0f0f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Widgets\Layout">
       <UniqueIdentifier>{4b693999-6845-44e8-be1b-f294eabb4504}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Render">
+      <UniqueIdentifier>{9b824b62-6c2e-48e8-b502-091abe5cd24b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Render\EditorUIRenderer">
+      <UniqueIdentifier>{1da1a79b-08e9-4723-8d32-1349a1589b39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Render\UIFrameGeometry">
+      <UniqueIdentifier>{3deef0e4-90b9-49af-aba1-65c0a6cd308e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Docking">
+      <UniqueIdentifier>{68b7cd6b-a4c1-4e93-ad1e-09039b6deb43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Input">
+      <UniqueIdentifier>{57060b6b-eda2-46ba-9edc-87b08c0dde8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Text">
+      <UniqueIdentifier>{d06d4618-88f6-4cde-a8ae-c2576f9aa85e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Text\Font">
+      <UniqueIdentifier>{3a63525c-731a-4348-8f06-1f0c67387b19}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -505,31 +511,31 @@
       <Filter>ソース ファイル\Engine\Test\NTCImageTestRunner</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Core\DrawList.h">
-      <Filter>ソース ファイル\Engine\UI\Core</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Core\Types.h">
-      <Filter>ソース ファイル\Engine\UI\Core</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Core\Id.h">
-      <Filter>ソース ファイル\Engine\UI\Core</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Core\Style.h">
-      <Filter>ソース ファイル\Engine\UI\Core</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Core\Input.h">
-      <Filter>ソース ファイル\Engine\UI\Core</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Core\Window.h">
-      <Filter>ソース ファイル\Engine\UI\Core</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Core\Context.h">
-      <Filter>ソース ファイル\Engine\UI\Core</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.h">
-      <Filter>ソース ファイル\Engine\UI\Render\EditorUIRenderer</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Render\EditorUIRenderer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.h">
-      <Filter>ソース ファイル\Engine\UI\Render\UIFrameGeometry</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Render\UIFrameGeometry</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Input\InputManager\InputManager.h">
       <Filter>ソース ファイル\Engine\Input\InputManager</Filter>
@@ -541,13 +547,16 @@
       <Filter>ソース ファイル\Engine\Input\MouseInput</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Widgets\Layout\Layout.h">
-      <Filter>ソース ファイル\Engine\UI\Widgets\Layout</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Widgets\Layout</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Widgets\WidgetInteraction.h">
-      <Filter>ソース ファイル\Engine\UI\Widgets</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Widgets</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorUI\Widgets\Widgets.h">
-      <Filter>ソース ファイル\Engine\UI\Widgets</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorUI\Text\Font\Font.h">
+      <Filter>ソース ファイル\Engine\EditorUI\Text\Font</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -705,13 +714,13 @@
       <Filter>ソース ファイル\Engine\Test\NTCImageTestRunner</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorUI\Core\Context.cpp">
-      <Filter>ソース ファイル\Engine\UI\Core</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.cpp">
-      <Filter>ソース ファイル\Engine\UI\Render\EditorUIRenderer</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Render\EditorUIRenderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.cpp">
-      <Filter>ソース ファイル\Engine\UI\Render\UIFrameGeometry</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Render\UIFrameGeometry</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Input\InputManager\InputManager.cpp">
       <Filter>ソース ファイル\Engine\Input\InputManager</Filter>
@@ -723,7 +732,13 @@
       <Filter>ソース ファイル\Engine\Input\MouseInput</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorUI\Widgets\Widgets.cpp">
-      <Filter>ソース ファイル\Engine\UI\Widgets</Filter>
+      <Filter>ソース ファイル\Engine\EditorUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorUI\Text\Font\Font.cpp">
+      <Filter>ソース ファイル\Engine\EditorUI\Text\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorUI\Core\DrawList.cpp">
+      <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

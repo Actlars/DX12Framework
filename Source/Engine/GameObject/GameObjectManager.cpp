@@ -6,7 +6,7 @@
 #include <Engine/Renderer/RenderQueue/MeshletRenderQueue/MeshletRenderQueue.h>
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 GameObjectManager::GameObjectManager()
 { /* DO_NOTHING */ }
@@ -15,7 +15,7 @@ GameObjectManager::~GameObjectManager()
 { Clear(); }
 
 // -------------------------------------------------------------------------------
-//		íœ—\–ñ
+//		å‰Šé™¤äºˆç´„
 // -------------------------------------------------------------------------------
 void GameObjectManager::Remove(GameObject* _pObject)
 {
@@ -24,14 +24,14 @@ void GameObjectManager::Remove(GameObject* _pObject)
 
 	std::lock_guard<std::mutex> lock(m_Mutex);
 
-	// d•¡“o˜^‚ğ–h‚®
+	// é‡è¤‡ç™»éŒ²ã‚’é˜²ã
 	auto it = std::find(m_PendingRemoves.begin(), m_PendingRemoves.end(), _pObject);
 	if (it == m_PendingRemoves.end()) 
 	{ m_PendingRemoves.emplace_back(_pObject); }
 }
 
 // -------------------------------------------------------------------------------
-//		íœ—\–ñ‚ğÀÛ‚ÉÀs‚·‚éiƒtƒŒ[ƒ€––‚ÉŒÄ‚Ôj
+//		å‰Šé™¤äºˆç´„ã‚’å®Ÿéš›ã«å®Ÿè¡Œã™ã‚‹ï¼ˆãƒ•ãƒ¬ãƒ¼ãƒ æœ«ã«å‘¼ã¶ï¼‰
 // -------------------------------------------------------------------------------
 void GameObjectManager::FlushPendingRemoves()
 {
@@ -53,7 +53,7 @@ void GameObjectManager::FlushPendingRemoves()
 }
 
 // -------------------------------------------------------------------------------
-//		‘SƒIƒuƒWƒFƒNƒg‚ÌXV
+//		å…¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æ›´æ–°
 // -------------------------------------------------------------------------------
 void GameObjectManager::Update(float _deltaTime)
 {
@@ -65,7 +65,7 @@ void GameObjectManager::Update(float _deltaTime)
 }
 
 // -------------------------------------------------------------------------------
-//		IRenderable‚ğ‚ÂGameObject‚ÌDraw‚ğŒÄ‚Ô
+//		IRenderableã‚’æŒã¤GameObjectã®Drawã‚’å‘¼ã¶
 // -------------------------------------------------------------------------------
 void GameObjectManager::Submit(RenderQueue* _pQueue)
 {
@@ -77,7 +77,7 @@ void GameObjectManager::Submit(RenderQueue* _pQueue)
 }
 
 // -------------------------------------------------------------------------------
-//		IMeshletRenderable‚ğ‚ÂGameObject‚ÌDraw‚ğŒÄ‚Ô
+//		IMeshletRenderableã‚’æŒã¤GameObjectã®Drawã‚’å‘¼ã¶
 // -------------------------------------------------------------------------------
 void GameObjectManager::SubmitMeshlet(MeshletRenderQueue* _pQueue)
 {
@@ -89,7 +89,7 @@ void GameObjectManager::SubmitMeshlet(MeshletRenderQueue* _pQueue)
 }
 
 // -------------------------------------------------------------------------------
-//		–¼‘O‚ÅŒŸõ
+//		åå‰ã§æ¤œç´¢
 // -------------------------------------------------------------------------------
 GameObject* GameObjectManager::FindObject(const std::string& _name) const
 {
@@ -103,7 +103,7 @@ GameObject* GameObjectManager::FindObject(const std::string& _name) const
 }
 
 // -------------------------------------------------------------------------------
-//		ğŒ‚ÅŒŸõ
+//		æ¡ä»¶ã§æ¤œç´¢
 // -------------------------------------------------------------------------------
 std::vector<GameObject*> GameObjectManager::FindAll(
 	const std::function<bool(const GameObject&)>& _pred) const
@@ -119,7 +119,7 @@ std::vector<GameObject*> GameObjectManager::FindAll(
 }
 
 // -------------------------------------------------------------------------------
-//		‘Síœ
+//		å…¨å‰Šé™¤
 // -------------------------------------------------------------------------------
 void GameObjectManager::Clear()
 {
@@ -129,7 +129,7 @@ void GameObjectManager::Clear()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒIƒuƒWƒFƒNƒg”‚ğ•Ô‚·
+//		ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆæ•°ã‚’è¿”ã™
 // -------------------------------------------------------------------------------
 size_t GameObjectManager::ObjectCount() const
 {

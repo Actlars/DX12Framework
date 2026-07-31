@@ -9,7 +9,7 @@
 // -------------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::ConstantBuffer::ConstantBuffer()
 : m_pCB(nullptr)
@@ -19,13 +19,13 @@ RHI::ConstantBuffer::ConstantBuffer()
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::ConstantBuffer::~ConstantBuffer() 
 { Term(); }
 
 // -------------------------------------------------------------------------------
-//		‰Šú‰»ˆ—‚ğs‚¤
+//		åˆæœŸåŒ–å‡¦ç†ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 bool RHI::ConstantBuffer::Init
 (
@@ -44,9 +44,9 @@ bool RHI::ConstantBuffer::Init
 	m_pPool->AddRef();
 
 	size_t align = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
-	UINT64 sizeAligned = (_size + (align - 1)) & ~(align - 1);	// align‚ÉØ‚èã‚°‚é
+	UINT64 sizeAligned = (_size + (align - 1)) & ~(align - 1);	// alignã«åˆ‡ã‚Šä¸Šã’ã‚‹
 
-	// ƒq[ƒvƒvƒƒpƒeƒB
+	// ãƒ’ãƒ¼ãƒ—ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£
 	D3D12_HEAP_PROPERTIES prop = {};
 	prop.Type					= D3D12_HEAP_TYPE_UPLOAD;
 	prop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -54,7 +54,7 @@ bool RHI::ConstantBuffer::Init
 	prop.CreationNodeMask		= 1;
 	prop.VisibleNodeMask		= 1;
 
-	// ƒŠƒ\[ƒX‚Ìİ’è
+	// ãƒªã‚½ãƒ¼ã‚¹ã®è¨­å®š
 	D3D12_RESOURCE_DESC desc = {};
 	desc.Dimension			= D3D12_RESOURCE_DIMENSION_BUFFER;
 	desc.Alignment			= 0;
@@ -68,7 +68,7 @@ bool RHI::ConstantBuffer::Init
 	desc.Layout				= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	desc.Flags				= D3D12_RESOURCE_FLAG_NONE;
 
-	// ƒŠƒ\[ƒX‚ğ¶¬
+	// ãƒªã‚½ãƒ¼ã‚¹ã‚’ç”Ÿæˆ
 	auto hr = _pDevice->CreateCommittedResource(
 		&prop,
 		D3D12_HEAP_FLAG_NONE,
@@ -79,7 +79,7 @@ bool RHI::ConstantBuffer::Init
 	if (FAILED(hr)) 
 	{ return false; }
 
-	// ƒƒ‚ƒŠƒ}ƒbƒsƒ“ƒO‚µ‚Ä‚¨‚­
+	// ãƒ¡ãƒ¢ãƒªãƒãƒƒãƒ”ãƒ³ã‚°ã—ã¦ãŠã
 	hr = m_pCB->Map(0, nullptr, &m_pMappedPtr);
 	if (FAILED(hr)) 
 	{ return false; }
@@ -90,30 +90,30 @@ bool RHI::ConstantBuffer::Init
 
 	_pDevice->CreateConstantBufferView(&m_Desc, m_pHandle->HandleCPU);
 
-	// ³íI—¹
+	// æ­£å¸¸çµ‚äº†
 	return true;
 }
 
 // -------------------------------------------------------------------------------
-// I—¹ˆ—‚ğs‚¤
+// çµ‚äº†å‡¦ç†ã‚’è¡Œã†
 // -------------------------------------------------------------------------------
 void RHI::ConstantBuffer::Term()
 {
-	// ƒƒ‚ƒŠƒ}ƒbƒsƒ“ƒO‚ğ‰ğœ‚µ‚ÄA’è”ƒoƒbƒtƒ@‚ğ‰ğ•ú‚·‚é
+	// ãƒ¡ãƒ¢ãƒªãƒãƒƒãƒ”ãƒ³ã‚°ã‚’è§£é™¤ã—ã¦ã€å®šæ•°ãƒãƒƒãƒ•ã‚¡ã‚’è§£æ”¾ã™ã‚‹
 	if (m_pCB != nullptr)
 	{
 		m_pCB->Unmap(0, nullptr);
 		m_pCB.Reset();
 	}
 
-	// ƒrƒ…[‚ğ”jŠü
+	// ãƒ“ãƒ¥ãƒ¼ã‚’ç ´æ£„
 	if (m_pPool != nullptr)
 	{
 		m_pPool->FreeHandle(m_pHandle);
 		m_pHandle = nullptr;
 	}
 
-	// ƒfƒBƒXƒNƒŠƒvƒ^ƒv[ƒ‹‚ğ‰ğ•ú
+	// ãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ—ãƒ¼ãƒ«ã‚’è§£æ”¾
 	if (m_pPool != nullptr)
 	{
 		m_pPool->Release();
@@ -124,13 +124,13 @@ void RHI::ConstantBuffer::Term()
 }
 
 // -------------------------------------------------------------------------------
-//		GPU‰¼‘zƒAƒhƒŒƒX‚ğæ“¾
+//		GPUä»®æƒ³ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 D3D12_GPU_VIRTUAL_ADDRESS RHI::ConstantBuffer::GetAddress() const 
 { return m_Desc.BufferLocation; }
 
 // -------------------------------------------------------------------------------
-//		CPUƒfƒBƒXƒNƒŠƒvƒ^ƒnƒ“ƒhƒ‹‚ğæ“¾
+//		CPUãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒãƒ³ãƒ‰ãƒ«ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 D3D12_CPU_DESCRIPTOR_HANDLE RHI::ConstantBuffer::GetHandleCPU() const
 {
@@ -141,7 +141,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE RHI::ConstantBuffer::GetHandleCPU() const
 }
 
 // -------------------------------------------------------------------------------
-//		GPUƒfƒBƒXƒNƒŠƒvƒ^ƒnƒ“ƒhƒ‹‚ğæ“¾
+//		GPUãƒ‡ã‚£ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒãƒ³ãƒ‰ãƒ«ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 D3D12_GPU_DESCRIPTOR_HANDLE RHI::ConstantBuffer::GetHandleGPU() const
 {
@@ -152,7 +152,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE RHI::ConstantBuffer::GetHandleGPU() const
 }
 
 // -------------------------------------------------------------------------------
-//		ƒƒ‚ƒŠƒ}ƒbƒsƒ“ƒOÏ‚İƒ|ƒCƒ“ƒ^‚ğæ“¾
+//		ãƒ¡ãƒ¢ãƒªãƒãƒƒãƒ”ãƒ³ã‚°æ¸ˆã¿ãƒã‚¤ãƒ³ã‚¿ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 void* RHI::ConstantBuffer::GetPtr() const 
 { return m_pMappedPtr; }

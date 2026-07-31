@@ -5,19 +5,19 @@
 #include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::Sampler::Sampler()
 { /* DO_NOTHING*/ }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 RHI::Sampler::~Sampler() 
 { Term(); }
 
 // -------------------------------------------------------------------------------
-//		‰Šú‰»
+//		åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool RHI::Sampler::Init(
 	ID3D12Device*				_pDevice,
@@ -31,14 +31,14 @@ bool RHI::Sampler::Init(
 		return false;
 	}
 
-	// “ñd‰Šú‰»‚ğ–h‚®
+	// äºŒé‡åˆæœŸåŒ–ã‚’é˜²ã
 	assert(m_pHandle	== nullptr);
 	assert(m_pPool		== nullptr);
 
 	m_pPool = _pPool;
 	m_pPool->AddRef();
 
-	// DescriptorPool‚©‚çƒTƒ“ƒvƒ‰[ƒXƒƒbƒg‚ğ1‚ÂØ‚è‚é
+	// DescriptorPoolã‹ã‚‰ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã‚¹ãƒ­ãƒƒãƒˆã‚’1ã¤å€Ÿã‚Šã‚‹
 	m_pHandle = m_pPool->AllocHandle();
 	if (m_pHandle == nullptr)
 	{
@@ -46,22 +46,22 @@ bool RHI::Sampler::Init(
 		return false;
 	}
 
-	// ƒTƒ“ƒvƒ‰[‚ğƒq[ƒv‚É‘‚«‚Ş
-	// sampler‚Íƒoƒbƒtƒ@[‚Å‚Í‚È‚­ƒq[ƒvƒXƒƒbƒg‚É’¼ÚCreateSampler()‚Å‘‚«‚Ş
+	// ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ã‚’ãƒ’ãƒ¼ãƒ—ã«æ›¸ãè¾¼ã‚€
+	// samplerã¯ãƒãƒƒãƒ•ã‚¡ãƒ¼ã§ã¯ãªããƒ’ãƒ¼ãƒ—ã‚¹ãƒ­ãƒƒãƒˆã«ç›´æ¥CreateSampler()ã§æ›¸ãè¾¼ã‚€
 	_pDevice->CreateSampler(&_desc, m_pHandle->HandleCPU);
 
-	// İ’è‚ğ•Û‚µ‚Ä‚¨‚­iŒã‚©‚çQÆ‚Å‚«‚é‚æ‚¤‚Éj
+	// è¨­å®šã‚’ä¿æŒã—ã¦ãŠãï¼ˆå¾Œã‹ã‚‰å‚ç…§ã§ãã‚‹ã‚ˆã†ã«ï¼‰
 	m_Desc = _desc;
 
 	return true;
 }
 
 // -------------------------------------------------------------------------------
-//		I—¹ˆ—
+//		çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void RHI::Sampler::Term()
 {
-	// DescriptorPool‚ÉƒXƒƒbƒg‚ğ•Ô‹p
+	// DescriptorPoolã«ã‚¹ãƒ­ãƒƒãƒˆã‚’è¿”å´
 	if (m_pPool != nullptr && m_pHandle != nullptr)
 	{
 		m_pPool->FreeHandle(m_pHandle);
@@ -78,7 +78,7 @@ void RHI::Sampler::Term()
 }
 
 // -------------------------------------------------------------------------------
-//		GPUƒnƒ“ƒhƒ‹‚Ìæ“¾
+//		GPUãƒãƒ³ãƒ‰ãƒ«ã®å–å¾—
 // -------------------------------------------------------------------------------
 D3D12_GPU_DESCRIPTOR_HANDLE RHI::Sampler::GetHandleGPU() const
 {
@@ -89,7 +89,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE RHI::Sampler::GetHandleGPU() const
 }
 
 // -------------------------------------------------------------------------------
-//		CPUƒnƒ“ƒhƒ‹‚Ìæ“¾
+//		CPUãƒãƒ³ãƒ‰ãƒ«ã®å–å¾—
 // -------------------------------------------------------------------------------
 D3D12_CPU_DESCRIPTOR_HANDLE RHI::Sampler::GetHandleCPU() const
 {
@@ -100,31 +100,31 @@ D3D12_CPU_DESCRIPTOR_HANDLE RHI::Sampler::GetHandleCPU() const
 }
 
 // -------------------------------------------------------------------------------
-//		ƒvƒŠƒZƒbƒg : ƒoƒCƒŠƒjƒA + ƒ‰ƒbƒv
+//		ãƒ—ãƒªã‚»ãƒƒãƒˆ : ãƒã‚¤ãƒªãƒ‹ã‚¢ + ãƒ©ãƒƒãƒ—
 // -------------------------------------------------------------------------------
 D3D12_SAMPLER_DESC RHI::Sampler::CreateLinearWrap()
 {
 	D3D12_SAMPLER_DESC desc = {};
-	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_LINEAR;	// ƒoƒCƒŠƒjƒAiƒ~ƒbƒv‚àƒŠƒjƒAŠÔŠuj
-	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;	// UV‚ª0 ` 1‚ğ’´‚¦‚½‚çŒJ‚è•Ô‚·
+	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_LINEAR;	// ãƒã‚¤ãƒªãƒ‹ã‚¢ï¼ˆãƒŸãƒƒãƒ—ã‚‚ãƒªãƒ‹ã‚¢é–“éš”ï¼‰
+	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;	// UVãŒ0 ï½ 1ã‚’è¶…ãˆãŸã‚‰ç¹°ã‚Šè¿”ã™
 	desc.AddressV		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	desc.AddressW		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	desc.MipLODBias		= 0.0f;								// ƒ~ƒbƒvƒŒƒxƒ‹‚ÌƒIƒtƒZƒbƒg
-	desc.MaxAnisotropy	= 1;								// ˆÙ•û«‚È‚µ
-	desc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;		// ”äŠrƒTƒ“ƒvƒŠƒ“ƒO‚È‚µ
+	desc.MipLODBias		= 0.0f;								// ãƒŸãƒƒãƒ—ãƒ¬ãƒ™ãƒ«ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+	desc.MaxAnisotropy	= 1;								// ç•°æ–¹æ€§ãªã—
+	desc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;		// æ¯”è¼ƒã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ãªã—
 	desc.MinLOD			= 0.0f;
-	desc.MaxLOD			= D3D12_FLOAT32_MAX;				// ‘Sƒ~ƒbƒvƒŒƒxƒ‹‚ğg—p
+	desc.MaxLOD			= D3D12_FLOAT32_MAX;				// å…¨ãƒŸãƒƒãƒ—ãƒ¬ãƒ™ãƒ«ã‚’ä½¿ç”¨
 	return desc;
 }
 
 // -------------------------------------------------------------------------------
-//		ƒvƒŠƒZƒbƒg : ƒoƒCƒŠƒjƒA + ƒNƒ‰ƒ“ƒv
+//		ãƒ—ãƒªã‚»ãƒƒãƒˆ : ãƒã‚¤ãƒªãƒ‹ã‚¢ + ã‚¯ãƒ©ãƒ³ãƒ—
 // -------------------------------------------------------------------------------
 D3D12_SAMPLER_DESC RHI::Sampler::CreateLinearClamp()
 {
 	D3D12_SAMPLER_DESC desc = {};
-	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_LINEAR;	// ƒoƒCƒŠƒjƒAiƒ~ƒbƒv‚àƒŠƒjƒAŠÔŠuj
-	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;	// UV‚ª0 ` 1‚ğ’´‚¦‚½‚ç’[‚ÌF‚ğg‚¤
+	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_LINEAR;	// ãƒã‚¤ãƒªãƒ‹ã‚¢ï¼ˆãƒŸãƒƒãƒ—ã‚‚ãƒªãƒ‹ã‚¢é–“éš”ï¼‰
+	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;	// UVãŒ0 ï½ 1ã‚’è¶…ãˆãŸã‚‰ç«¯ã®è‰²ã‚’ä½¿ã†
 	desc.AddressV		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	desc.AddressW		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	desc.MipLODBias		= 0.0f;
@@ -136,13 +136,13 @@ D3D12_SAMPLER_DESC RHI::Sampler::CreateLinearClamp()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒvƒŠƒZƒbƒg : ƒoƒCƒŠƒjƒA + ƒ~ƒ‰[
+//		ãƒ—ãƒªã‚»ãƒƒãƒˆ : ãƒã‚¤ãƒªãƒ‹ã‚¢ + ãƒŸãƒ©ãƒ¼
 // -------------------------------------------------------------------------------
 D3D12_SAMPLER_DESC RHI::Sampler::CreateLinearMirror()
 {
 	D3D12_SAMPLER_DESC desc = {};
-	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_LINEAR;		// ƒoƒCƒŠƒjƒAiƒ~ƒbƒv‚àƒŠƒjƒAŠÔŠuj
-	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_MIRROR;	// 0¨1¨0¨1‚Æ”½“]‚µ‚È‚ª‚çŒJ‚è•Ô‚·
+	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_LINEAR;		// ãƒã‚¤ãƒªãƒ‹ã‚¢ï¼ˆãƒŸãƒƒãƒ—ã‚‚ãƒªãƒ‹ã‚¢é–“éš”ï¼‰
+	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_MIRROR;	// 0â†’1â†’0â†’1ã¨åè»¢ã—ãªãŒã‚‰ç¹°ã‚Šè¿”ã™
 	desc.AddressV		= D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 	desc.AddressW		= D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
 	desc.MipLODBias		= 0.0f;
@@ -154,13 +154,13 @@ D3D12_SAMPLER_DESC RHI::Sampler::CreateLinearMirror()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒvƒŠƒZƒbƒg : ƒ|ƒCƒ“ƒg + ƒ‰ƒbƒv
+//		ãƒ—ãƒªã‚»ãƒƒãƒˆ : ãƒã‚¤ãƒ³ãƒˆ + ãƒ©ãƒƒãƒ—
 // -------------------------------------------------------------------------------
 D3D12_SAMPLER_DESC RHI::Sampler::CreatePointWrap()
 {
 	D3D12_SAMPLER_DESC desc = {};
-	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_POINT;	// Å‹ß–Ti•âŠ®‚È‚µj
-	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;	// UV‚ª0 ` 1‚ğ’´‚¦‚½‚çŒJ‚è•Ô‚·
+	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_POINT;	// æœ€è¿‘å‚ï¼ˆè£œå®Œãªã—ï¼‰
+	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;	// UVãŒ0 ï½ 1ã‚’è¶…ãˆãŸã‚‰ç¹°ã‚Šè¿”ã™
 	desc.AddressV		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	desc.AddressW		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	desc.MipLODBias		= 0.0f;
@@ -172,13 +172,13 @@ D3D12_SAMPLER_DESC RHI::Sampler::CreatePointWrap()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒvƒŠƒZƒbƒg : ƒ|ƒCƒ“ƒg + ƒNƒ‰ƒ“ƒv
+//		ãƒ—ãƒªã‚»ãƒƒãƒˆ : ãƒã‚¤ãƒ³ãƒˆ + ã‚¯ãƒ©ãƒ³ãƒ—
 // -------------------------------------------------------------------------------
 D3D12_SAMPLER_DESC RHI::Sampler::CreatePointClamp()
 {
 	D3D12_SAMPLER_DESC desc = {};
-	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_POINT;	// ƒoƒCƒŠƒjƒAiƒ~ƒbƒv‚àƒŠƒjƒAŠÔŠuj
-	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;	// UV‚ª0 ` 1‚ğ’´‚¦‚½‚ç’[‚ÌF‚ğg‚¤
+	desc.Filter			= D3D12_FILTER_MIN_MAG_MIP_POINT;	// ãƒã‚¤ãƒªãƒ‹ã‚¢ï¼ˆãƒŸãƒƒãƒ—ã‚‚ãƒªãƒ‹ã‚¢é–“éš”ï¼‰
+	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;	// UVãŒ0 ï½ 1ã‚’è¶…ãˆãŸã‚‰ç«¯ã®è‰²ã‚’ä½¿ã†
 	desc.AddressV		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	desc.AddressW		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	desc.MipLODBias		= 0.0f;
@@ -190,18 +190,18 @@ D3D12_SAMPLER_DESC RHI::Sampler::CreatePointClamp()
 }
 
 // -------------------------------------------------------------------------------
-//		ƒvƒŠƒZƒbƒg : ˆÙ•û«ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO + ƒ‰ƒbƒv
+//		ãƒ—ãƒªã‚»ãƒƒãƒˆ : ç•°æ–¹æ€§ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚° + ãƒ©ãƒƒãƒ—
 // -------------------------------------------------------------------------------
 D3D12_SAMPLER_DESC RHI::Sampler::CreateAnisotropic(uint32_t _maxAnisotropy)
 {
-	// MaxAnisotropy‚Í0`16‚Ì”ÍˆÍ‚Éû‚ß‚é
+	// MaxAnisotropyã¯0ï½16ã®ç¯„å›²ã«åã‚ã‚‹
 	const auto aniso	= (_maxAnisotropy < 1) ? 1u
 						: (_maxAnisotropy > 16) ? 16u
 						: _maxAnisotropy;
 
 	D3D12_SAMPLER_DESC desc = {};
-	desc.Filter			= D3D12_FILTER_ANISOTROPIC;			// ˆÙ•û«ƒtƒBƒ‹ƒ^ƒŠƒ“ƒOiÎ‚ß‹“_‚Å‚à‚•i¿j
-	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;	// UV‚ª0 ` 1‚ğ’´‚¦‚½‚çŒJ‚è•Ô‚·
+	desc.Filter			= D3D12_FILTER_ANISOTROPIC;			// ç•°æ–¹æ€§ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°ï¼ˆæ–œã‚è¦–ç‚¹ã§ã‚‚é«˜å“è³ªï¼‰
+	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;	// UVãŒ0 ï½ 1ã‚’è¶…ãˆãŸã‚‰ç¹°ã‚Šè¿”ã™
 	desc.AddressV		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	desc.AddressW		= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	desc.MipLODBias		= 0.0f;
@@ -213,26 +213,26 @@ D3D12_SAMPLER_DESC RHI::Sampler::CreateAnisotropic(uint32_t _maxAnisotropy)
 }
 
 // -------------------------------------------------------------------------------
-//		ƒvƒŠƒZƒbƒg : ƒVƒƒƒhƒEƒ}ƒbƒv—p”äŠrƒTƒ“ƒvƒ‰[
+//		ãƒ—ãƒªã‚»ãƒƒãƒˆ : ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—ç”¨æ¯”è¼ƒã‚µãƒ³ãƒ—ãƒ©ãƒ¼
 // -------------------------------------------------------------------------------
 D3D12_SAMPLER_DESC RHI::Sampler::CreateShadowMap()
 {
 	D3D12_SAMPLER_DESC desc = {};
 	// COMPARISON_MIIN_MAG_LINEAR_MIP_POINT : 
-	// ƒ~ƒbƒv‚Íƒ|ƒCƒ“ƒg‚Å‘I‘ğ‚µ‚Â‚ÂAƒtƒBƒ‹ƒ^‚Í”äŠrŒã‚ÉƒoƒCƒŠƒjƒA•âŠ®iPCF—pj
+	// ãƒŸãƒƒãƒ—ã¯ãƒã‚¤ãƒ³ãƒˆã§é¸æŠã—ã¤ã¤ã€ãƒ•ã‚£ãƒ«ã‚¿ã¯æ¯”è¼ƒå¾Œã«ãƒã‚¤ãƒªãƒ‹ã‚¢è£œå®Œï¼ˆPCFç”¨ï¼‰
 	desc.Filter			= D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_BORDER;	// ”ÍˆÍŠO‚ÍBorderColor‚ğg‚¤
+	desc.AddressU		= D3D12_TEXTURE_ADDRESS_MODE_BORDER;	// ç¯„å›²å¤–ã¯BorderColorã‚’ä½¿ã†
 	desc.AddressV		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	desc.AddressW		= D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 	desc.MipLODBias		= 0.0f;
 	desc.MaxAnisotropy	= 1;
-	// LESS_EQUAL : ƒVƒƒƒhƒEƒ}ƒbƒv‚Ì[“x’l < ƒTƒ“ƒvƒ‹’l‚È‚çu‰e‚È‚µv‚Æ”»’è
+	// LESS_EQUAL : ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—ã®æ·±åº¦å€¤ < ã‚µãƒ³ãƒ—ãƒ«å€¤ãªã‚‰ã€Œå½±ãªã—ã€ã¨åˆ¤å®š
 	desc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	desc.BorderColor[0] = 1.0f;	// ”ÍˆÍŠO‚Íu‰e‚È‚µvˆµ‚¢i”’ = 1.0j
+	desc.BorderColor[0] = 1.0f;	// ç¯„å›²å¤–ã¯ã€Œå½±ãªã—ã€æ‰±ã„ï¼ˆç™½ = 1.0ï¼‰
 	desc.BorderColor[1] = 1.0f;
 	desc.BorderColor[2] = 1.0f;
 	desc.BorderColor[3] = 1.0f;
 	desc.MinLOD			= 0.0f;
-	desc.MaxLOD			= 0.0f;	// ƒVƒƒƒhƒEƒ}ƒbƒv‚Íƒ~ƒbƒv‚È‚µ
+	desc.MaxLOD			= 0.0f;	// ã‚·ãƒ£ãƒ‰ã‚¦ãƒãƒƒãƒ—ã¯ãƒŸãƒƒãƒ—ãªã—
 	return desc;
 }

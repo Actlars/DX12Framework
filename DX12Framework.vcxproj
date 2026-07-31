@@ -232,6 +232,7 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\EditorUI\Core\Window.h" />
     <ClInclude Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.h" />
     <ClInclude Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Text\Font\Font.h" />
     <ClInclude Include="Source\Engine\EditorUI\Widgets\Layout\Layout.h" />
     <ClInclude Include="Source\Engine\EditorUI\Widgets\WidgetInteraction.h" />
     <ClInclude Include="Source\Engine\EditorUI\Widgets\Widgets.h" />
@@ -310,8 +311,10 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\Camera\CameraBase.cpp" />
     <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\Context.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\DrawList.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Text\Font\Font.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Widgets\Widgets.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.cpp" />

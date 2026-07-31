@@ -4,40 +4,40 @@
 #include "TextureManager.h"
 
 // -------------------------------------------------------------------------------
-// ‰Šú‰»
+// åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool RHI::TextureManager::Init(const InitDesc& _desc)
 {
-    // ˆø”ƒ`ƒFƒbƒN
+    // å¼•æ•°ãƒã‚§ãƒƒã‚¯
     assert(_desc.pDevice != nullptr);
     assert(_desc.pQueue != nullptr);
     assert(_desc.pPool != nullptr);
     assert(_desc.MaxTextures > 0);
 
-    // QÆ‚ğ•ÛiŠ—LŒ ‚Í‚½‚È‚¢j
+    // å‚ç…§ã‚’ä¿æŒï¼ˆæ‰€æœ‰æ¨©ã¯æŒãŸãªã„ï¼‰
     m_pDevice = _desc.pDevice;
     m_pQueue = _desc.pQueue;
     m_pPool = _desc.pPool;
     m_MaxTextures = _desc.MaxTextures;
     m_NextSlot = 0;
 
-    // ƒXƒƒbƒg”z—ñ‚ğ–‘OŠm•Û
-    // resize: Load()“à‚Åm_Textures[slot]‚É“YšƒAƒNƒZƒX‚·‚é‚½‚ß—v‘f‚ª•K—v
+    // ã‚¹ãƒ­ãƒƒãƒˆé…åˆ—ã‚’äº‹å‰ç¢ºä¿
+    // resize: Load()å†…ã§m_Textures[slot]ã«æ·»å­—ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹ãŸã‚è¦ç´ ãŒå¿…è¦
     m_Textures.resize(m_MaxTextures);
 
-    // reserve: Load()‚Ì‚½‚Ñ‚ÉÄŠm•Û‚ª‹N‚«‚È‚¢‚æ‚¤‚ÉƒnƒbƒVƒ…ƒ}ƒbƒv‚ÌƒoƒPƒbƒg‚ğŠm•Û
+    // reserve: Load()ã®ãŸã³ã«å†ç¢ºä¿ãŒèµ·ããªã„ã‚ˆã†ã«ãƒãƒƒã‚·ãƒ¥ãƒãƒƒãƒ—ã®ãƒã‚±ãƒƒãƒˆã‚’ç¢ºä¿
     m_PathToSlot.reserve(m_MaxTextures);
 
     return true;
 }
 
 // -------------------------------------------------------------------------------
-// I—¹ˆ—
+// çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void RHI::TextureManager::Term()
 {
-    // unique_ptr ‚È‚Ì‚Å clear() ‚·‚é‚¾‚¯‚Å‘S Texture ‚Ì Term() ‚ªŒÄ‚Î‚ê‚é
-    // Texture::Term() “à‚Å DescriptorPool ‚Ö‚Ìƒnƒ“ƒhƒ‹•Ô‹p‚às‚í‚ê‚é
+    // unique_ptr ãªã®ã§ clear() ã™ã‚‹ã ã‘ã§å…¨ Texture ã® Term() ãŒå‘¼ã°ã‚Œã‚‹
+    // Texture::Term() å†…ã§ DescriptorPool ã¸ã®ãƒãƒ³ãƒ‰ãƒ«è¿”å´ã‚‚è¡Œã‚ã‚Œã‚‹
     m_Textures.clear();
     m_PathToSlot.clear();
     m_NextSlot = 0;
@@ -48,37 +48,37 @@ void RHI::TextureManager::Term()
 }
 
 // -------------------------------------------------------------------------------
-// ƒeƒNƒXƒ`ƒƒ‚Ìƒ[ƒh
+// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ãƒ­ãƒ¼ãƒ‰
 // -------------------------------------------------------------------------------
 bool RHI::TextureManager::Load(const std::wstring& _path, uint32_t& _outSlot)
 {
-    // ƒLƒƒƒbƒVƒ…ƒqƒbƒg: “¯ˆêƒpƒX‚ªŠù‚Éƒ[ƒhÏ‚İ‚È‚çGPUƒAƒbƒvƒ[ƒh‚ğÈ—ª
+    // ã‚­ãƒ£ãƒƒã‚·ãƒ¥ãƒ’ãƒƒãƒˆ: åŒä¸€ãƒ‘ã‚¹ãŒæ—¢ã«ãƒ­ãƒ¼ãƒ‰æ¸ˆã¿ãªã‚‰GPUã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã‚’çœç•¥
     if (IsLoaded(_path))
     {
         _outSlot = m_PathToSlot.at(_path);
         return true;
     }
 
-    // ƒXƒƒbƒgãŒÀƒ`ƒFƒbƒN
+    // ã‚¹ãƒ­ãƒƒãƒˆä¸Šé™ãƒã‚§ãƒƒã‚¯
     if (m_NextSlot >= m_MaxTextures)
     {
-        assert(false && "TextureManager: ƒXƒƒbƒgãŒÀ‚É’B‚µ‚Ü‚µ‚½");
+        assert(false && "TextureManager: ã‚¹ãƒ­ãƒƒãƒˆä¸Šé™ã«é”ã—ã¾ã—ãŸ");
         return false;
     }
 
-    // Texture ‚ğ¶¬‚µ‚Äƒ[ƒh
-    // unique_ptr ‚ÅŠ—LŒ ‚ğ–¾Šm‰»‚µAƒGƒ‰[‚Ì‰ğ•ú˜R‚ê‚ğ–h‚®
+    // Texture ã‚’ç”Ÿæˆã—ã¦ãƒ­ãƒ¼ãƒ‰
+    // unique_ptr ã§æ‰€æœ‰æ¨©ã‚’æ˜ç¢ºåŒ–ã—ã€ã‚¨ãƒ©ãƒ¼æ™‚ã®è§£æ”¾æ¼ã‚Œã‚’é˜²ã
     auto tex = std::make_unique<Texture>();
 
     if (!tex->Init(m_pDevice, m_pQueue, m_pPool, _path))
     {
-        // ƒ[ƒh¸”s: tex ‚Í unique_ptr ‚ÌƒXƒR[ƒvƒAƒEƒg‚Å©“®‰ğ•ú‚³‚ê‚é
+        // ãƒ­ãƒ¼ãƒ‰å¤±æ•—: tex ã¯ unique_ptr ã®ã‚¹ã‚³ãƒ¼ãƒ—ã‚¢ã‚¦ãƒˆã§è‡ªå‹•è§£æ”¾ã•ã‚Œã‚‹
         return false;
     }
 
-    // ƒXƒƒbƒg‚É“o˜^
-    // ‘Sˆ—‚ª¬Œ÷‚µ‚½ÅŒã‚É‚Ì‚İƒXƒƒbƒg‚ğÁ”ï‚·‚é
-    // “r’†‚Å¸”s‚µ‚Ä‚àƒXƒƒbƒg‚ª–³‘Ê‚ÉÁ”ï‚³‚ê‚È‚¢
+    // ã‚¹ãƒ­ãƒƒãƒˆã«ç™»éŒ²
+    // å…¨å‡¦ç†ãŒæˆåŠŸã—ãŸæœ€å¾Œã«ã®ã¿ã‚¹ãƒ­ãƒƒãƒˆã‚’æ¶ˆè²»ã™ã‚‹
+    // é€”ä¸­ã§å¤±æ•—ã—ã¦ã‚‚ã‚¹ãƒ­ãƒƒãƒˆãŒç„¡é§„ã«æ¶ˆè²»ã•ã‚Œãªã„
     const uint32_t slot = m_NextSlot;
     m_Textures[slot] = std::move(tex);
     m_PathToSlot[_path] = slot;
@@ -89,7 +89,7 @@ bool RHI::TextureManager::Load(const std::wstring& _path, uint32_t& _outSlot)
 }
 
 // -------------------------------------------------------------------------------
-// ƒXƒƒbƒg”Ô†‚ÅƒeƒNƒXƒ`ƒƒ‚ğæ“¾
+// ã‚¹ãƒ­ãƒƒãƒˆç•ªå·ã§ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 const RHI::Texture* RHI::TextureManager::GetBySlot(uint32_t _slot) const
 {
@@ -102,7 +102,7 @@ const RHI::Texture* RHI::TextureManager::GetBySlot(uint32_t _slot) const
 }
 
 // -------------------------------------------------------------------------------
-// ƒpƒX‚ÅƒeƒNƒXƒ`ƒƒ‚ğæ“¾
+// ãƒ‘ã‚¹ã§ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å–å¾—
 // -------------------------------------------------------------------------------
 const RHI::Texture* RHI::TextureManager::GetByPath(const std::wstring& _path) const
 {
@@ -116,7 +116,7 @@ const RHI::Texture* RHI::TextureManager::GetByPath(const std::wstring& _path) co
 }
 
 // -------------------------------------------------------------------------------
-// ƒ[ƒhÏ‚İŠm”F
+// ãƒ­ãƒ¼ãƒ‰æ¸ˆã¿ç¢ºèª
 // -------------------------------------------------------------------------------
 bool RHI::TextureManager::IsLoaded(const std::wstring& _path) const
 {

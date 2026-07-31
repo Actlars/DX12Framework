@@ -10,7 +10,7 @@
 #include <Engine/Renderer/RendererItem/TransformCB.h>
 
 // -------------------------------------------------------------------------------
-// ‘O•ûéŒ¾
+// å‰æ–¹å®£è¨€
 // -------------------------------------------------------------------------------
 namespace RHI
 {
@@ -20,35 +20,35 @@ namespace RHI
 // -------------------------------------------------------------------------------
 // MeshComponent class
 // 
-// ŠT—v : 
-//	ƒƒbƒVƒ…‚Ì•`‰æ‚ğ’S“–‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg
-//	Component‚ÆIRenderable‚ğŒp³‚·‚é
+// æ¦‚è¦ : 
+//	ãƒ¡ãƒƒã‚·ãƒ¥ã®æç”»ã‚’æ‹…å½“ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
+//	Componentã¨IRenderableã‚’ç¶™æ‰¿ã™ã‚‹
 // 
-//	TransformComponent‚©‚çƒ[ƒ‹ƒh•ÏŠ·s—ñ‚ğæ“¾‚µ‚Ä’è”ƒoƒbƒtƒ@‚É“n‚µAMesh::Draw‚Å•`‰æƒRƒ}ƒ“ƒh‚ÉÏ‚Ş
+//	TransformComponentã‹ã‚‰ãƒ¯ãƒ¼ãƒ«ãƒ‰å¤‰æ›è¡Œåˆ—ã‚’å–å¾—ã—ã¦å®šæ•°ãƒãƒƒãƒ•ã‚¡ã«æ¸¡ã—ã€Mesh::Drawã§æç”»ã‚³ãƒãƒ³ãƒ‰ã«ç©ã‚€
 // -------------------------------------------------------------------------------
 class MeshComponent : public Component, public IRenderable
 {
 public:
 
 	// -------------------------------------------------------------------------------
-	// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	// -------------------------------------------------------------------------------
 	MeshComponent();
 
 	// -------------------------------------------------------------------------------
-	// ƒfƒXƒgƒ‰ƒNƒ^
+	// ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	// -------------------------------------------------------------------------------
 	~MeshComponent();
 
 	// -------------------------------------------------------------------------------
-	// @brief	’è”ƒoƒbƒtƒ@‚ğ‰Šú‰»
-	//			AddComponentŒã‚ÉGameScene‚©‚çŒÄ‚Ô
+	// @brief	å®šæ•°ãƒãƒƒãƒ•ã‚¡ã‚’åˆæœŸåŒ–
+	//			AddComponentå¾Œã«GameSceneã‹ã‚‰å‘¼ã¶
 	// 
-	// @param[in]	_pDevice	ƒfƒoƒCƒX
-	// @param[in]	_pPool		CBV—pDescriptorPool
-	// @param[in]	_frameCount	ƒtƒŒ[ƒ€ƒoƒbƒtƒ@”iGraphicsDevice::GetFrameCount())
-	// @retval	true	¬Œ÷
-	// @retval	false	¸”s
+	// @param[in]	_pDevice	ãƒ‡ãƒã‚¤ã‚¹
+	// @param[in]	_pPool		CBVç”¨DescriptorPool
+	// @param[in]	_frameCount	ãƒ•ãƒ¬ãƒ¼ãƒ ãƒãƒƒãƒ•ã‚¡æ•°ï¼ˆGraphicsDevice::GetFrameCount())
+	// @retval	true	æˆåŠŸ
+	// @retval	false	å¤±æ•—
 	// -------------------------------------------------------------------------------
 	bool Init(
 		ID3D12Device*			_pDevice,
@@ -56,59 +56,59 @@ public:
 		uint32_t				_frameCount);
 
 	// -------------------------------------------------------------------------------
-	// ƒRƒ“ƒ|[ƒlƒ“ƒgƒCƒ“ƒ^[ƒtƒF[ƒX‚ÌÀ‘•
+	// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®å®Ÿè£…
 	// -------------------------------------------------------------------------------
 	void Update(float _deltaTime)	override {}
 	void OnDetach()					override;
 
 
 	// -------------------------------------------------------------------------------
-	// IRenderableƒCƒ“ƒ^[ƒtƒF[ƒX‚ÌÀ‘•
+	// IRenderableã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®å®Ÿè£…
 	// -------------------------------------------------------------------------------
 
-	// @brief	•`‰æƒRƒ}ƒ“ƒh‚ğÏ‚Ş
+	// @brief	æç”»ã‚³ãƒãƒ³ãƒ‰ã‚’ç©ã‚€
 	void Submit(RenderQueue* _pQueue) override;
 	//void Draw(ID3D12GraphicsCommandList* _pCmd) override;
 
-	// @brief	•`‰æ‚ª—LŒø‚©‚Ç‚¤‚©•Ô‚·
+	// @brief	æç”»ãŒæœ‰åŠ¹ã‹ã©ã†ã‹è¿”ã™
 	bool IsVisible() const override;
 
 	// -------------------------------------------------------------------------------
-	// @brief	•`‰æ‚·‚éƒƒbƒVƒ…‚Æƒ}ƒeƒŠƒAƒ‹‚ğİ’è‚·‚é
+	// @brief	æç”»ã™ã‚‹ãƒ¡ãƒƒã‚·ãƒ¥ã¨ãƒãƒ†ãƒªã‚¢ãƒ«ã‚’è¨­å®šã™ã‚‹
 	// 
-	// @param[in]	_pMesh		Mesh‚Ö‚Ìƒ|ƒCƒ“ƒ^iŠ—LŒ ‚È‚µj
-	// @param[in]	_pMaterial	Material‚Ö‚Ìƒ|ƒCƒ“ƒ^iŠ—LŒ ‚È‚µj
+	// @param[in]	_pMesh		Meshã¸ã®ãƒã‚¤ãƒ³ã‚¿ï¼ˆæ‰€æœ‰æ¨©ãªã—ï¼‰
+	// @param[in]	_pMaterial	Materialã¸ã®ãƒã‚¤ãƒ³ã‚¿ï¼ˆæ‰€æœ‰æ¨©ãªã—ï¼‰
 	// -------------------------------------------------------------------------------
 	void SetMesh(Mesh* _pMesh, Material* _pMaterial);
 
 	// -------------------------------------------------------------------------------
-	// @brief	’è”ƒoƒbƒtƒ@‚ÌƒXƒƒbƒg”Ô†‚ğİ’è‚·‚é
-	//			GameScene‚ÌRootSignature‚Æ‡‚í‚¹‚é
+	// @brief	å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®ã‚¹ãƒ­ãƒƒãƒˆç•ªå·ã‚’è¨­å®šã™ã‚‹
+	//			GameSceneã®RootSignatureã¨åˆã‚ã›ã‚‹
 	// -------------------------------------------------------------------------------
 	void SetRootParamSlots(
 		uint32_t _transformSlot,
 		uint32_t _materialSlot,
 		uint32_t _textureSlot);
 
-	// @brief	Œ»İ‚ÌƒtƒŒ[ƒ€ƒCƒ“ƒfƒbƒNƒX‚ğİ’è‚·‚é
+	// @brief	ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’è¨­å®šã™ã‚‹
 	void SetFrameIndex(uint32_t _frameIndex);
 
-	// @brief	RootSignatureLayout‚ğİ’è‚·‚é
+	// @brief	RootSignatureLayoutã‚’è¨­å®šã™ã‚‹
 	void SetRootLayout(const RHI::RootSignatureLayout* _pRootLayout);
 
-	// @brief	RootSignatureLayout‚ğİ’è‚·‚éiBIndlessj
+	// @brief	RootSignatureLayoutã‚’è¨­å®šã™ã‚‹ï¼ˆBIndlessï¼‰
 	void SetRootLayoutBindless(const RHI::RootSignatureLayout* _pRootLayout);
 
 	// -------------------------------------------------------------------------------
-	// @brief	ƒJƒƒ‰‚Ì View / Projs—ñ‚ğİ’è‚·‚é
-	//			GameScene‚©‚ç–ˆƒtƒŒ[ƒ€“n‚·
+	// @brief	ã‚«ãƒ¡ãƒ©ã® View / Projè¡Œåˆ—ã‚’è¨­å®šã™ã‚‹
+	//			GameSceneã‹ã‚‰æ¯ãƒ•ãƒ¬ãƒ¼ãƒ æ¸¡ã™
 	// -------------------------------------------------------------------------------
 	void SetViewProj(
 		const DirectX::XMMATRIX& _View,
 		const DirectX::XMMATRIX& _Proj);
 
 	// -------------------------------------------------------------------------------
-	// @brief	•`‰æ‚Ì—LŒøE–³Œø‚ğØ‚è‘Ö‚¦‚é
+	// @brief	æç”»ã®æœ‰åŠ¹ãƒ»ç„¡åŠ¹ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹
 	// -------------------------------------------------------------------------------
 	void SetVisible(bool _visible);
 
@@ -118,25 +118,25 @@ private:
 	// private variables
 	// -------------------------------------------------------------------------------
 
-	// •`‰æƒŠƒ\[ƒXiŠ—LŒ ‚È‚µj
+	// æç”»ãƒªã‚½ãƒ¼ã‚¹ï¼ˆæ‰€æœ‰æ¨©ãªã—ï¼‰
 	Mesh*		m_pMesh		= nullptr;
 	Material*	m_pMaterial = nullptr;
 
-	// ’è”ƒoƒbƒtƒ@
+	// å®šæ•°ãƒãƒƒãƒ•ã‚¡
 	std::vector<std::unique_ptr<RHI::ConstantBuffer>>	m_TransformCBs;
 	std::vector<std::unique_ptr<RHI::ConstantBuffer>>	m_MaterialIndicesCBs;
 	uint32_t											m_FrameIndex = 0;
 
-	// ƒJƒƒ‰s—ñiGameScene‚©‚ç–ˆƒtƒŒ[ƒ€XVj
+	// ã‚«ãƒ¡ãƒ©è¡Œåˆ—ï¼ˆGameSceneã‹ã‚‰æ¯ãƒ•ãƒ¬ãƒ¼ãƒ æ›´æ–°ï¼‰
 	DirectX::XMMATRIX m_View = DirectX::XMMatrixIdentity();
 	DirectX::XMMATRIX m_Proj = DirectX::XMMatrixIdentity();
 
-	// RootSignature‚ÌƒXƒƒbƒg”Ô†iGameScene‚Ìİ’è‚Æ‡‚í‚¹‚éj
+	// RootSignatureã®ã‚¹ãƒ­ãƒƒãƒˆç•ªå·ï¼ˆGameSceneã®è¨­å®šã¨åˆã‚ã›ã‚‹ï¼‰
 	uint32_t m_TransformSlot	= UINT32_MAX;
 	uint32_t m_MaterialSlot		= UINT32_MAX;
 	uint32_t m_TextureSlot		= UINT32_MAX;
 
-	uint32_t m_MaterialIndicesSlot = UINT32_MAX;	// Bindless—p
+	uint32_t m_MaterialIndicesSlot = UINT32_MAX;	// Bindlessç”¨
 
 	bool m_IsVisible = true;
 };

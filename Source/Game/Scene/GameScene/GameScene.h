@@ -18,26 +18,26 @@
 namespace Input { class InputManager; }
 
 // -------------------------------------------------------------------------------
-// GameScene ƒNƒ‰ƒX
+// GameScene ã‚¯ãƒ©ã‚¹
 //
-// ŠT—v:
-//   ’Êí‚ÌƒQ[ƒ€ƒV[ƒ“BIScene ‚ğÀ‘•‚·‚éB
+// æ¦‚è¦:
+//   é€šå¸¸ã®ã‚²ãƒ¼ãƒ ã‚·ãƒ¼ãƒ³ã€‚IScene ã‚’å®Ÿè£…ã™ã‚‹ã€‚
 //
-//   “à•”\‘¢:
-//     GameObjectManager    ‘S GameObject ‚ÌŠÇ—iUpdate / Draw / ’Ç‰ÁEíœj
-//     FPSCamera            FPS ƒJƒƒ‰iWASD + ƒ}ƒEƒXj
-//     Sampler              ƒeƒNƒXƒ`ƒƒƒTƒ“ƒvƒ‰[iLinearWrapj
-//     Mesh[] / Material[]  ƒ[ƒh‚µ‚½ƒ‚ƒfƒ‹‚ÌƒŠƒ\[ƒXiGameObjectManager ‚ªQÆj
+//   å†…éƒ¨æ§‹é€ :
+//     GameObjectManager    å…¨ GameObject ã®ç®¡ç†ï¼ˆUpdate / Draw / è¿½åŠ ãƒ»å‰Šé™¤ï¼‰
+//     FPSCamera            FPS ã‚«ãƒ¡ãƒ©ï¼ˆWASD + ãƒã‚¦ã‚¹ï¼‰
+//     Sampler              ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚µãƒ³ãƒ—ãƒ©ãƒ¼ï¼ˆLinearWrapï¼‰
+//     Mesh[] / Material[]  ãƒ­ãƒ¼ãƒ‰ã—ãŸãƒ¢ãƒ‡ãƒ«ã®ãƒªã‚½ãƒ¼ã‚¹ï¼ˆGameObjectManager ãŒå‚ç…§ï¼‰
 //
-//   Šeƒ‚ƒfƒ‹ƒƒbƒVƒ…‚É‘Î‚µ‚Ä GameObject ‚ğ1‚Â¶¬‚µA
-//   TransformComponent ‚Æ MeshComponent ‚ğ’Ç‰Á‚µ‚ÄŠÇ—‚·‚éB
+//   å„ãƒ¢ãƒ‡ãƒ«ãƒ¡ãƒƒã‚·ãƒ¥ã«å¯¾ã—ã¦ GameObject ã‚’1ã¤ç”Ÿæˆã—ã€
+//   TransformComponent ã¨ MeshComponent ã‚’è¿½åŠ ã—ã¦ç®¡ç†ã™ã‚‹ã€‚
 // -------------------------------------------------------------------------------
 class GameScene : public IScene
 {
 public:
 
     // -------------------------------------------------------------------------------
-    // ‰Šú‰»ƒpƒ‰ƒ[ƒ^
+    // åˆæœŸåŒ–ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
     // -------------------------------------------------------------------------------
     struct Desc
     {
@@ -52,13 +52,13 @@ public:
     };
 
     // -------------------------------------------------------------------------------
-    // ƒRƒ“ƒXƒgƒ‰ƒNƒ^ / ƒfƒXƒgƒ‰ƒNƒ^
+    // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ / ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
     // -------------------------------------------------------------------------------
     explicit GameScene(const Desc& _desc);
     ~GameScene() override { OnTerm(); }
 
     // -------------------------------------------------------------------------------
-    // IScene ƒCƒ“ƒ^[ƒtƒF[ƒX‚ÌÀ‘•
+    // IScene ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®å®Ÿè£…
     // -------------------------------------------------------------------------------
     bool OnInit(RHI::Device* _pDevice)                  override;
     void OnTerm()                                       override;
@@ -68,41 +68,41 @@ public:
 private:
 
     // -------------------------------------------------------------------------------
-    // ƒV[ƒ“ŒÅ—L‚Ì‰Šú‰»
+    // ã‚·ãƒ¼ãƒ³å›ºæœ‰ã®åˆæœŸåŒ–
     // -------------------------------------------------------------------------------
     void InitCamera();
     bool InitMeshes();
     bool InitMeshlets();
-    bool InitGameObjects();     // GameObjectManager ‚ÉƒIƒuƒWƒFƒNƒg‚ğ“o˜^
+    bool InitGameObjects();     // GameObjectManager ã«ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç™»éŒ²
 
     // -------------------------------------------------------------------------------
-    // –ˆƒtƒŒ[ƒ€‚Ìˆ—
+    // æ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã®å‡¦ç†
     // -------------------------------------------------------------------------------
     void UpdateInput(float _deltaTime);
-    void UpdateViewProj();      // ‘S MeshComponent ‚ÉƒJƒƒ‰s—ñ‚ğ“n‚·
+    void UpdateViewProj();      // å…¨ MeshComponent ã«ã‚«ãƒ¡ãƒ©è¡Œåˆ—ã‚’æ¸¡ã™
 
     // -------------------------------------------------------------------------------
     // private variables
     // -------------------------------------------------------------------------------
     Desc                m_Desc;
 
-    // GPU ƒŠƒ\[ƒXiGameObjectManager ‚Ì MeshComponent ‚ªQÆ‚·‚éj
+    // GPU ãƒªã‚½ãƒ¼ã‚¹ï¼ˆGameObjectManager ã® MeshComponent ãŒå‚ç…§ã™ã‚‹ï¼‰
     std::vector<std::unique_ptr<Mesh>>      m_Meshes;
     std::vector<std::unique_ptr<Material>>  m_Materials;
 
 
-    // MeshComponent ‚Ö‚ÌQÆiUpdateViewProj() ‚Åg‚¤j
-    // GameObjectManager ‚©‚ç–ˆ‰ñ GetComponent() ‚·‚é‚Ì‚Å‚Í‚È‚­
-    // ‰Šú‰»‚ÉƒLƒƒƒbƒVƒ…‚µ‚Ä‚¨‚­
+    // MeshComponent ã¸ã®å‚ç…§ï¼ˆUpdateViewProj() ã§ä½¿ã†ï¼‰
+    // GameObjectManager ã‹ã‚‰æ¯å› GetComponent() ã™ã‚‹ã®ã§ã¯ãªã
+    // åˆæœŸåŒ–æ™‚ã«ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã—ã¦ãŠã
     std::vector<MeshComponent*>     m_MeshComponents;
 
-    // MeshletComponent‚Ö‚ÌQÆ
+    // MeshletComponentã¸ã®å‚ç…§
     MeshletComponent*  m_MeshletComponents = nullptr;
 
-    // ƒJƒƒ‰ 
+    // ã‚«ãƒ¡ãƒ© 
     FPSCamera           m_Camera;
 
-    // GameObject ŠÇ—
+    // GameObject ç®¡ç†
     GameObjectManager   m_ObjectManager;
 
     PostProcessStack    m_PostProcessStack;

@@ -4,7 +4,7 @@
 #include "FileUtil.h"
 
 // -------------------------------------------------------------------------------
-// ƒtƒ@ƒCƒ‹ƒpƒX‚ğŒŸõ
+// ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹ã‚’æ¤œç´¢
 // -------------------------------------------------------------------------------
 bool SearchFilePath(const wchar_t* _filename, std::wstring& _result)
 {
@@ -20,7 +20,7 @@ bool SearchFilePath(const wchar_t* _filename, std::wstring& _result)
 
 	wchar_t exePath[520] = {};
 	GetModuleFileNameW(nullptr, exePath, 520);
-	exePath[519] = L'\0';	// nullI’[‰»
+	exePath[519] = L'\0';	// nullçµ‚ç«¯åŒ–
 	PathRemoveFileSpecW(exePath);
 
 	wchar_t dstPath[520] = {};

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 namespace EditorUI
 {
@@ -9,6 +9,10 @@ namespace EditorUI
 	//	左上（Min）と右下（Max）で矩形を表す
 	// -------------------------------------------------------------------------------
 	using Color32 = uint32_t;
+
+	// 白テクスチャ用
+	using		TextureId = uint64_t;
+	constexpr	TextureId kWhiteTexture = 0;
 
 	struct Rect2D
 	{

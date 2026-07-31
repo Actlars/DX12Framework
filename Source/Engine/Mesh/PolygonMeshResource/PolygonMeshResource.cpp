@@ -5,19 +5,19 @@
 #include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
-//		ƒRƒ“ƒXƒgƒ‰ƒNƒ^	
+//		ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿	
 // -------------------------------------------------------------------------------
 PolygonMeshResource::PolygonMeshResource() 
 { /* DO_NOTHING */ }
 
 // -------------------------------------------------------------------------------
-//		ƒfƒXƒgƒ‰ƒNƒ^
+//		ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 // -------------------------------------------------------------------------------
 PolygonMeshResource::~PolygonMeshResource()
 { Term(); }
 
 // -------------------------------------------------------------------------------
-//		‰Šú‰»
+//		åˆæœŸåŒ–
 // -------------------------------------------------------------------------------
 bool PolygonMeshResource::Init(ID3D12Device* _pDevice, const ResMesh& _resMesh)
 {
@@ -30,7 +30,7 @@ bool PolygonMeshResource::Init(ID3D12Device* _pDevice, const ResMesh& _resMesh)
 		return false;
 	}
 
-	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+	// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆ
 	const size_t vbSize = sizeof(ResMeshVertex) * _resMesh.Vertices.size();
 	if (!CreateBuffer(_pDevice, vbSize, _resMesh.Vertices.data(), m_pVB))
 	{
@@ -38,12 +38,12 @@ bool PolygonMeshResource::Init(ID3D12Device* _pDevice, const ResMesh& _resMesh)
 		return false;
 	}
 
-	// ’¸“_ƒoƒbƒtƒ@ƒrƒ…[‚Ìİ’è
+	// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®è¨­å®š
 	m_VBV.BufferLocation	= m_pVB->GetGPUVirtualAddress();
 	m_VBV.SizeInBytes		= static_cast<UINT>(vbSize);
 	m_VBV.StrideInBytes		= static_cast<UINT>(sizeof(ResMeshVertex));
 
-	// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚Ì¶¬
+	// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆ
 	const size_t ibSize = sizeof(uint32_t) * _resMesh.Indices.size();
 	if (!CreateBuffer(_pDevice, ibSize, _resMesh.Indices.data(), m_pIB))
 	{
@@ -51,7 +51,7 @@ bool PolygonMeshResource::Init(ID3D12Device* _pDevice, const ResMesh& _resMesh)
 		return false;
 	}
 	
-	// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ƒrƒ…[‚Ìİ’è
+	// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ãƒ“ãƒ¥ãƒ¼ã®è¨­å®š
 	m_IBV.BufferLocation	= m_pIB->GetGPUVirtualAddress();
 	m_IBV.SizeInBytes		= static_cast<UINT>(ibSize);
 	m_IBV.Format			= DXGI_FORMAT_R32_UINT;
@@ -63,7 +63,7 @@ bool PolygonMeshResource::Init(ID3D12Device* _pDevice, const ResMesh& _resMesh)
 }
 
 // -------------------------------------------------------------------------------
-//		I—¹ˆ—
+//		çµ‚äº†å‡¦ç†
 // -------------------------------------------------------------------------------
 void PolygonMeshResource::Term()
 {
@@ -76,7 +76,7 @@ void PolygonMeshResource::Term()
 }
 
 // -------------------------------------------------------------------------------
-//		•`‰æƒRƒ}ƒ“ƒh‚ğÏ‚Ş
+//		æç”»ã‚³ãƒãƒ³ãƒ‰ã‚’ç©ã‚€
 // -------------------------------------------------------------------------------
 void PolygonMeshResource::Draw(
 	ID3D12GraphicsCommandList*	_pCmd,
@@ -86,17 +86,17 @@ void PolygonMeshResource::Draw(
 	if (_pCmd == nullptr || m_IndexCount == 0) 
 	{ return; }
 
-	// IAiInput Assemblerj‚Éƒoƒbƒtƒ@‚ğƒoƒCƒ“ƒh
+	// IAï¼ˆInput Assemblerï¼‰ã«ãƒãƒƒãƒ•ã‚¡ã‚’ãƒã‚¤ãƒ³ãƒ‰
 	_pCmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_pCmd->IASetVertexBuffers(0, 1, &m_VBV);
 	_pCmd->IASetIndexBuffer(&m_IBV);
 
-	// •`‰æ–½—ß‚ğÏ‚Ş
+	// æç”»å‘½ä»¤ã‚’ç©ã‚€
 	_pCmd->DrawIndexedInstanced(m_IndexCount, _instanceCount, 0, 0, 0);
 }
 
 // -------------------------------------------------------------------------------
-//		ƒoƒbƒtƒ@¶¬ƒwƒ‹ƒp[iUPLOADƒq[ƒvj
+//		ãƒãƒƒãƒ•ã‚¡ç”Ÿæˆãƒ˜ãƒ«ãƒ‘ãƒ¼ï¼ˆUPLOADãƒ’ãƒ¼ãƒ—ï¼‰
 // -------------------------------------------------------------------------------
 bool PolygonMeshResource::CreateBuffer(
 	ID3D12Device*			_pDevice,
@@ -105,10 +105,10 @@ bool PolygonMeshResource::CreateBuffer(
 	ComPtr<ID3D12Resource>&	_outBuffer
 )
 {
-	// UPLOADƒq[ƒv‚É¶¬iCPU‚©‚ç’¼Ú‘‚«‚ß‚éj
-	// •p”É‚ÉXV‚µ‚È‚¢ƒXƒ^ƒeƒBƒbƒNƒƒbƒVƒ…‚Í–{—ˆDEFAULTƒq[ƒv‚ª–]‚Ü‚µ‚¢‚ª
-	// ƒeƒNƒXƒ`ƒƒ‚ÆˆÙ‚È‚èƒƒbƒVƒ…‚ÍƒTƒCƒY‚ª‰Â•Ï‚È‚Ì‚Å
-	// UPLOAD‚Å‚à•`‰æƒpƒtƒH[ƒ}ƒ“ƒX‚Ö‚Ì‰e‹¿‚ª­‚È‚¢‚½‚ßUPLOAD‚ğg—p‚·‚é
+	// UPLOADãƒ’ãƒ¼ãƒ—ã«ç”Ÿæˆï¼ˆCPUã‹ã‚‰ç›´æ¥æ›¸ãè¾¼ã‚ã‚‹ï¼‰
+	// é »ç¹ã«æ›´æ–°ã—ãªã„ã‚¹ã‚¿ãƒ†ã‚£ãƒƒã‚¯ãƒ¡ãƒƒã‚·ãƒ¥ã¯æœ¬æ¥DEFAULTãƒ’ãƒ¼ãƒ—ãŒæœ›ã¾ã—ã„ãŒ
+	// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã¨ç•°ãªã‚Šãƒ¡ãƒƒã‚·ãƒ¥ã¯ã‚µã‚¤ã‚ºãŒå¯å¤‰ãªã®ã§
+	// UPLOADã§ã‚‚æç”»ãƒ‘ãƒ•ã‚©ãƒ¼ãƒãƒ³ã‚¹ã¸ã®å½±éŸ¿ãŒå°‘ãªã„ãŸã‚UPLOADã‚’ä½¿ç”¨ã™ã‚‹
 	D3D12_HEAP_PROPERTIES heapProp = {};
 	heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
 
@@ -133,7 +133,7 @@ bool PolygonMeshResource::CreateBuffer(
 	if (FAILED(hr)) 
 	{ return false; }
 
-	// ‰Šúƒf[ƒ^‚ª‚ ‚éê‡‚ÍMap‚µ‚Ä‘‚«‚Ş
+	// åˆæœŸãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚‹å ´åˆã¯Mapã—ã¦æ›¸ãè¾¼ã‚€
 	if (_pInitData != nullptr)
 	{
 		void* ptr = nullptr;
