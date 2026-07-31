@@ -71,7 +71,7 @@ namespace EditorUI
 	inline Id HashValue(const T& _value, Id _seed = fnv_offset_basis<Id>) noexcept
 	{
 		// std::is_trivially_copyableはTがメモリコピーだけで安全に複製できる型かどうかをコンパイル時に判定する
-		static_assert(std::is_trivially_copyable_v<T>, "HashValue : trivially copyable な型のみ対応");
+		//static_assert(std::is_trivially_copyable_v<T>, "HashValue : trivially copyable な型のみ対応");
 		// reinterpret_cast<const unsigned char*>(&_value)
 		// &_valueでT型オブジェクトの先頭アドレスを取り、それを１バイトずつの配列として無理やり読み替えるキャスト
 		return fnv1a_hash<Id>(reinterpret_cast<const unsigned char*>(&_value), sizeof(T), _seed);

@@ -34,7 +34,9 @@ void EditorUI::Context::NewFrame(const InputState& _input)
 	// マウスの左ボタンが離されていれば、ドラッグ中のウィンドウを強制的になしにする
 	if (!m_Input.MouseDown[static_cast<int>(MouseButton::Mouse_Left)])
 	{
-		m_DraggedWindow = 0;
+		m_DraggedWindow				= 0;
+		m_ResizeWindow				= 0;
+		m_DraggedScrollbarWindow	= 0;
 	}
 }
 
@@ -125,11 +127,18 @@ bool EditorUI::Context::BeginWindow(std::string_view _title, bool* _isOpen, Wind
 			HandleTitleBarDrag(state, titleBarRect);
 		}
 	}
+	
+	// ホイール入力をここで反映する
+	// 前フレーム終了時点のMaxScrollYを基準にクランプするため、今フレームのコンテンツがまだ確定していなくても計算できる
+	if (!HasFlag(_flags, WindowFlags::NoScrollbar))
+	{
+		HandleScrollInput(state, windowRect);
+	}
 
 	// コンテンツ領域（ウィジェットを実際に置いていく場所）の開始位置を計算する
 	frame->ContentOrigin = { state.Position.x + m_Style.WindowPadding,
 								state.Position.y + titleBarHeight + m_Style.WindowPadding };
-	frame->CursorPos = frame->ContentOrigin;	// 最初のウィジェットはこの位置から置き始める
+	frame->CursorPos = frame->ContentOrigin;	// 仮想座標もここから始まる
 
 	// コンテンツ領域はウィンドウ矩形でクリップする。Widgets層はこの中でAddRect/AddTextを積む
 	Rect2D contentClip = MakeRect(
@@ -148,7 +157,34 @@ bool EditorUI::Context::BeginWindow(std::string_view _title, bool* _isOpen, Wind
 // -------------------------------------------------------------------------------
 void EditorUI::Context::EndWindow()
 {
-	m_CurrentWindow->Draw.PopClipRect();	// BeginWindowでPushした分をここで戻す
+	WindowFrame& frame = *m_CurrentWindow;
+	WindowState& state = *frame.pState;
+
+	// 今フレームで実際に置かれたウィジェットの高さが確定したので
+	// スクロール可能な最大量をここで確定させ、前フレームの仮の値を補正する
+	if (!HasFlag(frame.Flags, WindowFlags::NoScrollbar))
+	{
+		const float titleBarHeight	= HasFlag(frame.Flags, WindowFlags::NoTitleBar) ? 0.0f : m_Style.TitleBarHeight;
+		const float visibleHeight	= state.Size.y - titleBarHeight - m_Style.WindowPadding * 2.0f;
+
+		state.MaxScrollY = (std::max)(0.0f, frame.ContentHeight - visibleHeight);
+		state.Scroll.y = std::clamp(state.Scroll.y, 0.0f, state.MaxScrollY);
+	}
+
+	frame.Draw.PopClipRect();	// コンテンツ用クリップをここで戻す
+
+	// スクロールバー・リサイズグリップはウィンドウのクローム（枠）なので
+	// コンテンツ用クリップの外で描く
+	if (!HasFlag(frame.Flags, WindowFlags::NoScrollbar) && state.MaxScrollY > 0.0f)
+	{
+		DrawScrollbar(frame, state);
+	}
+
+	if (!HasFlag(frame.Flags, WindowFlags::NoResize))
+	{
+		HandleResizeDrag(state, frame);
+	}
+
 	m_CurrentWindow = nullptr;				// Begin中の状態を解除
 	m_IdStack.Pop();						// 現在地を親スコープに戻す
 }
@@ -237,7 +273,7 @@ void EditorUI::Context::HandleTitleBarDrag(WindowState& _state, const Rect2D& _t
 
 	// タイトルバーの上でクリックされた瞬間、かつまだ誰もドラッグされていない場合にドラッグ開始
 	// m_DraggedWindow == 0のチェックがないと、重なったウィンドウを同時にドラッグしてしまう。
-	if (hovered && justPressed && m_DraggedWindow == 0)
+	if (hovered && justPressed && m_DraggedWindow == 0 && m_ResizeWindow == 0)
 	{
 		m_DraggedWindow = _state.WindowId;
 		// マウス位置とウィンドウの左上のずれを記録
@@ -253,4 +289,109 @@ void EditorUI::Context::HandleTitleBarDrag(WindowState& _state, const Rect2D& _t
 		_state.Position.x = m_Input.MousePos.x - m_DragOffset.x;
 		_state.Position.y = m_Input.MousePos.y - m_DragOffset.y;
 	}
+}
+
+// -------------------------------------------------------------------------------
+// ホイール入力の反映
+// -------------------------------------------------------------------------------
+void EditorUI::Context::HandleScrollInput(WindowState& _state, const Rect2D& _windowRect)
+{
+	if (_state.MaxScrollY <= 0.0f) 
+	{ return; }	// 前フレーム時点でスクロールの余地がなければ何もしない
+
+	bool hovered = _windowRect.Contains(m_Input.MousePos);
+	if (hovered && m_Input.MouseWheel != 0.0f)
+	{
+		constexpr float kScrollSpeed = 4.0f;	// ホイール１刻み当たりの移動量
+		_state.Scroll.y -= m_Input.MouseWheel * kScrollSpeed;
+		_state.Scroll.y = std::clamp(_state.Scroll.y, 0.0f, _state.MaxScrollY);
+	}
+}
+
+// -------------------------------------------------------------------------------
+// スクロールバーの描画とサムのドラッグ操作
+// -------------------------------------------------------------------------------
+void EditorUI::Context::DrawScrollbar(WindowFrame& _frame, WindowState& _state)
+{
+	const float titleBarHeight	= HasFlag(_frame.Flags, WindowFlags::NoTitleBar) ? 0.0f : m_Style.TitleBarHeight;
+	const float trackTop		= _state.Position.y + titleBarHeight;
+	const float trackHeight		= _state.Size.y - titleBarHeight;
+	const float trackX			= _state.Position.x + _state.Size.x - m_Style.ScrollbarWidth;
+
+	Rect2D track = MakeRect({ trackX, trackTop }, { m_Style.ScrollbarWidth, trackHeight });
+	_frame.Draw.AddRectFilled(track, m_Style.ColorScrollbarBg);
+
+	// サムの高さ = 見えている範囲 / コンテンツの全体の比率。位置はスクロール量の比率
+	const float visibleHeight	= trackHeight;
+	const float thumbRatio		= _frame.ContentHeight > 0.0f
+		? (std::min)(1.0f, visibleHeight / _frame.ContentHeight) : 1.0f;
+	const float thumbHeight		= (std::max)(20.0f, trackHeight * thumbRatio);	// 最小20はつかみやすさ
+	const float scrollRatio		= _state.MaxScrollY > 0.0f ? (_state.Scroll.y / _state.MaxScrollY) : 0.0f;
+	const float thumbY			= trackTop + (trackHeight - thumbHeight) * scrollRatio;
+
+	Rect2D thumb = MakeRect({ trackX, thumbY }, { m_Style.ScrollbarWidth, thumbHeight });
+
+	bool hovered = thumb.Contains(m_Input.MousePos);
+	_frame.Draw.AddRectFilled(thumb, hovered ? m_Style.ColorScrollbarThumbHovered : m_Style.ColorScrollbarThumb);
+
+	// サムを直接ドロップしてスクロールできるようにする
+	bool justPressed = m_Input.MouseDown[static_cast<int>(MouseButton::Mouse_Left)]
+		&& !m_PrevInput.MouseDown[static_cast<int>(MouseButton::Mouse_Left)];
+	if (hovered && justPressed && m_DraggedScrollbarWindow == 0)
+	{
+		m_DraggedScrollbarWindow = _state.WindowId;
+	}
+
+	if (m_DraggedScrollbarWindow == _state.WindowId && m_Input.MouseDown[static_cast<int>(MouseButton::Mouse_Left)])
+	{
+		const float trackRange = trackHeight - thumbHeight;
+		if (trackRange > 0.0f)
+		{
+			// マウスのY座標をサムの中心基準でトラック内の比率に変換し、そのままScrollへ反映する
+			const float newRatio = std::clamp(
+				(m_Input.MousePos.y - trackTop - thumbHeight * 0.5f) / trackRange, 0.0f, 1.0f);
+			_state.Scroll.y = newRatio * _state.MaxScrollY;
+		}
+	}
+}
+
+// -------------------------------------------------------------------------------
+// リサイズグリップの描画とつかみ操作
+// -------------------------------------------------------------------------------
+void EditorUI::Context::HandleResizeDrag(WindowState& _state, WindowFrame& _frame)
+{
+	const float gripSize = m_Style.ResizeGripSize;
+	Rect2D gripRect = MakeRect(
+		{ _state.Position.x + _state.Size.x - gripSize, _state.Position.y + _state.Size.y - gripSize },
+		{ gripSize, gripSize });
+
+	bool hovered = gripRect.Contains(m_Input.MousePos);
+	bool justPressed = m_Input.MouseDown[static_cast<int>(MouseButton::Mouse_Left)] &&
+		!m_PrevInput.MouseDown[static_cast<int>(MouseButton::Mouse_Left)];
+
+	// タイトルバードラッグやスクロールバードラッグと競合しないよう
+	// 他の操作が何も行われていないときだけリサイズを開始できるようにする
+	if (hovered && justPressed && m_ResizeWindow == 0 && m_DraggedWindow == 0 && m_DraggedScrollbarWindow == 0)
+	{
+		m_ResizeWindow = _state.WindowId;
+		m_ResizeStartMouse = m_Input.MousePos;
+		m_ResizeStartSize = _state.Size;
+	}
+
+	if (m_ResizeWindow == _state.WindowId && m_Input.MouseDown[static_cast<int>(MouseButton::Mouse_Left)])
+	{
+		const DirectX::XMFLOAT2 delta
+		{
+			m_Input.MousePos.x - m_ResizeStartMouse.x,
+			m_Input.MousePos.y - m_ResizeStartMouse.y
+		};
+
+		// ウィンドウが潰れて操作不能にならないように最小サイズを設ける
+		constexpr float kMinWidth = 100.0f;
+		constexpr float kMinHeight = 80.0f;
+		_state.Size.x = (std::max)(kMinWidth, m_ResizeStartSize.x + delta.x);
+		_state.Size.y = (std::max)(kMinHeight, m_ResizeStartSize.y + delta.y);
+	}
+
+	_frame.Draw.AddRectFilled(gripRect, hovered ? m_Style.ColorButtonHovered : m_Style.ColorBorder);
 }

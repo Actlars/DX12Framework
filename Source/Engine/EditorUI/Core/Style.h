@@ -27,6 +27,12 @@ namespace EditorUI
 		Color32 ColorButtonHovered		= 0xFF5A5A5Au;	// マウスが乗っているか
 		Color32 ColorButtonActive		= 0xFF6A6A6Au;	// マウスが押されているか
 
+		// スクロール
+		float ScrollbarWidth				= 8.0f;
+		Color32 ColorScrollbarBg			= 0xFF232323u;
+		Color32 ColorScrollbarThumb			= 0xFF5A5A5Au;
+		Color32 ColorScrollbarThumbHovered	= 0xFF6A6A6Au;
+
 		// レイアウトにかかわる寸法値。
 		float TitleBarHeight	= 24.0f;
 		float WindowPadding		= 8.0f;		// ウィンドウ枠とコンテンツの余白

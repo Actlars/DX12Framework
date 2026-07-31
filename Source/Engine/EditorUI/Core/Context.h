@@ -52,6 +52,10 @@ namespace EditorUI
 		WindowState& GetOrCreateWindowState(Id _id);
 		void BringToFront(Id _windowId);
 		void HandleTitleBarDrag(WindowState& _state, const Rect2D& _titleBarRect);
+		
+		void HandleScrollInput(WindowState& _state, const Rect2D& _windowRect);
+		void DrawScrollbar(WindowFrame& _frame, WindowState& _state);
+		void HandleResizeDrag(WindowState& _state, WindowFrame& _frame);
 
 		Style m_Style;
 		IdStack m_IdStack;
@@ -70,5 +74,11 @@ namespace EditorUI
 		std::vector<std::unique_ptr<WindowFrame>> m_ActiveWindowFrame;	// このフレームでBeginされた分のみ生存
 
 		CompositedFrame m_CompositedFrame;
+
+		Id m_ResizeWindow = 0;
+		DirectX::XMFLOAT2 m_ResizeStartMouse;
+		DirectX::XMFLOAT2 m_ResizeStartSize;
+
+		Id m_DraggedScrollbarWindow = 0;
 	};
 }

@@ -18,15 +18,22 @@ namespace EditorUI
 	// -------------------------------------------------------------------------------
 	inline Rect2D PlaceWidget(WindowFrame* _frame, const DirectX::XMFLOAT2& _size, float _itemSpacing)
 	{
+		// lineYはスクロールの影響を受けないコンテンツ全体の中での仮想位置
+		// drawYは実際に画面へ描く位置で、ここでだけScrollを差し引く
 		const float lineY = _frame->CursorPos.y;
-		Rect2D bounds = MakeRect({ _frame->CursorPos.x, lineY }, _size);
+		const float drawY = lineY - _frame->pState->Scroll.y;
+
+		Rect2D bounds = MakeRect({ _frame->CursorPos.x, drawY }, _size);
 
 		// SameLine()が直前のウィジェットの右端を参照できるよう、配置結果を記録
 		_frame->LastItemBound	= bounds;
-		_frame->LineY			= lineY;
+		_frame->LineY			= lineY;	// SameLineも仮想座標系のまま扱う
 
 		// デフォルトでは次の行の左端(ContextOrigin.x)へ戻る。SameLineが呼ばれれば上書きされる
 		_frame->CursorPos = { _frame->ContentOrigin.x, lineY + _size.y + _itemSpacing };
+
+		// このフレームで到達した最大の高さを記録しておく
+		_frame->ContentHeight = (std::max)(_frame->ContentHeight, (lineY + _size.y) - _frame->ContentOrigin.y);
 
 		return bounds;
 	}

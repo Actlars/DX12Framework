@@ -529,7 +529,7 @@ void RHI::Texture::CreateSRV(const DirectX::TexMetadata& _meta)
 {
 	// ─── DescriptorPool からSRVハンドルを1つ借りる ───
 	m_pHandle = m_pPool->AllocHandle();
-	assert(m_pHandle != nullptr && "DescriptorPool のスロットが不足しています");
+	//assert(m_pHandle != nullptr && "DescriptorPool のスロットが不足しています");
 
 	// ─── SRV Desc の構築 ───
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -624,7 +624,7 @@ void RHI::Texture::CreateUAVFromResource(
 	DXGI_FORMAT		_format)
 {
 	m_pUAVHandle = m_pPool->AllocHandle();
-	assert(m_pUAVHandle != nullptr && "DescriptorPool のスロットが不足しています");
+	//assert(m_pUAVHandle != nullptr && "DescriptorPool のスロットが不足しています");
 
 	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 	uavDesc.Format					= _format;

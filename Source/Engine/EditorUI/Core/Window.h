@@ -44,9 +44,10 @@ namespace EditorUI
 		DirectX::XMFLOAT2 Position	{ 60.0f,60.0f };
 		DirectX::XMFLOAT2 Size		{ 320.0f,240.0f };
 		DirectX::XMFLOAT2 Scroll	{ 0.0f,0.0f };
-		bool Collapsed	= false;
-		bool Active		= false;	// 今フレームでBeginWindowされたか
-		int DockNodeId	= -1;		// 予約 : Docking実装時にドック先ノードIDを入れる
+		bool Collapsed		= false;
+		bool Active			= false;	// 今フレームでBeginWindowされたか
+		int DockNodeId		= -1;		// 予約 : Docking実装時にドック先ノードIDを入れる
+		float MaxScrollY	= 0.0f;	// 前フレーム終了時点で確定したスクロール可能な最大量
 	};
 
 	// Begin～Endの間だけ生存するウィンドウ
@@ -59,6 +60,8 @@ namespace EditorUI
 		float				LineHeight		= 0.0f;
 		WindowFlags			Flags			= WindowFlags::None;
 		bool				SkipContents	= false;	// Collapsed時、中身のウェジット呼び出しをスキップするためのフラグ
+
+		float ContentHeight	= 0.0f;	// このフレームで実際に使われたコンテンツの高さ
 	
 		// レイアウト用
 		Rect2D	LastItemBound{};	// 直前に置いたウィジェットの矩形(SameLineで使う)
