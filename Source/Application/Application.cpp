@@ -105,6 +105,8 @@ bool Application::Init()
     m_GraphicsView.UpdateFrameIndexAfterSceneChange();
 
     m_EditorUIRenderer.Init(m_GraphicsView.GetDevice(), 2);
+    EditorUI::Rect2D screenBounds = EditorUI::MakeRect({ 0.0f,0.0f }, { static_cast<float>(m_Width),static_cast<float>(m_Height) });
+    m_EditorUIContext.InitDockSpace(screenBounds);
 
     if (!m_Font.Build(L"Yu Gothic UI", 16.0f, m_GraphicsView.GetDevice(), &m_EditorUIRenderer))
     {
@@ -186,6 +188,8 @@ void Application::Tick()
     // UI開始
     EditorUI::InputState input = PollInputState();
     m_EditorUIContext.NewFrame(input);
+    EditorUI::Rect2D screenBounds = EditorUI::MakeRect({ 0.0f,0.0f }, { static_cast<float>(m_Width), static_cast<float>(m_Height) });
+    m_EditorUIContext.UpdateDockSpaceLayout(screenBounds);
 
     static bool s_TestWindowOpen = true;
 

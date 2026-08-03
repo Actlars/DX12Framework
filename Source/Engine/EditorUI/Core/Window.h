@@ -62,6 +62,8 @@ namespace EditorUI
 		bool				SkipContents	= false;	// Collapsed時、中身のウェジット呼び出しをスキップするためのフラグ
 
 		float ContentHeight	= 0.0f;	// このフレームで実際に使われたコンテンツの高さ
+
+		bool SkippedEntirely = false;	// ドッキングされた非アクティブタブ用
 	
 		// レイアウト用
 		Rect2D	LastItemBound{};	// 直前に置いたウィジェットの矩形(SameLineで使う)

@@ -230,6 +230,8 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\EditorUI\Core\Style.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Types.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Window.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Docking\DockNode.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Docking\DockSpace\DockSpace.h" />
     <ClInclude Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.h" />
     <ClInclude Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.h" />
     <ClInclude Include="Source\Engine\EditorUI\Text\Font\Font.h" />
@@ -312,6 +314,7 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\Context.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\DrawList.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Docking\DockSpace\DockSpace.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Text\Font\Font.cpp" />

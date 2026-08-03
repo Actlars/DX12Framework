@@ -301,6 +301,9 @@
     <Filter Include="ソース ファイル\Engine\EditorUI\Text\Font">
       <UniqueIdentifier>{3a63525c-731a-4348-8f06-1f0c67387b19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\EditorUI\Docking\DockSpace">
+      <UniqueIdentifier>{4b06f1fb-20be-4a9f-a25e-3cd6658b4aca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -558,6 +561,12 @@
     <ClInclude Include="Source\Engine\EditorUI\Text\Font\Font.h">
       <Filter>ソース ファイル\Engine\EditorUI\Text\Font</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\EditorUI\Docking\DockNode.h">
+      <Filter>ソース ファイル\Engine\EditorUI\Docking</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorUI\Docking\DockSpace\DockSpace.h">
+      <Filter>ソース ファイル\Engine\EditorUI\Docking\DockSpace</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp">
@@ -739,6 +748,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\EditorUI\Core\DrawList.cpp">
       <Filter>ソース ファイル\Engine\EditorUI\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorUI\Docking\DockSpace\DockSpace.cpp">
+      <Filter>ソース ファイル\Engine\EditorUI\Docking\DockSpace</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

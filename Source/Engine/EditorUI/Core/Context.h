@@ -8,6 +8,7 @@
 #include "Style.h"
 #include "Window.h"
 #include "Input.h"
+#include <Engine/EditorUI/Docking/DockSpace/DockSpace.h>
 
 namespace EditorUI
 {
@@ -18,6 +19,16 @@ namespace EditorUI
 
 		Context();
 		~Context();
+
+		// -------------------------------------------------------------------------------
+		// @brief	ドッキング機能を有効化する。
+		// -------------------------------------------------------------------------------
+		void InitDockSpace(const Rect2D& _screenBounds);
+
+		// -------------------------------------------------------------------------------
+		// @brief	画面サイズが変わったとき等に、ドック領域の再計算を行う
+		// -------------------------------------------------------------------------------
+		void UpdateDockSpaceLayout(const Rect2D& _screenBounds);
 
 		void NewFrame(const InputState& _input);
 		void EndFrame();
@@ -49,15 +60,23 @@ namespace EditorUI
 
 	private:
 
+		DockSplitDir ComputeDropZone(const Rect2D& _leafBounds, const DirectX::XMFLOAT2& _mousePos) const;
+		void HandleDockDrop(WindowState& _state);
+		void DrawTabBar(WindowFrame& _frame, const DockNode& _leaf, int _leafId, const Rect2D& _windowRect);
+		void DrawDockPreview(WindowFrame& _frame);
+
 		WindowState& GetOrCreateWindowState(Id _id);
 		void BringToFront(Id _windowId);
-		void HandleTitleBarDrag(WindowState& _state, const Rect2D& _titleBarRect);
+		void HandleTitleBarDrag(WindowFrame& _frame, WindowState& _state, const Rect2D& _titleBarRect);
 		
 		void HandleScrollInput(WindowState& _state, const Rect2D& _windowRect);
 		void DrawScrollbar(WindowFrame& _frame, WindowState& _state);
 		void HandleResizeDrag(WindowState& _state, WindowFrame& _frame);
 
-		Style m_Style;
+		DockSpace	m_DockSpace;
+		bool		m_DockSpaceInitialized = false;
+
+		Style	m_Style;
 		IdStack m_IdStack;
 
 		std::unordered_map<Id, WindowState> m_WindowStates;
@@ -69,6 +88,7 @@ namespace EditorUI
 		Id m_FocusedWindow = 0;
 		Id m_DraggedWindow = 0;
 		DirectX::XMFLOAT2 m_DragOffset{};
+		DirectX::XMFLOAT2 m_DragStartMousePos{};
 
 		WindowFrame* m_CurrentWindow = nullptr;
 		std::vector<std::unique_ptr<WindowFrame>> m_ActiveWindowFrame;	// このフレームでBeginされた分のみ生存
@@ -80,5 +100,16 @@ namespace EditorUI
 		DirectX::XMFLOAT2 m_ResizeStartSize;
 
 		Id m_DraggedScrollbarWindow = 0;
+
+		// ドッキングタブを押している途中の状態
+		Id m_PressedDockTabWindow = 0;
+		int m_PressedDockTabLeaf = -1;
+
+		// タブを押した瞬間のマウス位置
+		DirectX::XMFLOAT2 m_PressedDockTabMousePos{};
+
+		// Leaf左上からマウス位置までの差
+		// アンドック時にウィンドウがマウス位置へワープするのを防ぐ
+		DirectX::XMFLOAT2 m_PressedDockTabOffset{};
 	};
 }
