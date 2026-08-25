@@ -99,10 +99,34 @@ void GameScene::OnUpdate(float _deltaTime)
 
     // 全 GameObject の Update を呼ぶ
     m_ObjectManager.Update(_deltaTime);
+
+    // エディタ等から削除予約されたオブジェクトを、ここで実際に取り除く
+    // Update / Draw のループ中にリストが変化しない、安全な位置で行う
+    m_ObjectManager.FlushPendingRemoves();
 }
 
 // -------------------------------------------------------------------------------
 // 毎フレームの描画コマンド組み立て
+// -------------------------------------------------------------------------------
+//      シーンの描画先の設定
+//
+//  描画先の指定をそのままSceneRendererへ渡し、
+//  同時にカメラの縦横比も出力先へ合わせる
+//  ここで射影行列を作り直さないと、パネルの形に合わせて絵が伸びてしまう
+// -------------------------------------------------------------------------------
+void GameScene::SetSceneOutput(const SceneOutput& _output)
+{
+    m_SceneRenderer.SetOutputTarget(_output);
+
+    if (!_output.IsValid())
+    {
+        return;
+    }
+
+    m_Camera.SetAspect(_output.GetAspect());
+    m_Camera.Update();
+}
+
 // -------------------------------------------------------------------------------
 void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
 {

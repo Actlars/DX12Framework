@@ -34,7 +34,11 @@ public:
 	// @param[in,out]	_sceneColor	MainPassが描いた絵のハンドル（入力かつ出力）
 	// @param[in]		_backBuffer	最終的な出力先
 	// -------------------------------------------------------------------------------
-	void Execute(RG::RenderGraph& _graph, RG::Handle& _sceneColor, RG::Handle& _backBuffer);
+	void Execute(
+		RG::RenderGraph&	_graph,
+		RG::Handle&			_sceneColor,
+		RG::Handle&			_backBuffer,
+		const SceneOutput&	_output);
 
 private:
 

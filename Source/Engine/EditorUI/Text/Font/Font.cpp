@@ -37,7 +37,23 @@ bool EditorUI::Font::Build(
 	m_FontSizePx	= _fontSizePx;
 	m_AtlasWidth	= _atlasWidth;
 	m_AtlasHeight	= _atlasHeight;
-	m_AtlasPixels.assign(static_cast<size_t>(m_AtlasWidth) * m_AtlasHeight, 0);	// 初期値 : 全面透明(黒)
+	// -------------------------------------------------------------------------------
+	// アトラスはRGBA8で持つ
+	//
+	// 1チャンネル(R8)にすると、シェーダーのtexColor * vertexColorで
+	// GとBが0になり、文字が赤くなったうえ背景が不透明の黒で塗り潰されてしまう
+	// RGBを白で埋め、被覆率(アンチエイリアスの濃さ)をAへ入れることで、
+	// 矩形と文字をまったく同じシェーダーで扱える
+	// -------------------------------------------------------------------------------
+	m_AtlasPixels.assign(static_cast<size_t>(m_AtlasWidth) * m_AtlasHeight * 4, 0);
+
+	for (size_t i = 0; i < m_AtlasPixels.size(); i += 4)
+	{
+		m_AtlasPixels[i + 0] = 255;	// R
+		m_AtlasPixels[i + 1] = 255;	// G
+		m_AtlasPixels[i + 2] = 255;	// B
+		m_AtlasPixels[i + 3] = 0;	// A : 初期値は全面透明
+	}
 	
 	if (FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
 		reinterpret_cast<IUnknown**>(m_pDWriteFactory.GetAddressOf()))))
@@ -196,7 +212,15 @@ bool EditorUI::Font::RasterizeGlyph(wchar_t _ch, Glyph& _outGlyph)
 			const uint8_t* pixel	= pSrc + (static_cast<size_t>(y) * dibSection.dsBm.bmWidthBytes) + (static_cast<size_t>(x) * 4);
 			const uint32_t atlasX	= static_cast<uint32_t>(placeX + x);
 			const uint32_t atlasY	= static_cast<uint32_t>(placeY + y);
-			m_AtlasPixels[static_cast<size_t>(atlasY) * m_AtlasWidth + atlasX] = pixel[2];	// BGRAのR成分
+
+			// DirectWriteは白文字として描くため、BGRAのR成分がそのまま被覆率になる
+			// それをアルファへ入れ、色は頂点カラー側で決められるようにする
+			const size_t destIndex = (static_cast<size_t>(atlasY) * m_AtlasWidth + atlasX) * 4;
+
+			m_AtlasPixels[destIndex + 0] = 255;
+			m_AtlasPixels[destIndex + 1] = 255;
+			m_AtlasPixels[destIndex + 2] = 255;
+			m_AtlasPixels[destIndex + 3] = pixel[2];
 		}
 	}
 	m_Dirty = true;
@@ -255,7 +279,7 @@ bool EditorUI::Font::CreateAtlasTexture(RHI::Device* _pDevice, EditorUIRenderer*
 	resDesc.Height				= m_AtlasHeight;
 	resDesc.DepthOrArraySize	= 1;
 	resDesc.MipLevels			= 1;
-	resDesc.Format				= DXGI_FORMAT_R8_UNORM;	// グレースケール１チャンネル
+	resDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;	// 白 + 被覆率(アルファ)
 	resDesc.SampleDesc.Count	= 1;
 	resDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
 
@@ -270,7 +294,7 @@ bool EditorUI::Font::CreateAtlasTexture(RHI::Device* _pDevice, EditorUIRenderer*
 
 	// Textureオブジェクトに先にSRVを作らせておく
 	if (!m_AtlasTextureObj.InitFromResource(
-		pDevice, _pDevice->GetPool(RHI::Device::POOL_TYPE_RES), pResource.Get(), DXGI_FORMAT_R8_UNORM))
+		pDevice, _pDevice->GetPool(RHI::Device::POOL_TYPE_RES), pResource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM))
 	{
 		ELOG("Font::CreateAtlasTexture() : Texture::InitFromResource failed");
 		return false;
@@ -316,7 +340,7 @@ void EditorUI::Font::UploadAtlasTexture(RHI::Device* _pDevice)
 
 	D3D12_SUBRESOURCE_DATA sub{};
 	sub.pData		= m_AtlasPixels.data();
-	sub.RowPitch	= m_AtlasWidth;		// R8_UNORM : １バイト/ピクセル
+	sub.RowPitch	= static_cast<LONG_PTR>(m_AtlasWidth) * 4;	// R8G8B8A8_UNORM : 4バイト/ピクセル
 	sub.SlicePitch	= static_cast<LONG_PTR>(m_AtlasPixels.size());
 
 	// 共有のDevice::m_CommandListには触れず、この関数専用の

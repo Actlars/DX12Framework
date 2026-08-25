@@ -85,6 +85,40 @@ void RHI::Device::WaitForGPU()
 }
 
 // -------------------------------------------------------------------------------
+//		デバッグレイヤーのメッセージをログへ出力する
+// -------------------------------------------------------------------------------
+void RHI::Device::FlushDebugMessages()
+{
+#if defined(DEBUG) || defined(_DEBUG)
+	if (m_pDevice == nullptr)
+	{ return; }
+
+	ComPtr<ID3D12InfoQueue> pInfoQueue;
+	if (FAILED(m_pDevice->QueryInterface(IID_PPV_ARGS(pInfoQueue.GetAddressOf()))))
+	{ return; }
+
+	const UINT64 count = pInfoQueue->GetNumStoredMessages();
+
+	for (UINT64 i = 0; i < count; ++i)
+	{
+		SIZE_T length = 0;
+		if (FAILED(pInfoQueue->GetMessage(i, nullptr, &length)) || length == 0)
+		{ continue; }
+
+		std::vector<uint8_t> buffer(length);
+		auto* pMessage = reinterpret_cast<D3D12_MESSAGE*>(buffer.data());
+
+		if (FAILED(pInfoQueue->GetMessage(i, pMessage, &length)))
+		{ continue; }
+
+		ELOG("[D3D12] %s", pMessage->pDescription);
+	}
+
+	pInfoQueue->ClearStoredMessages();
+#endif
+}
+
+// -------------------------------------------------------------------------------
 //		ゲッター
 // -------------------------------------------------------------------------------
 ID3D12Device*				RHI::Device::GetDevice()				const { return m_pDevice.Get(); }
@@ -138,6 +172,10 @@ bool RHI::Device::InitDevice()
 		ComPtr<ID3D12Debug> pDebug;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(pDebug.GetAddressOf()))))
 		{ pDebug->EnableDebugLayer(); }
+
+		// GPUベースの検証まで有効にすると起動が重くなるため、
+		// ここではCPU側の検証のみに留める
+
 	}
 #endif
 

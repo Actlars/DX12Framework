@@ -65,6 +65,18 @@ public:
     void OnUpdate(float _deltaTime)                     override;
     void OnRender(ID3D12GraphicsCommandList* _pCmd)     override;
 
+    // -------------------------------------------------------------------------------
+    // @brief   シーンの描画先を設定する
+    //
+    //  描画先をSceneRendererへ渡すと同時に、カメラの縦横比も合わせる
+    //  ゲーム画面はエディタのパネルへ描かれるため、
+    //  ウィンドウの大きさではなくパネルの大きさが縦横比の基準になる
+    // -------------------------------------------------------------------------------
+    void SetSceneOutput(const SceneOutput& _output) override;
+
+    // @brief   ヒエラルキー/インスペクタが実シーンを編集するための入り口
+    GameObjectManager* GetObjectManager() override { return &m_ObjectManager; }
+
 private:
 
     // -------------------------------------------------------------------------------

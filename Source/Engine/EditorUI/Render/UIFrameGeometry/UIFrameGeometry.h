@@ -3,7 +3,7 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include <Engine/EditorUI/Core/Types.h>
-#include <Engine/EditorUI/Core/DrawList.h>
+#include <Engine/EditorUI/Core/DrawList/DrawList.h>
 #include <Engine/RHI/Resource/Buffer/Buffer.h>
 
 // -------------------------------------------------------------------------------

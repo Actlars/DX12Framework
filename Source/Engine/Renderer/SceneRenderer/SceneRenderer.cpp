@@ -142,16 +142,29 @@ void SceneRenderer::Term()
 void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& _objects, FPSCamera& _camera)
 {
     auto* pTracker = m_pDevice->GetResourceStateTracker();
-    const auto frameIndex = m_pDevice->GetFrameIndex();
+
+    // -------------------------------------------------------------------------------
+    // どこへ描くかを最初に確定させる
+    //
+    // 以前はバックバッファ固定だったが、ゲーム画面をエディタのパネルへ
+    // 表示するようになったため、出力先は毎フレーム差し替えられる
+    // 以降のパスはすべてこのoutputだけを見る
+    // -------------------------------------------------------------------------------
+    const SceneOutput output = ResolveOutputTarget();
+    if (!output.IsValid())
+    {
+        return;
+    }
 
     // 外部リソースをグラフに取り込む
-    auto colorHandle = m_RenderGraph.ImportResource("BackBuffer", m_pDevice->GetColorTarget(frameIndex)->GetResource());
-    auto depthHandle = m_RenderGraph.ImportResource("DepthBuffer", m_pDevice->GetDepthTarget()->GetResource());
+    auto colorHandle = m_RenderGraph.ImportResource("SceneOutputColor", output.pColorResource);
+    auto depthHandle = m_RenderGraph.ImportResource("SceneOutputDepth", output.pDepthResource);
 
     // MainPass出力先のTransientバッファー
+    // 出力先と同じ大きさにしないと、ポストエフェクトで拡大・縮小されてしまう
     RG::TransientResourceDesc sceneColorDesc;
-    sceneColorDesc.Width    = m_pDevice->GetWidth();
-    sceneColorDesc.Height   = m_pDevice->GetHeight();
+    sceneColorDesc.Width    = output.Width;
+    sceneColorDesc.Height   = output.Height;
     sceneColorDesc.Format   = DXGI_FORMAT_R16G16B16A16_FLOAT;
     sceneColorDesc.ClearColor[0] = sceneColorDesc.ClearColor[1] = 0.0f;
     sceneColorDesc.ClearColor[2] = sceneColorDesc.ClearColor[3] = 1.0f;
@@ -170,14 +183,18 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
             _builder.Use(sceneColorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);
             _builder.Use(depthHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
         },
-        [this, sceneColorHandle, &_objects](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
+        [this, sceneColorHandle, &_objects, output](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
         {
             auto* pRTV = res.GetRTV(sceneColorHandle);
-            auto handleDSV = m_pDevice->GetDepthTarget()->GetHandleDSV()->HandleCPU;
+            auto handleDSV = output.DepthDSV;
             cmd->OMSetRenderTargets(1, &pRTV->HandleCPU, FALSE, &handleDSV);
 
+            // 出力先の大きさに合わせる
+            // 直前のフレームや別パスの設定が残っていると描画範囲がずれるため、毎回指定する
+            SetFullViewport(cmd, output.Width, output.Height);
+
             // クリア処理
-            const float clearColor[4] = { 0.0f,0.0f,1.0f,1.0f };
+            const float clearColor[4] = { 0.06f,0.07f,0.09f,1.0f };
             cmd->ClearRenderTargetView(pRTV->HandleCPU, clearColor, 0, nullptr);
             cmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
@@ -204,11 +221,10 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
 
             _objects.Submit(&m_RenderQueue);
             m_RenderQueue.Execute(cmd, m_RenderMode);
-            _objects.FlushPendingRemoves();
         });
 
     // ポストエフェクトを実行
-    m_PostProcessStack.Execute(m_RenderGraph, sceneColorHandle, colorHandle);
+    m_PostProcessStack.Execute(m_RenderGraph, sceneColorHandle, colorHandle, output);
 
     // メッシュレット描画
     m_RenderGraph.AddPass(
@@ -218,16 +234,15 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
             _builder.Use(colorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);
             _builder.Use(depthHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);
         },
-        [this, colorHandle, depthHandle, &_camera, &_objects](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
+        [this, colorHandle, depthHandle, &_camera, &_objects, output](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
         {
-            const auto frameIndex = m_pDevice->GetFrameIndex();
-            auto handleRTV = m_pDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
-            auto handleDSV = m_pDevice->GetDepthTarget()->GetHandleDSV()->HandleCPU;
+            auto handleRTV = output.ColorRTV;
+            auto handleDSV = output.DepthDSV;
             cmd->OMSetRenderTargets(1, &handleRTV, FALSE, &handleDSV);
 
             cmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-            SetFullViewport(cmd, m_pDevice->GetWidth(), m_pDevice->GetHeight());
+            SetFullViewport(cmd, output.Width, output.Height);
 
             ID3D12DescriptorHeap* heaps[] =
             {
@@ -296,6 +311,45 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
     m_RenderGraph.Execute(_pCmd, pTracker);
 }
     
+// -------------------------------------------------------------------------------
+//      今フレーム実際に使う出力先を返す
+//
+//  差し替えが指定されていなければ、従来どおりバックバッファへ描く
+// -------------------------------------------------------------------------------
+SceneOutput SceneRenderer::ResolveOutputTarget() const
+{
+    if (m_OutputOverride.IsValid())
+    {
+        return m_OutputOverride;
+    }
+
+    SceneOutput output;
+
+    if (m_pDevice == nullptr)
+    {
+        return output;
+    }
+
+    const auto frameIndex = m_pDevice->GetFrameIndex();
+
+    auto* pColor = m_pDevice->GetColorTarget(frameIndex);
+    auto* pDepth = m_pDevice->GetDepthTarget();
+
+    if (pColor == nullptr || pDepth == nullptr)
+    {
+        return output;
+    }
+
+    output.pColorResource   = pColor->GetResource();
+    output.ColorRTV         = pColor->GetHandleRTV()->HandleCPU;
+    output.pDepthResource   = pDepth->GetResource();
+    output.DepthDSV         = pDepth->GetHandleDSV()->HandleCPU;
+    output.Width            = m_pDevice->GetWidth();
+    output.Height           = m_pDevice->GetHeight();
+
+    return output;
+}
+
 // -------------------------------------------------------------------------------
 //      ポストエフェクトの追加
 // -------------------------------------------------------------------------------

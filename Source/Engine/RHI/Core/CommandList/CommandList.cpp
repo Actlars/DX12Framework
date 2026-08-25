@@ -3,6 +3,7 @@
 // -------------------------------------------------------------------------------
 #include "CommandList.h"
 #include <Engine/RHI/Core/Fence/Fence.h>
+#include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
 // CommandList class
@@ -91,12 +92,20 @@ ID3D12GraphicsCommandList* RHI::CommandList::Reset(RHI::Fence* _pFence)
 	// コマンドアロケータをリセットする
 	auto hr = m_pAllocators[m_Index]->Reset();
 	if (FAILED(hr)) 
-	{ return nullptr; }
+	{
+		// どちらのResetで失敗したのかが分からないと原因を追えないため、
+		// HRESULTまで含めて記録する
+		ELOG("CommandList::Reset() CommandAllocator::Reset failed (hr = 0x%08X)", static_cast<unsigned int>(hr));
+		return nullptr;
+	}
 
 	// コマンドリストをリセットする
 	hr = m_pCmdList->Reset(m_pAllocators[m_Index].Get(), nullptr);
 	if (FAILED(hr)) 
-	{ return nullptr; }
+	{
+		ELOG("CommandList::Reset() CommandList::Reset failed (hr = 0x%08X)", static_cast<unsigned int>(hr));
+		return nullptr;
+	}
 
 	// ここではインデックスを進めない
 	// 「今フレームがどのアロケータを使っているか」はRecordFenceValueが呼ばれるまで確定させる

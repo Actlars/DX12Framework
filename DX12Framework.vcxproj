@@ -82,6 +82,10 @@
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(SolutionDir)External\meshoptimizer\src\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- ソースはUTF-8(BOMなし)で統一しているため、コンパイラにもUTF-8として読ませる
+           指定しないと既定のコードページ(日本語環境ではCP932)で解釈され、
+           コメント中の日本語の末尾バイトが改行を巻き込んで構文エラーになることがある -->
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -120,6 +124,10 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(SolutionDir)External\meshoptimizer\src\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- ソースはUTF-8(BOMなし)で統一しているため、コンパイラにもUTF-8として読ませる
+           指定しないと既定のコードページ(日本語環境ではCP932)で解釈され、
+           コメント中の日本語の末尾バイトが改行を巻き込んで構文エラーになることがある -->
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,6 +164,10 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;$(SolutionDir)External\DXC_2026_02\include;$(SolutionDir)External\DXC_2026_02\bin\x64;$(SolutionDir)External\Agility_1.721\include;$(SolutionDir)External\Agility_1.721\bin\x64;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(SolutionDir)External\meshoptimizer\src\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- ソースはUTF-8(BOMなし)で統一しているため、コンパイラにもUTF-8として読ませる
+           指定しないと既定のコードページ(日本語環境ではCP932)で解釈され、
+           コメント中の日本語の末尾バイトが改行を巻き込んで構文エラーになることがある -->
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -194,6 +206,10 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
       <ForcedIncludeFiles>Pch.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)External\meshoptimizer\src;.\Source;$(SolutionDir)External\DirectX-Header;$(SolutionDir)External\Assimp\Include;$(SolutionDir)External\DirectXTex;$(SolutionDir)External\PIX\Include\WinPixEventRuntime;$(SolutionDir)External\meshoptimizer\src\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <!-- ソースはUTF-8(BOMなし)で統一しているため、コンパイラにもUTF-8として読ませる
+           指定しないと既定のコードページ(日本語環境ではCP932)で解釈され、
+           コメント中の日本語の末尾バイトが改行を巻き込んで構文エラーになることがある -->
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -223,20 +239,34 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Application\Application.h" />
     <ClInclude Include="Source\Engine\Camera\CameraBase.h" />
     <ClInclude Include="Source\Engine\Camera\FPSCamera\FPSCamera.h" />
-    <ClInclude Include="Source\Engine\EditorUI\Core\Context.h" />
-    <ClInclude Include="Source\Engine\EditorUI\Core\DrawList.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Context\Context.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Context\FrameContext\FrameContext.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Context\FrameContext\FrameOutput.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Context\WidgetInteractionState\WidgetInteractionState.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Context\WidgetInteraction\WidgetInteraction.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Context\WindowInteraction\WindowInteraction.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Context\WindowManager\WindowManager.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\DrawList\DrawList.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Id.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Input.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\InputTracker\InputTracker.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Style.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\TextEditState.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Types.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Window.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Window\WindowFlags.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Window\WindowFrame.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Window\WindowState.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Docking\DockController\DockController.h" />
     <ClInclude Include="Source\Engine\EditorUI\Docking\DockNode.h" />
     <ClInclude Include="Source\Engine\EditorUI\Docking\DockSpace\DockSpace.h" />
     <ClInclude Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.h" />
     <ClInclude Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.h" />
     <ClInclude Include="Source\Engine\EditorUI\Text\Font\Font.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Text\TextLayout\TextLayout.h" />
     <ClInclude Include="Source\Engine\EditorUI\Widgets\Layout\Layout.h" />
     <ClInclude Include="Source\Engine\EditorUI\Widgets\WidgetInteraction.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Widgets\WidgetPrimitives.h" />
     <ClInclude Include="Source\Engine\EditorUI\Widgets\Widgets.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.h" />
@@ -307,18 +337,42 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Utility\StringUtil\StringUtil.h" />
     <ClInclude Include="Source\Game\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Source\Pch.h" />
+    <ClInclude Include="Source\Engine\Renderer\ViewportTarget\ViewportTarget.h" />
+    <ClInclude Include="Source\Editor\EditorContext.h" />
+    <ClInclude Include="Source\Editor\Selection\Selection.h" />
+    <ClInclude Include="Source\Editor\Assets\AssetDatabase.h" />
+    <ClInclude Include="Source\Editor\Effect\EffectAsset.h" />
+    <ClInclude Include="Source\Editor\Effect\EffectPreview.h" />
+    <ClInclude Include="Source\Editor\Panels\IEditorPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\PanelManager\PanelManager.h" />
+    <ClInclude Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\HierarchyPanel\HierarchyPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\ContentBrowserPanel\ContentBrowserPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\EffectEditorPanel\EffectEditorPanel.h" />
+    <ClInclude Include="Source\Editor\EditorApp\EditorApp.h" />
+    <ClInclude Include="Source\Engine\Renderer\SceneOutput\SceneOutput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp" />
     <ClCompile Include="Source\Engine\Camera\CameraBase.cpp" />
     <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp" />
-    <ClCompile Include="Source\Engine\EditorUI\Core\Context.cpp" />
-    <ClCompile Include="Source\Engine\EditorUI\Core\DrawList.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\Context\Context.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\Context\FrameContext\FrameContext.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\Context\WidgetInteractionState\WidgetInteractionState.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\Context\WidgetInteraction\WidgetInteraction.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\Context\WindowInteraction\WindowInteraction.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\Context\WindowManager\WindowManager.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\DrawList\DrawList.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\InputTracker\InputTracker.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Docking\DockController\DockController.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Docking\DockSpace\DockSpace.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Render\EditorUIRenderer\EditorUIRenderer.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Text\Font\Font.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Text\TextLayout\TextLayout.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Widgets\Widgets.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Widgets\ValueWidgets.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.cpp" />
@@ -369,6 +423,18 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\Utility\StringUtil\StringUtil.cpp" />
     <ClCompile Include="Source\Game\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Widgets\ContainerWidgets.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\ViewportTarget\ViewportTarget.cpp" />
+    <ClCompile Include="Source\Editor\Assets\AssetDatabase.cpp" />
+    <ClCompile Include="Source\Editor\Effect\EffectAsset.cpp" />
+    <ClCompile Include="Source\Editor\Effect\EffectPreview.cpp" />
+    <ClCompile Include="Source\Editor\Panels\PanelManager\PanelManager.cpp" />
+    <ClCompile Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.cpp" />
+    <ClCompile Include="Source\Editor\Panels\HierarchyPanel\HierarchyPanel.cpp" />
+    <ClCompile Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.cpp" />
+    <ClCompile Include="Source\Editor\Panels\ContentBrowserPanel\ContentBrowserPanel.cpp" />
+    <ClCompile Include="Source\Editor\Panels\EffectEditorPanel\EffectEditorPanel.cpp" />
+    <ClCompile Include="Source\Editor\EditorApp\EditorApp.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -457,13 +523,6 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_6_10</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_6_10</ShaderModel>
     </SlangTask>
-    <CustomBuild Include="Source\Engine\Shader\slangTest\Header.hlsli">
-      <FileType>Document</FileType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Amplification</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Amplification</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Amplification</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Amplification</ShaderType>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Source\Engine\Shader\MeshShader\MeshShaderPS.hlsl">

@@ -89,6 +89,19 @@ void SceneManager::Render(ID3D12GraphicsCommandList* _pCmd)
 // -------------------------------------------------------------------------------
 //		シーン切り替え処理（遅延切り替え）
 // -------------------------------------------------------------------------------
+//      シーンの描画先を現在のシーンへ伝える
+// -------------------------------------------------------------------------------
+void SceneManager::SetSceneOutput(const SceneOutput& _output)
+{
+	if (m_pCurrentScene == nullptr || !m_pCurrentScene->IsInitialized())
+	{
+		return;
+	}
+
+	m_pCurrentScene->SetSceneOutput(_output);
+}
+
+// -------------------------------------------------------------------------------
 void SceneManager::ProcessSceneChange()
 {
 	// 予約がなければ何もしない

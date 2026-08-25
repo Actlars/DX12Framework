@@ -3,8 +3,9 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include <Engine/RHI/Pipeline/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
-#include <Engine/EditorUI/Core/Context.h>
-#include "../UIFrameGeometry/UIFrameGeometry.h"
+#include <Engine/EditorUI/Core/Context/Context.h>
+#include <Engine/EditorUI/Core/Context/FrameContext/FrameOutput.h>
+#include <Engine/EditorUI/Render/UIFrameGeometry/UIFrameGeometry.h>
 
 namespace RHI { class Device; class Texture; }
 
@@ -24,11 +25,17 @@ public :
 
 	// CompositedFrameを受け取り、実際にコマンドリストに積む
 	void Render(
-		const EditorUI::Context::CompositedFrame&	_compositedFrame,
-		ID3D12GraphicsCommandList*					_pCmd,
-		uint32_t									_frameIndex,
-		float										_screenWidth,
-		float										_screenHeight);
+		const EditorUI::FrameOutput&	_compositedFrame,
+		ID3D12GraphicsCommandList*		_pCmd,
+		uint32_t						_frameIndex,
+		float							_screenWidth,
+		float							_screenHeight);
+
+	bool MakeValidScissorRect(
+		const EditorUI::Rect2D& _clipRect,
+		float					_frameBufferWidth,
+		float					_frameBufferHeight,
+		D3D12_RECT&				_outScissor);
 
 
 	// テクスチャをEditorUIから使えるように登録し、TextureIdを返す

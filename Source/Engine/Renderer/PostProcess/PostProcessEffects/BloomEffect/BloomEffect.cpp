@@ -41,12 +41,35 @@ bool BloomEffect::Init(RHI::Device* _pDevice)
 	return true;
 }
 
-void BloomEffect::AddPasses(RG::RenderGraph& _graph, RG::Handle& _sceneColorHandle, RG::Handle _backBufferHandle, bool _isLast)
+void BloomEffect::AddPasses(
+    RG::RenderGraph&    _graph,
+    RG::Handle&         _sceneColorHandle,
+    RG::Handle          _backBufferHandle,
+    bool                _isLast,
+    const SceneOutput&  _output)
 {
-    // Transientバッファを確保（画面の半分サイズ、ブルーム用）
+    // -------------------------------------------------------------------------------
+    // 中間バッファもビューポートも、出力先の大きさを基準にする
+    //
+    // ゲーム画面はウィンドウ全体ではなくパネルへ描かれるようになったため、
+    // デバイスの幅・高さを使うと、ぼかしの効き方と描画範囲がずれてしまう
+    // -------------------------------------------------------------------------------
+    const uint32_t outputWidth  = _output.Width;
+    const uint32_t outputHeight = _output.Height;
+
+    const uint32_t halfWidth  = (std::max)(1u, outputWidth  / 2);
+    const uint32_t halfHeight = (std::max)(1u, outputHeight / 2);
+
+    // ぼかしのサンプリング間隔は、実際に使う中間バッファの大きさから求める
+    if (auto* pParams = m_BlurParams->GetPtr<BlurParamsCB>())
+    {
+        pParams->TexelSize = { 1.0f / static_cast<float>(halfWidth), 1.0f / static_cast<float>(halfHeight) };
+    }
+
+    // Transientバッファを確保（出力先の半分サイズ、ブルーム用）
     RG::TransientResourceDesc bloomDesc;
-    bloomDesc.Width         = m_pDevice->GetWidth() / 2;
-    bloomDesc.Height        = m_pDevice->GetHeight() / 2;
+    bloomDesc.Width         = halfWidth;
+    bloomDesc.Height        = halfHeight;
     bloomDesc.Format        = DXGI_FORMAT_R16G16B16A16_FLOAT;
     bloomDesc.ClearColor[0] = bloomDesc.ClearColor[1] = bloomDesc.ClearColor[2] = 0.0f;
     bloomDesc.ClearColor[3] = 1.0f;
@@ -75,7 +98,7 @@ void BloomEffect::AddPasses(RG::RenderGraph& _graph, RG::Handle& _sceneColorHand
             b.Use(bloomHandle,          D3D12_RESOURCE_STATE_RENDER_TARGET);
         },
         // Execute : Setupの宣言に基づき、RenderGraphがバリア解決済みの状態で呼ばれる
-        [this, _sceneColorHandle, bloomHandle](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
+        [this, _sceneColorHandle, bloomHandle, halfWidth, halfHeight](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
         {
             // 描画先をbloomHandle(A)に切り替える
             // DX12はOMSetRenderTargetsを呼びなおさない限り前のパスの設定が残り続けるため、
@@ -85,7 +108,7 @@ void BloomEffect::AddPasses(RG::RenderGraph& _graph, RG::Handle& _sceneColorHand
 
             // bloomHandleは画面の半分のサイズで確保する
             // フルサイズのビューポートだと、描画範囲がずれるため、TexelSizeに合わせておく
-            SetFullViewport(cmd, m_pDevice->GetWidth() / 2, m_pDevice->GetHeight() / 2);
+            SetFullViewport(cmd, halfWidth, halfHeight);
 
             cmd->SetGraphicsRootSignature(m_RootSignatureLayout.GetRootSignature());
             cmd->SetPipelineState(m_pExtractPSO);
@@ -112,13 +135,13 @@ void BloomEffect::AddPasses(RG::RenderGraph& _graph, RG::Handle& _sceneColorHand
             b.Use(bloomHandle,  D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE); // A : 読む
             b.Use(bloomHandleB, D3D12_RESOURCE_STATE_RENDER_TARGET);        // B : 書く
         },
-        [this, bloomHandle, bloomHandleB](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
+        [this, bloomHandle, bloomHandleB, halfWidth, halfHeight](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
         {
             auto* pRTV = res.GetRTV(bloomHandleB);
             cmd->OMSetRenderTargets(1, &pRTV->HandleCPU, FALSE, nullptr);
 
             // bloomHandleBもbloomHandleと同じ半分サイズなので、同じビューポートを使う
-            SetFullViewport(cmd, m_pDevice->GetWidth() / 2, m_pDevice->GetHeight() / 2);
+            SetFullViewport(cmd, halfWidth, halfHeight);
 
             cmd->SetGraphicsRootSignature(m_RootSignatureLayout.GetRootSignature());
             cmd->SetPipelineState(m_pBlurPSO);
@@ -151,17 +174,17 @@ void BloomEffect::AddPasses(RG::RenderGraph& _graph, RG::Handle& _sceneColorHand
             b.Use(bloomHandleB,         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // ぼかし済みを読む
             b.Use(_backBufferHandle,    D3D12_RESOURCE_STATE_RENDER_TARGET);            // バックバッファに書く
         },
-        [this, _sceneColorHandle, bloomHandleB, _backBufferHandle](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
+        [this, _sceneColorHandle, bloomHandleB, _backBufferHandle, _output](ID3D12GraphicsCommandList* cmd, const RG::ResourceRegistry& res)
         {
-            // colorHandleはImportリソース（バックバッファ）なので、Transientのように
-            // ResourceRegistry::GetRTV()では取得できない。GraphicsDevice側から直接取得する
-            const auto frameIndex = m_pDevice->GetFrameIndex();
-            auto handleRTV = m_pDevice->GetColorTarget(frameIndex)->GetHandleRTV()->HandleCPU;
+            // 最終出力先はImportリソースなので、Transientのように
+            // ResourceRegistry::GetRTV()では取得できない
+            // 描画先はSceneOutputとして呼び出し側から渡される
+            auto handleRTV = _output.ColorRTV;
             cmd->OMSetRenderTargets(1, &handleRTV, FALSE, nullptr);
 
-            // バックバッファはフルサイズなので、直前のBlurパス（半分）から
-            // ビューポートをフルサイズに戻す
-            SetFullViewport(cmd, m_pDevice->GetWidth(), m_pDevice->GetHeight());
+            // 出力先はフルサイズなので、直前のBlurパス（半分）から
+            // ビューポートを戻す
+            SetFullViewport(cmd, _output.Width, _output.Height);
 
             cmd->SetGraphicsRootSignature(m_RootSignatureLayout.GetRootSignature());
             cmd->SetPipelineState(m_pCompositePSO);

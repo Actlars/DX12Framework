@@ -27,11 +27,15 @@ bool PostProcessStack::InitAllEffect(RHI::Device* _pDevice)
 // -------------------------------------------------------------------------------
 //		全エフェクトのパスをRenderGraphに順番に積む
 // -------------------------------------------------------------------------------
-void PostProcessStack::Execute(RG::RenderGraph& _graph, RG::Handle& _sceneColor, RG::Handle& _backBuffer)
+void PostProcessStack::Execute(
+	RG::RenderGraph&	_graph,
+	RG::Handle&			_sceneColor,
+	RG::Handle&			_backBuffer,
+	const SceneOutput&	_output)
 {
 	for (size_t i = 0; i < m_PostProcessEffects.size(); ++i)
 	{
 		const bool isLast = (i == m_PostProcessEffects.size() - 1);
-		m_PostProcessEffects[i]->AddPasses(_graph, _sceneColor, _backBuffer, isLast);
+		m_PostProcessEffects[i]->AddPasses(_graph, _sceneColor, _backBuffer, isLast, _output);
 	}
 }

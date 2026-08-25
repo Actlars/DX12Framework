@@ -3,6 +3,7 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include <Engine/Renderer/RenderGraph/RenderGraph.h>
+#include <Engine/Renderer/SceneOutput/SceneOutput.h>
 
 namespace RHI { class Device; }
 
@@ -32,12 +33,16 @@ public:
 	// @param[in,out]	_sceneColor	現在の「シーンの絵」を指すハンドル
 	//								このエフェクトが絵を変化させた場合
 	//								自分の出力ハンドルに書き換えて返す
-	// @param[in]		_backBuffer	最終出力先（最後のエフェクトだけが書く）
+	// @param[in]		_backBuffer	最終出力先のハンドル（最後のエフェクトだけが書く）
 	// @param[in]		_isLast		自分が最後のエフェクトかどうか確認
+	// @param[in]		_output		最終出力先の実体（RTVと大きさ）
+	//								バックバッファ固定ではなくなったため、
+	//								デバイスから引かずにここで受け取る
 	// -------------------------------------------------------------------------------
 	virtual void AddPasses(
-		RG::RenderGraph& _graph,
-		RG::Handle&		_sceneColor,
-		RG::Handle		_backBuffer,
-		bool			_isLast) = 0;
+		RG::RenderGraph&	_graph,
+		RG::Handle&			_sceneColor,
+		RG::Handle			_backBuffer,
+		bool				_isLast,
+		const SceneOutput&	_output) = 0;
 };

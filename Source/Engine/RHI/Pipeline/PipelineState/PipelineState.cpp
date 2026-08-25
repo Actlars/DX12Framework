@@ -169,19 +169,19 @@ bool RHI::PipelineState::LoadFromJsonGraphics(
 
 		// PSOの組み立て
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-		psoDesc.InputLayout = _inputLayout;
-		psoDesc.pRootSignature = _pRootSignature;
-		psoDesc.VS = { pVS->GetBufferPointer(), pVS->GetBufferSize() };
-		psoDesc.PS = { pPS->GetBufferPointer(), pPS->GetBufferSize() };
-		psoDesc.RasterizerState = rsDesc;
-		psoDesc.BlendState = blendDesc;
-		psoDesc.DepthStencilState = dssDesc;
-		psoDesc.SampleMask = UINT_MAX;
-		psoDesc.PrimitiveTopologyType = ToTopologyType(_json.value("PrimitiveTopologyType", std::string("TRIANGLE")));
-		psoDesc.NumRenderTargets = 1;
-		psoDesc.RTVFormats[0] = ToFormat(_json.value("RTVFormat", std::string("R8G8B8A8_UNORM")));
-		psoDesc.DSVFormat = ToFormat(_json.value("DSVFormat", std::string("D32_FLOAT")));
-		psoDesc.SampleDesc.Count = 1;
+		psoDesc.InputLayout				= _inputLayout;
+		psoDesc.pRootSignature			= _pRootSignature;
+		psoDesc.VS						= { pVS->GetBufferPointer(), pVS->GetBufferSize() };
+		psoDesc.PS						= { pPS->GetBufferPointer(), pPS->GetBufferSize() };
+		psoDesc.RasterizerState			= rsDesc;
+		psoDesc.BlendState				= blendDesc;
+		psoDesc.DepthStencilState		= dssDesc;
+		psoDesc.SampleMask				= UINT_MAX;
+		psoDesc.PrimitiveTopologyType	= ToTopologyType(_json.value("PrimitiveTopologyType", std::string("TRIANGLE")));
+		psoDesc.NumRenderTargets		= 1;
+		psoDesc.RTVFormats[0]			= ToFormat(_json.value("RTVFormat", std::string("R8G8B8A8_UNORM")));
+		psoDesc.DSVFormat				= ToFormat(_json.value("DSVFormat", std::string("D32_FLOAT")));
+		psoDesc.SampleDesc.Count		= 1;
 
 		auto hr = _pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS((m_pPSO.GetAddressOf())));
 		if (FAILED(hr))
@@ -262,7 +262,7 @@ bool RHI::PipelineState::LoadFromJsonMeshShader(
 		D3D12_BLEND_DESC blendDesc = {};
 		blendDesc.AlphaToCoverageEnable		= FALSE;
 		blendDesc.IndependentBlendEnable	= FALSE;
-		const bool blendEnable				= _json.value("blendEnable", false);
+		const bool blendEnable				= _json.value("BlendEnable", false);
 		for (auto& rt : blendDesc.RenderTarget)
 		{
 			rt.BlendEnable				= blendEnable ? TRUE : FALSE;

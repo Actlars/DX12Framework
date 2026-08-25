@@ -35,6 +35,12 @@ namespace Input
 
 		void SetRelativeMode(HWND _hWnd, bool _enabled);
 
+		// WM_MOUSEWHEELで受け取ったホイール量を次フレームへ蓄積する
+		void AddWheelDelta(float _delta);
+
+		// このフレームで確定したホイール量
+		float GetWheelDelta() const { return m_WheelDelta; }
+
 	private:
 
 		static int ToVirtualKey(MouseButton _button);
@@ -53,6 +59,9 @@ namespace Input
 		POINT m_Position{};
 		POINT m_PreviousPosition{};
 		POINT m_Delta{};
+
+		float m_WheelDelta			= 0.0f;
+		float m_PendingWheelDelta	= 0.0f;
 
 		bool m_HasPreviousPosition	= false;
 		bool m_IsRelativeMode		= false;

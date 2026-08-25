@@ -102,7 +102,10 @@ private:
 	D3D12_VIEWPORT	m_ViewPort	= {};
 	D3D12_RECT		m_Scissor	= {};
 
-	static constexpr	float CLEAR_COLOR[4] = { 0.0f,0.0f,1.0f,1.0f };
+	// バックバッファの背景色
+	// 画面のほとんどはエディタのパネルで覆われるため、
+	// 隙間が目立たない暗いニュートラルグレーにしている
+	static constexpr	float CLEAR_COLOR[4] = { 0.10f,0.10f,0.11f,1.0f };
 
 	Renderer		(const Renderer&) = delete;
 	void operator = (const Renderer&) = delete;

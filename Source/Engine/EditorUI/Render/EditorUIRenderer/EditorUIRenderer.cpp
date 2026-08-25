@@ -80,11 +80,11 @@ void EditorUIRenderer::Term()
 }
 
 void EditorUIRenderer::Render(
-	const EditorUI::Context::CompositedFrame&	_compositedFrame, 
-	ID3D12GraphicsCommandList*					_pCmd, 
-	uint32_t									_frameIndex, 
-	float										_screenWidth, 
-	float										_screenHeight)
+	const EditorUI::FrameOutput&	_compositedFrame, 
+	ID3D12GraphicsCommandList*		_pCmd, 
+	uint32_t						_frameIndex, 
+	float							_screenWidth, 
+	float							_screenHeight)
 {
 	if (_pCmd == nullptr || _frameIndex >= m_FrameGeometries.size())
 	{
@@ -142,11 +142,15 @@ void EditorUIRenderer::Render(
 
 	for (const UIFlatDrawCommand& cmd : commands)
 	{
-		D3D12_RECT scissor
+		D3D12_RECT scissor{};
+
+		// 画面外または幅・高さ0のクリップは描画しない
+		if (!MakeValidScissorRect(
+			cmd.ClipRect, _screenWidth, _screenHeight, scissor))
 		{
-			static_cast<LONG>(cmd.ClipRect.Min.x), static_cast<LONG>(cmd.ClipRect.Min.y),
-			static_cast<LONG>(cmd.ClipRect.Max.x), static_cast<LONG>(cmd.ClipRect.Max.y)
-		};
+			continue;
+		}
+
 		_pCmd->RSSetScissorRects(1, &scissor);
 
 		auto it = m_TextureHandles.find(cmd.Texture);
@@ -158,6 +162,32 @@ void EditorUIRenderer::Render(
 		_pCmd->DrawIndexedInstanced(cmd.ElementCount, 1, cmd.IndexOffset, 0, 0);
 	}
 
+}
+
+bool EditorUIRenderer::MakeValidScissorRect(const EditorUI::Rect2D& _clipRect, float _frameBufferWidth, float _frameBufferHeight, D3D12_RECT& _outScissor)
+{
+	if (_frameBufferWidth <= 0.0f ||
+		_frameBufferHeight <= 0.0f)
+	{
+		return false;
+	}
+
+	const float minX = std::clamp(
+		_clipRect.Min.x, 0.0f, _frameBufferWidth);
+	const float minY = std::clamp(
+		_clipRect.Min.y, 0.0f, _frameBufferHeight);
+	const float MaxX = std::clamp(
+		_clipRect.Max.x, 0.0f, _frameBufferWidth);
+	const float MaxY = std::clamp(
+		_clipRect.Max.y, 0.0f, _frameBufferHeight);
+
+	_outScissor.left	= static_cast<LONG>(std::floor(minX));
+	_outScissor.right	= static_cast<LONG>(std::ceil(MaxX));
+	_outScissor.top		= static_cast<LONG>(std::floor(minY));
+	_outScissor.bottom	= static_cast<LONG>(std::ceil(MaxY));
+
+	return _outScissor.right > _outScissor.left &&
+		_outScissor.bottom > _outScissor.top;
 }
 
 EditorUI::TextureId EditorUIRenderer::RegisterTexture(const RHI::Texture* _pTexture)

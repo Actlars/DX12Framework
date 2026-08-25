@@ -27,6 +27,9 @@ namespace Input
 		// 左クリックした位置に応じて入力先を決定
 		void ResolveMouseCapture(bool _mouseOverEditorUI);
 
+		// Wind32からポーリングできないメッセージを受け取る
+		void ProcessWindowMessage(UINT _msg, WPARAM _wp, LPARAM _lp);
+
 		void ReleaseMouseCapture();
 
 		const KeyboardInput& GetKeyboardInput() const 

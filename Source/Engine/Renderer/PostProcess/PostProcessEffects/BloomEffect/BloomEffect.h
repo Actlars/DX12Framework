@@ -11,7 +11,12 @@ class BloomEffect : public IPostProcessEffect
 public:
 
 	bool Init(RHI::Device* _pDevice)override;
-	void AddPasses(RG::RenderGraph& _graph, RG::Handle& _sceneColorHandle, RG::Handle _backBufferHandle, bool _isLast)override;
+	void AddPasses(
+		RG::RenderGraph&	_graph,
+		RG::Handle&			_sceneColorHandle,
+		RG::Handle			_backBufferHandle,
+		bool				_isLast,
+		const SceneOutput&	_output) override;
 
 	void SetFullViewport(ID3D12GraphicsCommandList* _pCmd, uint32_t _width, uint32_t _height);
 

@@ -37,6 +37,9 @@ namespace RHI
 		// @param[in]	width		横幅
 		// @param[in]	height		縦幅
 		// @param[in]	format		ピクセルフォーマット
+		// @param[in]	clearColor	最適化クリア値(RGBA)。nullptrなら白
+		//							実際にClearRenderTargetViewへ渡す色と一致させると、
+		//							クリアが高速な経路を通る
 		// @retval	true	初期化に成功
 		// @retval	false	初期化に失敗
 		// -------------------------------------------------------------------------------
@@ -45,7 +48,8 @@ namespace RHI
 			DescriptorPool*			_pPoolDSV,
 			uint32_t				_width,
 			uint32_t				_height,
-			DXGI_FORMAT				_format);
+			DXGI_FORMAT				_format,
+			const float*			_clearColor = nullptr);
 
 		// -------------------------------------------------------------------------------
 		// @brief	バックバッファから初期化処理

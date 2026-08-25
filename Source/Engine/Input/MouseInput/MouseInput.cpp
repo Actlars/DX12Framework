@@ -7,18 +7,24 @@ void Input::MouseInput::Update(HWND _hWnd, bool _acceptInput)
 {
 	m_PreviousButtons = m_CurrentButtons;
 
+	// WndProcで蓄積したホイール量をこのフレームの入力として確定する
+	m_WheelDelta		= m_PendingWheelDelta;
+	m_PendingWheelDelta = 0.0f;
+
 	if (!_acceptInput || _hWnd == nullptr)
 	{
 		m_CurrentButtons.fill(false);
-		m_Delta = { 0,0 };
+		m_Delta				= { 0,0 };
+		m_WheelDelta		= 0.0f;
+		m_PendingWheelDelta = 0.0f;
 		return;
 	}
 
 	for (size_t i = 0; i < ButtonCount; ++i)
 	{
-		const auto button = static_cast<MouseButton>(i);
-		const int virtualKey = ToVirtualKey(button);
-		m_CurrentButtons[i] = (GetAsyncKeyState(virtualKey) & 0x8000) != 0;
+		const auto button		= static_cast<MouseButton>(i);
+		const int virtualKey	= ToVirtualKey(button);
+		m_CurrentButtons[i]		= (GetAsyncKeyState(virtualKey) & 0x8000) != 0;
 	}
 
 	POINT screenPosition{};
@@ -58,9 +64,9 @@ void Input::MouseInput::Update(HWND _hWnd, bool _acceptInput)
 			m_HasPreviousPosition	= true;
 		}
 
-		m_Delta.x = clientPosition.x - m_PreviousPosition.x;
-		m_Delta.y = clientPosition.y - m_PreviousPosition.y;
-		m_PreviousPosition = clientPosition;
+		m_Delta.x			= clientPosition.x - m_PreviousPosition.x;
+		m_Delta.y			= clientPosition.y - m_PreviousPosition.y;
+		m_PreviousPosition	= clientPosition;
 	}
 
 }
@@ -70,11 +76,21 @@ void Input::MouseInput::Reset()
 	m_CurrentButtons.fill(false);
 	m_PreviousButtons.fill(false);
 
-	m_Position = { 0,0 };
-	m_PreviousPosition = { 0,0 };
-	m_Delta = { 0,0 };
+	m_Position			= { 0,0 };
+	m_PreviousPosition	= { 0,0 };
+	m_Delta				= { 0,0 };
 
-	m_HasPreviousPosition = false;
+	m_WheelDelta		= 0.0f;
+	m_PendingWheelDelta = 0.0f;
+
+	m_HasPreviousPosition	= false;
+	m_IsCursorHidden		= false;
+	m_IsRelativeMode		= false;
+}
+
+void Input::MouseInput::AddWheelDelta(float _delta)
+{
+	m_PendingWheelDelta += _delta;
 }
 
 bool Input::MouseInput::IsDown(MouseButton _button) const

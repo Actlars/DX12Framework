@@ -35,7 +35,8 @@ bool RHI::ColorTarget::Init
 	RHI::DescriptorPool*	_pPoolRTV,
 	uint32_t				_width,
 	uint32_t				_height,
-	DXGI_FORMAT				_format
+	DXGI_FORMAT				_format,
+	const float*			_clearColor
 )
 {
 	if (_pDevice == nullptr || _pPoolRTV == nullptr || _width == 0 || _height == 0)
@@ -75,12 +76,14 @@ bool RHI::ColorTarget::Init
 	desc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	desc.Flags				= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
+	// 実際のクリア色と一致していないと、クリアのたびに遅い経路が使われ、
+	// デバッグレイヤーにも警告が出る
 	D3D12_CLEAR_VALUE clearValue;
-	clearValue.Format = _format;
-	clearValue.Color[0] = 1.0f;
-	clearValue.Color[1] = 1.0f;
-	clearValue.Color[2] = 1.0f;
-	clearValue.Color[3] = 1.0f;
+	clearValue.Format	= _format;
+	clearValue.Color[0] = (_clearColor != nullptr) ? _clearColor[0] : 1.0f;
+	clearValue.Color[1] = (_clearColor != nullptr) ? _clearColor[1] : 1.0f;
+	clearValue.Color[2] = (_clearColor != nullptr) ? _clearColor[2] : 1.0f;
+	clearValue.Color[3] = (_clearColor != nullptr) ? _clearColor[3] : 1.0f;
 
 	auto hr = _pDevice->CreateCommittedResource(
 		&prop,

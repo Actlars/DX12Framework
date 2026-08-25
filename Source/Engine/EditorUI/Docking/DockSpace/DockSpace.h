@@ -44,6 +44,24 @@ namespace EditorUI
 		int SplitLeaf(int _leafId, DockSplitDir _dir, float _ratio = 0.3f);
 
 		// -------------------------------------------------------------------------------
+		// @brief	画面全体(ルート領域)を分割し、外周に新しいLeafを作る
+		//
+		//	ウィンドウを画面の外までドラッグしたときの受け皿
+		//	SplitLeafが「マウス直下のLeafを割る」のに対し、こちらは常に画面全体を割るため
+		//	どのレイアウトであっても、指定した辺にウィンドウが吸着する
+		//
+		//	@param[in]	_dir	吸着させる辺
+		//	@param[in]	_ratio	外周側が占める割合
+		//	@return		ウィンドウを入れるべきLeafのId。失敗時は-1
+		// -------------------------------------------------------------------------------
+		int SplitRoot(DockSplitDir _dir, float _ratio = 0.25f);
+
+		// -------------------------------------------------------------------------------
+		// @brief	ルート領域の矩形を返す。画面外判定の基準に使う
+		// -------------------------------------------------------------------------------
+		Rect2D GetRootBounds() const;
+
+		// -------------------------------------------------------------------------------
 		// @brief	指定したLeafの末尾にウィンドウをタブとして追加する
 		// -------------------------------------------------------------------------------
 		void DockWindowIntoLeaf(int _leafId, Id _windowId);
@@ -80,13 +98,25 @@ namespace EditorUI
 		// -------------------------------------------------------------------------------
 		void SetActiveTab(int _leafId, int _tabIndex);
 
+		// -------------------------------------------------------------------------------
+		// @brief	指定座標がどこかのSplit境界線に十分近いかを調べる
+		// -------------------------------------------------------------------------------
+		int FindSplitAt(const DirectX::XMFLOAT2& _point, float _hitThickness) const;
+
+		// -------------------------------------------------------------------------------
+		// @brief	指定Splitノード境界線を、_pointの位置に合わせてドラッグ更新する	
+		// -------------------------------------------------------------------------------
+		bool DragSplit(int _splitId, const DirectX::XMFLOAT2& _point, float _minRatio = 0.05f, float _maxRatio = 0.95f);
+
 		const DockNode* GetNode(int _nodeId) const;
 		int GetRootId() const { return m_RootId; }
+		bool IsSingleEmptyRoot() const;	// ルート1つだけで空の状態
 
 	private:
 
 		void RecomputeBounds(int _nodeId, const Rect2D& _bounds);
 		void MergeUpIfEmpty(int _leafId);	// 空になったLeafを木から取り除く再起関数
+		int FindSplitAtRecursive(int _nodeId, const DirectX::XMFLOAT2& _point, float _hitThickness) const;
 
 		std::unordered_map<int, DockNode> m_Nodes;
 		int m_NextNodeId	= 0;

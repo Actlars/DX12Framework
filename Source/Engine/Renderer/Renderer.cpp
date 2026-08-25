@@ -136,7 +136,18 @@ void Renderer::EndFrame(ID3D12GraphicsCommandList* _pCmd)
 	pTracker->FlushBarriers(_pCmd);
 
 	// コマンドリストをクローズしてGPUに投入
-	_pCmd->Close();
+	// Closeに失敗した場合、コマンドリストは記録中のまま残り、
+	// 次フレーム以降のResetがすべて失敗し続ける
+	// 原因の切り分けができるよう、ここで必ず結果を確認する
+	const HRESULT closeResult = _pCmd->Close();
+	if (FAILED(closeResult))
+	{
+		ELOG("Renderer::EndFrame() CommandList::Close failed (hr = 0x%08X)", static_cast<unsigned int>(closeResult));
+
+		// 何が不正だったかはデバッグレイヤーだけが知っているので、ここで吐き出す
+		m_pDevice->FlushDebugMessages();
+		return;
+	}
 
 	ID3D12CommandList* ppLists[] = { _pCmd };
 	m_pDevice->GetQueue()->ExecuteCommandLists(1, ppLists);

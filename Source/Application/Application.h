@@ -4,13 +4,16 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include <Engine/Renderer/GraphicsView/GraphicsView.h>
+#include <Engine/Renderer/ViewportTarget/ViewportTarget.h>
 #include <Engine/Scene/SceneManager/SceneManager.h>
 
 #include <Engine/EditorUI/Render/EditorUIRenderer/EditorUIRenderer.h>
-#include <Engine/EditorUI/Core/Context.h>
+#include <Engine/EditorUI/Core/Context/Context.h>
 #include <Engine/EditorUI/Text/Font/Font.h>
 
 #include <Engine/Input/InputManager/InputManager.h>
+
+#include <Editor/EditorApp/EditorApp.h>
 
 // -------------------------------------------------------------------------------
 // Linker
@@ -18,20 +21,25 @@
 
 // -------------------------------------------------------------------------------
 // Application class
-// 
-// 概要 : 
+//
+// 概要 :
 //	アプリケーション全体のライフサイクルを管理するクラス
 //	責務はウィンドウ管理とメインループのみ
-// 
+//
 //	描画フローはRendererが管理する
 //	シーンの描画・更新はSceneManagerが管理する
 //	DX12の低レベル処理はGraphicsDeviceが管理する
-// 
+//	エディタの中身（パネル・選択・アセット）はEditor::EditorAppが管理する
+//
 //	Applicationがやること
 //		- ウィンドウの生成・メッセージ処理
-//		- GraphicsDevice / Renderer / SceneManager の初期化と終了
+//		- GraphicsDevice / Renderer / SceneManager / EditorApp の初期化と終了
 //		- メインループ（Update → BeginFrame → Render → EndFrame → Present → ProcessSceneChange）
 //		- 最初のシーンをSceneManagerに渡す
+//
+//	Applicationがやらないこと
+//		- どんなエディタウィンドウがあるか（EditorAppの領分）
+//		- ウィジェットの中身（EditorUIの領分）
 // -------------------------------------------------------------------------------
 class Application
 {
@@ -84,13 +92,47 @@ private:
 	// @brief	1フレーム分の処理
 	void Tick();
 
-	EditorUI::InputState PollInputState() const;
+	// -------------------------------------------------------------------------------
+	// @brief	エディタUIを組み立てる
+	//
+	//	EditorAppへ委譲するだけだが、UIの構築は描画より前に済ませる必要があるため
+	//	呼び出す位置が重要になる。その意図を1か所に閉じ込めるために関数へ分けている
+	// -------------------------------------------------------------------------------
+	void UpdateEditorUI(float _deltaTime);
+
+	// -------------------------------------------------------------------------------
+	// @brief	ゲーム画面を、エディタのビューポート用テクスチャへ描く
+	//
+	//	ビューポートが表示されていない場合は何も描かず、falseを返す
+	//
+	// @param[in]	_pCmd	記録中のコマンドリスト
+	// @return	true : このフレームにゲーム画面を描いた
+	// -------------------------------------------------------------------------------
+	bool RenderSceneToViewport(ID3D12GraphicsCommandList* _pCmd);
+
+	// -------------------------------------------------------------------------------
+	// @brief	InputManagerが持つ入力を、EditorUIが理解できる形へ変換する
+	//
+	//	EditorUIはWindowsのAPIやキーコードを知らないため、その変換をここで行う
+	//	プラットフォーム依存の知識をApplicationに閉じ込めるのが狙い
+	//
+	// @param[in]	_deltaTime	EditorUIへ渡す経過時間(秒)
+	// -------------------------------------------------------------------------------
+	EditorUI::InputState PollInputState(float _deltaTime) const;
 
 	// -------------------------------------------------------------------------------
 	// ウィンドウ管理
 	// -------------------------------------------------------------------------------
 	bool InitWnd();
 	void TermWnd();
+
+	// -------------------------------------------------------------------------------
+	// @brief	ウィンドウメッセージのうち、入力に関わるものを各サブシステムへ配る
+	//
+	//	WndProcはstaticでインスタンスを持てないため、実際の処理はこちらへ委譲する
+	// -------------------------------------------------------------------------------
+	void HandleWindowMessage(UINT _msg, WPARAM _wp, LPARAM _lp);
+
 	static LRESULT CALLBACK WndProc(HWND _hWnd, UINT _msg, WPARAM _wp, LPARAM _lp);
 
 	// -------------------------------------------------------------------------------
@@ -105,13 +147,15 @@ private:
 	// DX12基盤
 	GraphicsView	m_GraphicsView;	// DX12のデバイスとRendererの管理
 	SceneManager	m_SceneManager;	// シーン管理
+	ViewportTarget	m_ViewportTarget;	// ゲーム画面の描画先（オフスクリーン）
 
 	// UI
 	EditorUI::Context	m_EditorUIContext;
 	EditorUIRenderer	m_EditorUIRenderer;
-	bool				m_PrevLeftMouseDown;		// 前フレームの左クリックの有無
-	bool				m_IsCameraControlActive;	// カメラ制御
 	EditorUI::Font		m_Font;
+
+	// エディタ本体。どんなパネルがあるかはこちらが持つ
+	Editor::EditorApp	m_EditorApp;
 
 	// 入力
 	Input::InputManager m_InputManager;
