@@ -27,9 +27,19 @@ namespace Editor
 	{
 	public:
 
-		InspectorPanel();
+		// -------------------------------------------------------------------------------
+		// @brief	コンストラクタ
+		//
+		// @param[in]	_index	同じ種類の中での通し番号（1が最初の1枚）
+		//						タイトルはEditorUIがウィンドウを識別するIdの元になるため、
+		//						2枚目以降は番号を付けて必ず一意にする
+		// -------------------------------------------------------------------------------
+		explicit InspectorPanel(int _index = 1);
 
 		const std::string& GetTitle() const override { return m_Title; }
+
+		// 通し番号を含まない名前。何枚開いているかを数えるのに使う
+		std::string_view GetTypeName() const override { return "Inspector"; }
 
 		void OnGUI(EditorContext& _ctx) override;
 
@@ -44,7 +54,7 @@ namespace Editor
 		// 選択中のアセットの情報を並べる
 		void DrawAssetInspector(EditorContext& _ctx);
 
-		std::string m_Title = "Inspector";
+		std::string m_Title;
 
 		// 名前の編集用。GameObject::GetNameは参照を返すが、
 		// InputTextは書き換え可能なstd::stringを要求するため、いったんここへ写して使う

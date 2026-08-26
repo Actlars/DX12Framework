@@ -32,7 +32,15 @@ namespace
 	}
 }
 
-Editor::HierarchyPanel::HierarchyPanel()
+// -------------------------------------------------------------------------------
+// コンストラクタ
+//
+// 2枚目以降は末尾に番号を付ける
+// タイトルが重複するとEditorUI側で同じウィンドウとみなされ、
+// 2枚目が1枚目に重なって表示されてしまう
+// -------------------------------------------------------------------------------
+Editor::HierarchyPanel::HierarchyPanel(int _index)
+	: m_Title(_index <= 1 ? std::string("Hierarchy") : "Hierarchy " + std::to_string(_index))
 {
 	SetInitialPlacement({ 20.0f, 60.0f }, { 260.0f, 420.0f });
 }

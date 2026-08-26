@@ -17,9 +17,20 @@
 
 namespace
 {
-	// メニューバーは画面上端に貼り付いた、動かせない細いウィンドウとして実装する
-	constexpr std::string_view	kMenuBarWindow	= "##EditorMenuBar";
-	constexpr float				kMenuBarHeight	= 26.0f;
+	// -------------------------------------------------------------------------------
+	// メニューバー
+	//
+	// 画面上端に貼り付いた、動かせない細いウィンドウとして実装する
+	// 高さは「ボタンの高さ + 上下の余白」から決める
+	// これらを個別に決め打ちすると、ボタンが帯からはみ出して
+	// 下のドッキング領域と重なってしまう
+	// -------------------------------------------------------------------------------
+	constexpr std::string_view	kMenuBarWindow		= "##EditorMenuBar";
+
+	constexpr float kMenuButtonHeight	= 20.0f;
+	constexpr float kMenuBarPaddingX	= 6.0f;
+	constexpr float kMenuBarPaddingY	= 4.0f;
+	constexpr float kMenuBarHeight		= kMenuButtonHeight + kMenuBarPaddingY * 2.0f;
 
 	// メニューバーから開くドロップダウン
 	constexpr std::string_view kWindowMenu = "WindowMenu";
@@ -34,6 +45,8 @@ bool Editor::EditorApp::Init(
 	EditorUI::Font*					_pFont,
 	ViewportTarget*					_pViewport,
 	SceneManager*					_pScenes,
+	RHI::Device*					_pDevice,
+	EditorUIRenderer*				_pUIRenderer,
 	const std::filesystem::path&	_contentRoot)
 {
 	if (_pUI == nullptr || _pFont == nullptr)
@@ -42,10 +55,12 @@ bool Editor::EditorApp::Init(
 		return false;
 	}
 
-	m_pUI		= _pUI;
-	m_pFont		= _pFont;
-	m_pViewport	= _pViewport;
-	m_pScenes	= _pScenes;
+	m_pUI			= _pUI;
+	m_pFont			= _pFont;
+	m_pViewport		= _pViewport;
+	m_pScenes		= _pScenes;
+	m_pDevice		= _pDevice;
+	m_pUIRenderer	= _pUIRenderer;
 
 	// コンテンツフォルダが無ければここで作られる
 	if (!m_Assets.Init(_contentRoot))
@@ -54,6 +69,16 @@ bool Editor::EditorApp::Init(
 		return false;
 	}
 
+	// -------------------------------------------------------------------------------
+	// メニューバーの高さぶんは、ドッキング領域から外しておく
+	//
+	// 一度指定すれば以降は Context 側が画面サイズの変化に追従してくれる
+	// 毎フレーム指定していたころは、ホバー判定が「メニューバーを含んだドック領域」で
+	// 行われる瞬間があり、ドッキング中にメニューが押せなくなっていた
+	// -------------------------------------------------------------------------------
+	m_pUI->SetDockAreaInsetTop(kMenuBarHeight);
+
+	RegisterPanelFactories();
 	RegisterDefaultPanels();
 
 	m_Initialized = true;
@@ -62,10 +87,12 @@ bool Editor::EditorApp::Init(
 
 void Editor::EditorApp::Term()
 {
-	m_pUI		= nullptr;
-	m_pFont		= nullptr;
-	m_pViewport	= nullptr;
-	m_pScenes	= nullptr;
+	m_pUI			= nullptr;
+	m_pFont			= nullptr;
+	m_pViewport		= nullptr;
+	m_pScenes		= nullptr;
+	m_pDevice		= nullptr;
+	m_pUIRenderer	= nullptr;
 
 	m_Initialized = false;
 }
@@ -94,6 +121,57 @@ void Editor::EditorApp::RegisterDefaultPanels()
 }
 
 // -------------------------------------------------------------------------------
+// 複数開けるパネルの作り方を登録する
+//
+// ビューポートをここへ入れていないのは、1枚につき専用のレンダーターゲットと
+// シーンの再描画が必要になり、他のパネルと同じ扱いにできないため
+// -------------------------------------------------------------------------------
+void Editor::EditorApp::RegisterPanelFactories()
+{
+	m_PanelFactories.push_back({
+		"Hierarchy", "ヒエラルキーを追加",
+		[](int _index) { return std::make_unique<HierarchyPanel>(_index); }, 4 });
+
+	m_PanelFactories.push_back({
+		"Inspector", "インスペクタを追加",
+		[](int _index) { return std::make_unique<InspectorPanel>(_index); }, 4 });
+
+	m_PanelFactories.push_back({
+		"Content Browser", "コンテンツブラウザを追加",
+		[](int _index) { return std::make_unique<ContentBrowserPanel>(_index); }, 4 });
+}
+
+// -------------------------------------------------------------------------------
+// 同じ種類のパネルをもう1枚開く
+//
+// 通し番号は「まだ使われていない最小の番号」を選ぶ
+// 途中の1枚を閉じたあとでも、番号が飛ばずに埋まっていく
+// -------------------------------------------------------------------------------
+void Editor::EditorApp::OpenAdditionalPanel(const PanelFactory& _factory)
+{
+	if (m_Panels.CountOfType(_factory.TypeName) >= _factory.MaxInstances)
+	{
+		return;	// 上限に達している
+	}
+
+	for (int index = 1; index <= _factory.MaxInstances; ++index)
+	{
+		// 作り方と同じ規則でタイトルを組み立て、空いている番号を探す
+		const std::string title = (index <= 1)
+			? _factory.TypeName
+			: _factory.TypeName + " " + std::to_string(index);
+
+		if (m_Panels.Find(title) != nullptr)
+		{
+			continue;	// その番号は使用中
+		}
+
+		m_Panels.Add(_factory.Create(index));
+		return;
+	}
+}
+
+// -------------------------------------------------------------------------------
 // 1フレーム分のUIを組み立てる
 // -------------------------------------------------------------------------------
 void Editor::EditorApp::BuildUI(float _deltaTime)
@@ -109,15 +187,6 @@ void Editor::EditorApp::BuildUI(float _deltaTime)
 
 	BuildContext(_deltaTime);
 	ValidateSelection();
-
-	// -------------------------------------------------------------------------------
-	// メニューバーの下だけをドッキング領域にする
-	//
-	// これを毎フレーム指定することで、画面いっぱいに広げたパネルでも
-	// メニューバーを覆い隠さなくなる
-	// -------------------------------------------------------------------------------
-	const EditorUI::Rect2D& screen = m_pUI->GetScreenBounds();
-	m_pUI->SetDockArea({ { screen.Min.x, screen.Min.y + kMenuBarHeight }, screen.Max });
 
 	// 画面サイズが確定したこの時点で、初回だけ既定レイアウトを組む
 	if (!m_LayoutInitialized)
@@ -189,6 +258,8 @@ void Editor::EditorApp::BuildContext(float _deltaTime)
 	m_Context.pAssets		= &m_Assets;
 	m_Context.pScenes		= m_pScenes;
 	m_Context.pViewport		= m_pViewport;
+	m_Context.pDevice		= m_pDevice;
+	m_Context.pUIRenderer	= m_pUIRenderer;
 	m_Context.DeltaTime		= _deltaTime;
 
 	m_Context.pObjects = nullptr;
@@ -244,6 +315,9 @@ void Editor::EditorApp::DrawMenuBar()
 		{ screen.Min.x, screen.Min.y },
 		{ screen.Width(), kMenuBarHeight });
 
+	// 帯の高さぴったりに収まるよう、このウィンドウだけ余白を小さくする
+	ui.SetNextWindowPadding({ kMenuBarPaddingX, kMenuBarPaddingY });
+
 	const EditorUI::WindowFlags flags =
 		EditorUI::WindowFlags::NoTitleBar |
 		EditorUI::WindowFlags::NoResize |
@@ -266,14 +340,14 @@ void Editor::EditorApp::DrawMenuBar()
 			}
 		};
 
-		if (EditorUI::Button(ui, "ウィンドウ", *m_pFont, { 90.0f, 20.0f }))
+		if (EditorUI::Button(ui, "ウィンドウ", *m_pFont, { 90.0f, kMenuButtonHeight }))
 		{
 			openMenuUnderLastItem(kWindowMenu);
 		}
 
 		EditorUI::SameLine(ui);
 
-		if (EditorUI::Button(ui, "ツール", *m_pFont, { 72.0f, 20.0f }))
+		if (EditorUI::Button(ui, "ツール", *m_pFont, { 72.0f, kMenuButtonHeight }))
 		{
 			openMenuUnderLastItem(kToolsMenu);
 		}
@@ -284,6 +358,9 @@ void Editor::EditorApp::DrawMenuBar()
 		// -------------------------------------------------------------------------------
 		if (EditorUI::BeginPopup(ui, kWindowMenu))
 		{
+			// -------------------------------------------------------------------------------
+			// いま存在するパネルの表示切り替え
+			// -------------------------------------------------------------------------------
 			for (const auto& panel : m_Panels.GetPanels())
 			{
 				if (panel == nullptr || panel->IsTransient())
@@ -297,6 +374,29 @@ void Editor::EditorApp::DrawMenuBar()
 				if (EditorUI::MenuItem(ui, *m_pFont, label))
 				{
 					panel->SetOpen(!panel->IsOpen());
+				}
+			}
+
+			EditorUI::MenuSeparator(ui);
+
+			// -------------------------------------------------------------------------------
+			// 同じ種類をもう1枚開く
+			//
+			// 「Inspector を2つ並べて別々のオブジェクトを見る」といった使い方のため
+			// 上限に達した項目は、押せないことが分かるよう灰色で表示する
+			// -------------------------------------------------------------------------------
+			for (const PanelFactory& factory : m_PanelFactories)
+			{
+				const int count = m_Panels.CountOfType(factory.TypeName);
+				const bool canOpen = (count < factory.MaxInstances);
+
+				const std::string label =
+					factory.MenuLabel + "  (" +
+					std::to_string(count) + " / " + std::to_string(factory.MaxInstances) + ")";
+
+				if (EditorUI::MenuItem(ui, *m_pFont, label, canOpen))
+				{
+					OpenAdditionalPanel(factory);
 				}
 			}
 
@@ -324,6 +424,17 @@ void Editor::EditorApp::DrawMenuBar()
 		}
 	}
 	ui.EndWindow();
+}
+
+// -------------------------------------------------------------------------------
+// 自前のGPU描画を持つパネルの描画
+// -------------------------------------------------------------------------------
+void Editor::EditorApp::RenderPanels(ID3D12GraphicsCommandList* _pCmd)
+{
+	if (!m_Initialized)
+	{ return; }
+
+	m_Panels.RenderAll(m_Context, _pCmd);
 }
 
 // -------------------------------------------------------------------------------

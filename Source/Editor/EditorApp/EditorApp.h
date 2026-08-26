@@ -48,6 +48,8 @@ namespace Editor
 			EditorUI::Font*					_pFont,
 			ViewportTarget*					_pViewport,
 			SceneManager*					_pScenes,
+			RHI::Device*					_pDevice,
+			EditorUIRenderer*				_pUIRenderer,
 			const std::filesystem::path&	_contentRoot);
 
 		void Term();
@@ -73,13 +75,53 @@ namespace Editor
 		// -------------------------------------------------------------------------------
 		bool GetRequestedViewportSize(uint32_t& _outWidth, uint32_t& _outHeight) const;
 
+		// -------------------------------------------------------------------------------
+		// @brief	自前のGPU描画を持つパネル（エフェクトのプレビュー等）を描く
+		//
+		//	BuildUIのあと、ゲーム画面やUIをバックバッファへ描く前に呼ぶ
+		//
+		// @param[in]	_pCmd	記録中のコマンドリスト
+		// -------------------------------------------------------------------------------
+		void RenderPanels(ID3D12GraphicsCommandList* _pCmd);
+
 		// マウスがゲーム画面の上にあるか。カメラ操作を許すかの判断に使う
 		bool IsViewportHovered() const;
 
 	private:
 
+		// -------------------------------------------------------------------------------
+		// PanelFactory struct
+		//
+		// 概要 :
+		//	「同じ種類のウィンドウをもう1枚開く」ための作り方
+		//
+		//	メニューへ項目を並べるのも、上限を判定するのもこの一覧から行うため、
+		//	新しく複数開けるパネルを足すときは、ここへ1行加えるだけで済む
+		// -------------------------------------------------------------------------------
+		struct PanelFactory
+		{
+			std::string TypeName;		// 種類名（IEditorPanel::GetTypeName と一致させる）
+			std::string MenuLabel;		// メニューに出す表示名
+
+			// 通し番号を受け取り、そのぶんのパネルを作る
+			std::function<std::unique_ptr<IEditorPanel>(int)> Create;
+
+			// 同時に開ける最大数。増やしすぎて画面が埋まるのを防ぐ
+			int MaxInstances = 4;
+		};
+
 		// 常設パネルを登録する
 		void RegisterDefaultPanels();
+
+		// 複数開けるパネルの作り方を登録する
+		void RegisterPanelFactories();
+
+		// -------------------------------------------------------------------------------
+		// @brief	指定した種類のパネルをもう1枚開く
+		//
+		//	上限に達している場合は何もしない
+		// -------------------------------------------------------------------------------
+		void OpenAdditionalPanel(const PanelFactory& _factory);
 
 		// -------------------------------------------------------------------------------
 		// @brief	起動直後に一度だけ、UE5に似た既定のドッキングレイアウトを組む
@@ -109,12 +151,17 @@ namespace Editor
 
 		EditorUI::Context*	m_pUI		= nullptr;
 		EditorUI::Font*		m_pFont		= nullptr;
-		ViewportTarget*		m_pViewport	= nullptr;
-		SceneManager*		m_pScenes	= nullptr;
+		ViewportTarget*		m_pViewport		= nullptr;
+		SceneManager*		m_pScenes		= nullptr;
+		RHI::Device*		m_pDevice		= nullptr;
+		EditorUIRenderer*	m_pUIRenderer	= nullptr;
 
 		bool m_Initialized = false;
 
 		// 既定レイアウトを組んだか。組み直すとユーザーの配置を壊すため一度きりにする
 		bool m_LayoutInitialized = false;
+
+		// 複数開けるパネルの作り方
+		std::vector<PanelFactory> m_PanelFactories;
 	};
 }

@@ -2,6 +2,7 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include "PanelManager.h"
+#include <Engine/RHI/Core/Device/Device.h>
 
 // -------------------------------------------------------------------------------
 // パネルの登録
@@ -90,6 +91,42 @@ void Editor::PanelManager::DrawAll(EditorContext& _ctx)
 }
 
 // -------------------------------------------------------------------------------
+// 自前のGPU描画を持つパネルの描画
+//
+// 描画中にパネルが増減すると反復子が壊れるため、
+// ここでは追加も削除も行わない（DrawAllで済ませてある）
+// -------------------------------------------------------------------------------
+void Editor::PanelManager::RenderAll(EditorContext& _ctx, ID3D12GraphicsCommandList* _pCmd)
+{
+	if (_pCmd == nullptr)
+	{ return; }
+
+	for (const auto& panel : m_Panels)
+	{
+		if (panel != nullptr && panel->IsOpen())
+		{
+			panel->OnRender(_ctx, _pCmd);
+		}
+	}
+}
+
+// -------------------------------------------------------------------------------
+// 種類ごとの枚数を数える
+// -------------------------------------------------------------------------------
+int Editor::PanelManager::CountOfType(std::string_view _typeName) const
+{
+	const auto match = [_typeName](const std::unique_ptr<IEditorPanel>& _panel)
+	{
+		return _panel != nullptr && _panel->GetTypeName() == _typeName;
+	};
+
+	// 保留中のぶんも数えないと、同じフレームに上限を超えて作れてしまう
+	return static_cast<int>(
+		std::count_if(m_Panels.begin(), m_Panels.end(), match) +
+		std::count_if(m_PendingPanels.begin(), m_PendingPanels.end(), match));
+}
+
+// -------------------------------------------------------------------------------
 // タイトルからパネルを探す
 // -------------------------------------------------------------------------------
 Editor::IEditorPanel* Editor::PanelManager::Find(std::string_view _title)
@@ -144,12 +181,31 @@ void Editor::PanelManager::RemoveClosedPanels(EditorContext& _ctx)
 		}
 	}
 
+	// -------------------------------------------------------------------------------
+	// 破棄するパネルがあるかを先に調べる
+	//
+	// パネルは自前のGPUリソース（レンダーターゲットやパーティクルのバッファ）を
+	// 持っていることがある
+	// コマンドリストはCPUより遅れて実行されるため、待たずに破棄すると
+	// 実行中のコマンドが消えたリソースを参照してデバイスロストになる
+	//
+	// 待機は重い処理だが、ウィンドウを閉じた瞬間にしか起きないので問題にならない
+	// -------------------------------------------------------------------------------
+	const auto shouldDestroy = [](const std::unique_ptr<IEditorPanel>& _panel)
+	{
+		return _panel == nullptr || (!_panel->IsOpen() && _panel->IsTransient());
+	};
+
+	const bool hasPanelToDestroy =
+		std::any_of(m_Panels.begin(), m_Panels.end(), shouldDestroy);
+
+	if (hasPanelToDestroy && _ctx.pDevice != nullptr)
+	{
+		_ctx.pDevice->WaitForGPU();
+	}
+
 	// 常設パネルは閉じても状態を残したいので、破棄するのは一時パネルだけ
 	m_Panels.erase(
-		std::remove_if(m_Panels.begin(), m_Panels.end(),
-			[](const std::unique_ptr<IEditorPanel>& _panel)
-			{
-				return _panel == nullptr || (!_panel->IsOpen() && _panel->IsTransient());
-			}),
+		std::remove_if(m_Panels.begin(), m_Panels.end(), shouldDestroy),
 		m_Panels.end());
 }

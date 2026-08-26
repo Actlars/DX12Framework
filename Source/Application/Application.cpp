@@ -162,7 +162,8 @@ bool Application::Init()
 
     // ─── エディタ本体 ───
     if (!m_EditorApp.Init(
-        &m_EditorUIContext, &m_Font, &m_ViewportTarget, &m_SceneManager, ContentRootPath))
+        &m_EditorUIContext, &m_Font, &m_ViewportTarget, &m_SceneManager,
+        m_GraphicsView.GetDevice(), &m_EditorUIRenderer, ContentRootPath))
     {
         ELOG("Application::Init() : EditorApp::Init failed");
         return false;
@@ -264,8 +265,11 @@ void Application::Tick()
     // ゲーム画面もウィンドウの一種になったため、
     // 「どこかのウィンドウの上にいるか」だけでは判断できなくなっている
     // -------------------------------------------------------------------------------
+    // すでにカメラが操作権を持っている場合は、離すまで維持する
+    // 相対モード中はカーソルが画面中央へ戻されるため、
+    // 「ビューポートの上にいるか」だけで判断すると途中で操作権を失ってしまう
     const bool sceneOwnsMouse =
-        m_EditorApp.IsViewportHovered() && !m_EditorUIContext.IsAnyItemActive();
+        m_InputManager.IsCameraControlActive() || m_EditorApp.IsViewportHovered();
 
     m_InputManager.ResolveMouseCapture(!sceneOwnsMouse);
 
@@ -279,12 +283,21 @@ void Application::Tick()
         // SceneManagerにvoid型を渡しても使えないので、ここでだけキャストする
         auto* pCmd = static_cast<ID3D12GraphicsCommandList*>(pCmdVoid);
 
+        // -------------------------------------------------------------------------------
+        // 自前のレンダーターゲットを持つパネル（エフェクトのプレビュー等）を先に描く
+        //
+        // どれもバックバッファとは別の描画先を使うため、
+        // ゲーム画面やUIより前に済ませておくのがいちばん素直になる
+        // -------------------------------------------------------------------------------
+        m_EditorApp.RenderPanels(pCmd);
+
         // ゲーム画面はバックバッファではなくビューポート用テクスチャへ描く
         const bool renderedViewport = RenderSceneToViewport(pCmd);
 
         // ビューポートへ描いた場合、描画先とビューポート設定が切り替わっている
         // EditorUIをバックバッファへ描くために、明示的に戻す
-        if (renderedViewport)
+        // パネルのプレビューを描いた場合も描画先が変わっているため、必ず戻す
+        if (true)
         {
             auto* pRTV = m_GraphicsView.GetDevice()->GetColorTarget(
                 m_GraphicsView.GetFrameIndex())->GetHandleRTV();
@@ -375,8 +388,19 @@ EditorUI::InputState Application::PollInputState(float _deltaTime) const
 
     // -------------------------------------------------------------------------------
     // マウス
+    //
+    // カメラ操作中はカーソルが毎フレーム画面中央へ戻される
+    // その座標をそのままUIへ渡すと、画面中央のウィジェットが反応してしまうため、
+    // 「画面外にいる」ことにして入力を届けない
     // -------------------------------------------------------------------------------
     const Input::MouseInput& mouseInput = m_InputManager.GetMouseInput();
+
+    if (m_InputManager.IsCameraControlActive())
+    {
+        input.MousePos = { -1.0f, -1.0f };
+        input.InputCharacters.clear();
+        return input;
+    }
 
     const POINT position = mouseInput.GetPosition();
     input.MousePos = { static_cast<float>(position.x), static_cast<float>(position.y) };

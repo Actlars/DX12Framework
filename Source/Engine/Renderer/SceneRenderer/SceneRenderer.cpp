@@ -12,6 +12,22 @@
 #include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
+// このファイル内だけで使う定数
+// -------------------------------------------------------------------------------
+namespace
+{
+    // -------------------------------------------------------------------------------
+    // シーンの背景色
+    //
+    // リソース生成時の「最適化クリア値」と、実際に ClearRenderTargetView へ渡す値は
+    // 必ず同じにしておく
+    // 食い違うと GPU が高速なクリア経路を使えなくなり、デバッグレイヤーにも
+    // CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE の警告が出る
+    // -------------------------------------------------------------------------------
+    constexpr float kSceneClearColor[4] = { 0.06f, 0.07f, 0.09f, 1.0f };
+}
+
+// -------------------------------------------------------------------------------
 //		コンストラクタ
 // -------------------------------------------------------------------------------
 SceneRenderer::SceneRenderer() 
@@ -166,8 +182,11 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
     sceneColorDesc.Width    = output.Width;
     sceneColorDesc.Height   = output.Height;
     sceneColorDesc.Format   = DXGI_FORMAT_R16G16B16A16_FLOAT;
-    sceneColorDesc.ClearColor[0] = sceneColorDesc.ClearColor[1] = 0.0f;
-    sceneColorDesc.ClearColor[2] = sceneColorDesc.ClearColor[3] = 1.0f;
+    // 実際のクリアと同じ値にする（食い違うと遅いクリア経路になり、警告も出る）
+    sceneColorDesc.ClearColor[0] = kSceneClearColor[0];
+    sceneColorDesc.ClearColor[1] = kSceneClearColor[1];
+    sceneColorDesc.ClearColor[2] = kSceneClearColor[2];
+    sceneColorDesc.ClearColor[3] = kSceneClearColor[3];
 
     auto sceneColorHandle = m_RenderGraph.GetRegistry().CreateTransient(
         m_pDevice->GetDevice(), "SceneColor", sceneColorDesc,
@@ -194,8 +213,7 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
             SetFullViewport(cmd, output.Width, output.Height);
 
             // クリア処理
-            const float clearColor[4] = { 0.06f,0.07f,0.09f,1.0f };
-            cmd->ClearRenderTargetView(pRTV->HandleCPU, clearColor, 0, nullptr);
+            cmd->ClearRenderTargetView(pRTV->HandleCPU, kSceneClearColor, 0, nullptr);
             cmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
             ID3D12DescriptorHeap* heaps[] =

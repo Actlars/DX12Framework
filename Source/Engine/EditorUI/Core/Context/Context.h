@@ -55,13 +55,20 @@ namespace EditorUI
 		const Rect2D& GetScreenBounds() const;
 
 		// -------------------------------------------------------------------------------
-		// @brief	ドッキングに使ってよい領域を指定する
+		// @brief	画面上端のうち、ドッキングに使わない高さを指定する
 		//
-		//	画面上端のメニューバーのように、ドッキング対象にしたくない固定の帯がある場合に、
-		//	その分だけ狭めた矩形を渡す
-		//	指定しなければ画面全体がそのままドッキング領域になる
+		//	メニューバーのように「常に上端へ貼り付いていて、ドッキング対象にしたくない」
+		//	帯があるときに、その高さを一度だけ登録する
+		//
+		//	毎フレーム矩形を渡す形にしないのは、レイアウトの再計算が
+		//	NewFrame（ホバー判定）より前に済んでいる必要があるため
+		//	後から狭めると、ホバー判定の1フレームだけドックがメニューバーを覆い、
+		//	メニューが押せなくなる
 		// -------------------------------------------------------------------------------
-		void SetDockArea(const Rect2D& _dockArea);
+		void SetDockAreaInsetTop(float _inset);
+
+		// ドッキングに使ってよい領域（画面からインセットを引いたもの）
+		Rect2D GetDockArea() const;
 
 		// -------------------------------------------------------------------------------
 		// 既定レイアウトの構築
@@ -119,6 +126,14 @@ namespace EditorUI
 		void SetNextWindowPlacementForced(
 			const DirectX::XMFLOAT2& _position,
 			const DirectX::XMFLOAT2& _size);
+
+		// -------------------------------------------------------------------------------
+		// @brief	次に開くウィンドウ1つの内側余白を指定する
+		//
+		//	高さの決まった帯（メニューバーなど）で、既定の余白のままだと
+		//	中身が枠からはみ出してしまう場合に使う
+		// -------------------------------------------------------------------------------
+		void SetNextWindowPadding(const DirectX::XMFLOAT2& _padding);
 
 		// -------------------------------------------------------------------------------
 		// ポップアップ / コンテキストメニュー
@@ -194,6 +209,16 @@ namespace EditorUI
 		bool GetStorageBool(Id _id, bool _defaultValue) const;
 		void SetStorageBool(Id _id, bool _value);
 
+		// -------------------------------------------------------------------------------
+		// 小数の預け先
+		//
+		//	カラーピッカーの色相のように、「表示中の値からは復元できないが、
+		//	操作の連続性のために覚えておきたい値」を置く
+		//	（彩度0のときは色相が決まらないため、覚えていないと色が飛んでしまう）
+		// -------------------------------------------------------------------------------
+		float GetStorageFloat(Id _id, float _defaultValue) const;
+		void  SetStorageFloat(Id _id, float _value);
+
 		Id GetActiveId() const;
 		bool IsActiveId(Id _id) const;
 		bool IsAnyItemActive() const;
@@ -209,6 +234,18 @@ namespace EditorUI
 		double& GetActiveDragAccumulator();
 		TextEditState& GetTextEditState();
 		const TextEditState& GetTextEditState() const;
+
+		// -------------------------------------------------------------------------------
+		// @brief	いまUIが何らかのポインタ操作を握っているか
+		//
+		//	ウィジェットの編集、ウィンドウの移動・リサイズ・スクロール、
+		//	ドッキングのドラッグ、ポップアップの表示のいずれか
+		//
+		//	ゲーム画面の上であっても、これがtrueの間はカメラへ操作を渡してはいけない
+		//	（リサイズグリップを掴んだ瞬間にカメラが起動し、
+		//	  カーソルが画面中央へ固定されてウィンドウの大きさが変わらなくなるため）
+		// -------------------------------------------------------------------------------
+		bool IsUiOperationActive() const;
 
 		bool WantCaptureMouse() const;
 		bool WantCaptureKeyboard() const;
@@ -228,6 +265,13 @@ namespace EditorUI
 			bool Forced  = false;
 			DirectX::XMFLOAT2 Position{};
 			DirectX::XMFLOAT2 Size{};
+		};
+
+		// 次のウィンドウ1つにだけ適用する余白。使われたら解除される
+		struct NextWindowPadding
+		{
+			bool Pending = false;
+			DirectX::XMFLOAT2 Value{};
 		};
 
 		// -------------------------------------------------------------------------------
@@ -284,12 +328,19 @@ namespace EditorUI
 		WidgetInteractionState	m_WidgetInteractionState;
 
 		NextWindowPlacement m_NextWindow;
+		NextWindowPadding   m_NextPadding;
 
 		// ウィジェットが預けたbool状態(ツリーの開閉など)
 		std::unordered_map<Id, bool> m_StorageBool;
 
+		// ウィジェットが預けたfloat状態(カラーピッカーの色相など)
+		std::unordered_map<Id, float> m_StorageFloat;
+
 		Font*	m_pFont = nullptr;	// 所有権なし。タイトル・タブの文字描画に使う
 		Rect2D	m_ScreenBounds{};
+
+		// 画面上端のうち、ドッキングに使わない高さ（メニューバーぶん）
+		float	m_DockAreaInsetTop = 0.0f;
 
 		// 開いているポップアップ。末尾が最も手前（ネストしたメニューの最深部）
 		std::vector<PopupState> m_OpenPopups;

@@ -29,9 +29,16 @@ bool RHI::Buffer::Init(ID3D12Device* _pDevice, const BufferDesc _desc, const voi
 		break;
 	case BufferHeapType::Default:
 		heapProp.Type = D3D12_HEAP_TYPE_DEFAULT;
-		initialState = _desc.AllowUAV
-			? D3D12_RESOURCE_STATE_UNORDERED_ACCESS
-			: D3D12_RESOURCE_STATE_COMMON;
+
+		// -------------------------------------------------------------------------------
+		// バッファは必ずCOMMONで作られる
+		//
+		// UNORDERED_ACCESS等を指定しても D3D12 側で無視され、
+		// デバッグレイヤーに「Ignoring InitialState」の情報メッセージが出るだけになる
+		// COMMONからは最初の使用時に自動で昇格するため、これで正しく動く
+		// -------------------------------------------------------------------------------
+		initialState = D3D12_RESOURCE_STATE_COMMON;
+
 		if (_desc.AllowUAV)
 		{
 			// UAVとして使うことをリソース生成時に明示する必要がある

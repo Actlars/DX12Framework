@@ -18,8 +18,30 @@ namespace
 	constexpr DXGI_FORMAT kDepthFormat = DXGI_FORMAT_D32_FLOAT;
 
 	// 極端に小さい・大きいサイズを弾くための上下限
-	constexpr uint32_t kMinSize = 16;
+	constexpr uint32_t kMinSize = 64;
 	constexpr uint32_t kMaxSize = 8192;
+
+	// -------------------------------------------------------------------------------
+	// 確保サイズの粒度
+	//
+	//	リサイズのたびにGPUリソースを作り直すと、ドラッグ中は毎フレーム
+	//	「GPU完了待ち → 破棄 → 再生成」が走り、動きが固まって見える
+	//	また、ディスクリプタの確保と解放を1ピクセルごとに繰り返すことにもなる
+	//
+	//	そこで実際の確保はこの単位へ切り上げ、要求が収まっている間は作り直さない
+	//	表示は常にUVの部分矩形で切り出すため、見た目のサイズは1ピクセル単位で正確に追従する
+	// -------------------------------------------------------------------------------
+	constexpr uint32_t kSizeGranularity = 128;
+
+	// 一度大きくした確保をどれだけ縮めたら作り直すか
+	// これがないと、大→小へ動かしたあとメモリを持ち続けてしまう
+	constexpr uint32_t kShrinkThreshold = kSizeGranularity * 2;
+
+	// 要求サイズを粒度単位へ切り上げる
+	uint32_t AlignUp(uint32_t _value, uint32_t _granularity)
+	{
+		return ((_value + _granularity - 1) / _granularity) * _granularity;
+	}
 }
 
 ViewportTarget::ViewportTarget() = default;
@@ -70,13 +92,36 @@ bool ViewportTarget::Resize(uint32_t _width, uint32_t _height)
 	if (m_pDevice == nullptr || m_pRenderer == nullptr)
 	{ return false; }
 
-	// 極端な値はそのままリソース生成に渡さない
-	const uint32_t width  = std::clamp(_width,  kMinSize, kMaxSize);
-	const uint32_t height = std::clamp(_height, kMinSize, kMaxSize);
+	// 表示に必要な大きさ。UVの切り出しと縦横比にはこちらを使う
+	const uint32_t viewWidth  = std::clamp(_width,  1u, kMaxSize);
+	const uint32_t viewHeight = std::clamp(_height, 1u, kMaxSize);
 
-	// 同じ大きさなら作り直す必要がない。毎フレーム呼ばれる前提の早期リターン
-	if (IsValid() && width == m_Width && height == m_Height)
-	{ return true; }
+	// 実際に確保する大きさは粒度単位へ切り上げる
+	const uint32_t width  = std::clamp(AlignUp(viewWidth,  kSizeGranularity), kMinSize, kMaxSize);
+	const uint32_t height = std::clamp(AlignUp(viewHeight, kSizeGranularity), kMinSize, kMaxSize);
+
+	// -------------------------------------------------------------------------------
+	// 作り直しが要るかを判定する
+	//	1. 収まらない			… 大きくする必要がある
+	//	2. 大幅に余っている		… メモリを抱え続けないよう縮める
+	// -------------------------------------------------------------------------------
+	if (IsValid())
+	{
+		const bool tooSmall =
+			(width > m_Width) || (height > m_Height);
+
+		const bool tooLarge =
+			(m_Width  > width  + kShrinkThreshold) ||
+			(m_Height > height + kShrinkThreshold);
+
+		if (!tooSmall && !tooLarge)
+		{
+			// 今のリソースで足りている。表示範囲だけ更新して終わり
+			m_ViewWidth  = viewWidth;
+			m_ViewHeight = viewHeight;
+			return true;
+		}
+	}
 
 	// 描画中のリソースを解放しないよう、必ずGPUの完了を待ってから作り直す
 	m_pDevice->WaitForGPU();
@@ -147,8 +192,11 @@ bool ViewportTarget::Resize(uint32_t _width, uint32_t _height)
 	pTracker->RegisterResource(m_pColor->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 	pTracker->RegisterResource(m_pDepth->GetResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-	m_Width		= width;
-	m_Height	= height;
+	// ReleaseResourcesで一度0に戻るため、確保後にまとめて確定させる
+	m_Width			= width;
+	m_Height		= height;
+	m_ViewWidth		= viewWidth;
+	m_ViewHeight	= viewHeight;
 
 	return true;
 }
@@ -173,18 +221,23 @@ void ViewportTarget::Begin(ID3D12GraphicsCommandList* _pCmd)
 	_pCmd->ClearDepthStencilView(handleDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 	_pCmd->OMSetRenderTargets(1, &handleRTV, FALSE, &handleDSV);
 
-	// ビューポートとシザーもこのターゲットの大きさに合わせる
-	// バックバッファ用の設定が残っていると、パネルより広い範囲に描いてしまう
+	// -------------------------------------------------------------------------------
+	// ビューポートは「確保サイズ」ではなく「表示サイズ」に合わせる
+	//
+	// 確保はパネルより大きい粒度で行うため、確保サイズで描くと
+	// パネルに映らない範囲まで描いてしまい、絵の縦横比もずれる
+	// 実際に見える左上の領域だけを描画対象にする
+	// -------------------------------------------------------------------------------
 	const D3D12_VIEWPORT viewport
 	{
 		0.0f, 0.0f,
-		static_cast<float>(m_Width), static_cast<float>(m_Height),
+		static_cast<float>(m_ViewWidth), static_cast<float>(m_ViewHeight),
 		0.0f, 1.0f
 	};
 	const D3D12_RECT scissor
 	{
 		0, 0,
-		static_cast<LONG>(m_Width), static_cast<LONG>(m_Height)
+		static_cast<LONG>(m_ViewWidth), static_cast<LONG>(m_ViewHeight)
 	};
 
 	_pCmd->RSSetViewports(1, &viewport);
@@ -220,8 +273,10 @@ SceneOutput ViewportTarget::GetSceneOutput() const
 	output.ColorRTV			= m_pColor->GetHandleRTV()->HandleCPU;
 	output.pDepthResource	= m_pDepth->GetResource();
 	output.DepthDSV			= m_pDepth->GetHandleDSV()->HandleCPU;
-	output.Width			= m_Width;
-	output.Height			= m_Height;
+	// シーンには表示サイズを伝える
+	// カメラの縦横比も中間バッファの大きさも、見える範囲を基準にする
+	output.Width			= m_ViewWidth;
+	output.Height			= m_ViewHeight;
 
 	return output;
 }
@@ -233,10 +288,10 @@ EditorUI::TextureId ViewportTarget::GetTextureId() const
 
 float ViewportTarget::GetAspect() const
 {
-	if (m_Height == 0)
+	if (m_ViewHeight == 0)
 	{ return 1.0f; }
 
-	return static_cast<float>(m_Width) / static_cast<float>(m_Height);
+	return static_cast<float>(m_ViewWidth) / static_cast<float>(m_ViewHeight);
 }
 
 bool ViewportTarget::IsValid() const
@@ -267,7 +322,9 @@ void ViewportTarget::ReleaseResources()
 	m_pDepth.reset();
 	m_pColor.reset();
 
-	m_TextureId	= 0;
-	m_Width		= 0;
-	m_Height	= 0;
+	m_TextureId		= 0;
+	m_Width			= 0;
+	m_Height		= 0;
+	m_ViewWidth		= 0;
+	m_ViewHeight	= 0;
 }

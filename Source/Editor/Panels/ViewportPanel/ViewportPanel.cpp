@@ -56,7 +56,30 @@ void Editor::ViewportPanel::OnGUI(EditorContext& _ctx)
 	m_RequestedHeight	= static_cast<uint32_t>(height);
 	m_VisibleThisFrame	= true;
 
-	m_ViewportHovered = ui.IsCurrentWindowHovered() && contentRect.Contains(ui.GetMousePos());
+	// -------------------------------------------------------------------------------
+	// カメラ操作を許す範囲を決める
+	//
+	//	ゲーム画面の内側であっても、次の場合はカメラへ渡してはいけない
+	//		1. UIが何らかのポインタ操作中（ウィジェット編集・ウィンドウ移動など）
+	//		2. フローティング時の右下 : リサイズグリップと重なる
+	//
+	//	2を除外しないと、グリップを掴んだ瞬間にカメラが起動して
+	//	カーソルが画面中央へ固定され、ウィンドウの大きさが変えられなくなる
+	// -------------------------------------------------------------------------------
+	EditorUI::Rect2D cameraZone = contentRect;
+
+	if (!pFrame->IsDocked)
+	{
+		const float gripSize = ui.GetStyle().ResizeGripSize;
+		cameraZone.Max.x -= gripSize;
+		cameraZone.Max.y -= gripSize;
+	}
+
+	m_ViewportHovered =
+		ui.IsCurrentWindowHovered() &&
+		!ui.IsUiOperationActive() &&
+		cameraZone.IsValid() &&
+		cameraZone.Contains(ui.GetMousePos());
 
 	// -------------------------------------------------------------------------------
 	// 描かれたテクスチャを貼る

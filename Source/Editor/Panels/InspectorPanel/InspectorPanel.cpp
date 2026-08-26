@@ -17,7 +17,15 @@ namespace
 	constexpr EditorUI::PropertyLayout kInspectorLayout{ 88.0f, 0.0f, 4.0f };
 }
 
-Editor::InspectorPanel::InspectorPanel()
+// -------------------------------------------------------------------------------
+// コンストラクタ
+//
+// 2枚目以降は末尾に番号を付ける
+// タイトルが重複するとEditorUI側で同じウィンドウとみなされ、
+// 2枚目が1枚目に重なって表示されてしまう
+// -------------------------------------------------------------------------------
+Editor::InspectorPanel::InspectorPanel(int _index)
+	: m_Title(_index <= 1 ? std::string("Inspector") : "Inspector " + std::to_string(_index))
 {
 	SetInitialPlacement({ 980.0f, 60.0f }, { 300.0f, 420.0f });
 }

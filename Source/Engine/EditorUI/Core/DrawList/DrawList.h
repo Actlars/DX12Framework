@@ -58,6 +58,18 @@ namespace EditorUI
 		void AddRectFilled(const Rect2D& _rect, Color32 _color);
 		// 枠線は4本の矩形として積む
 		void AddRectOutline(const Rect2D& _rect, Color32 _color, float _thickness);
+		// -------------------------------------------------------------------------------
+		// @brief	頂点ごとに色を変えられる三角形
+		//
+		//	カラーピッカーの色相環のように、面の中で色がなめらかに変わるものを描くために使う
+		//	単色のAddTriangleFilledと分けているのは、
+		//	呼び出し側が「頂点ごとに色が要る場面かどうか」を意識できるようにするため
+		// -------------------------------------------------------------------------------
+		void AddTriangleGradient(
+			const DirectX::XMFLOAT2&	_point0, Color32 _color0,
+			const DirectX::XMFLOAT2&	_point1, Color32 _color1,
+			const DirectX::XMFLOAT2&	_point2, Color32 _color2);
+
 		// リサイズグリップ等、矩形を表現できない形状用
 		void AddTriangleFilled(
 			const DirectX::XMFLOAT2&	_point0, 

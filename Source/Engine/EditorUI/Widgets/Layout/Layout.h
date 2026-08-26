@@ -35,7 +35,9 @@ namespace EditorUI
 		// スクロールバーは常時表示ではないため、幅の計算からは常に除外する
 		// 表示・非表示で行幅が変わると、ウィジェットが左右に揺れて見えてしまう
 		// インデント中はその分だけ行が短くなる
-		return (std::max)(0.0f, _frame->WindowRect.Width() - _style.WindowPadding * 2.0f - _frame->IndentX);
+		// 余白はウィンドウごとに違う場合があるため、Styleではなくフレームの値を使う
+		(void)_style;
+		return (std::max)(0.0f, _frame->WindowRect.Width() - _frame->Padding.x * 2.0f - _frame->IndentX);
 	}
 
 	// -------------------------------------------------------------------------------

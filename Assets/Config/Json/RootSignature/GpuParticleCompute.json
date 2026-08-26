@@ -1,0 +1,47 @@
+{
+  "Name": "GpuParticleComputeRootSignature",
+  "Parameters": [
+    {
+      "Name": "EmitterParams",
+      "Type": "CBV",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "Particles",
+      "Type": "UAV",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "DeadList",
+      "Type": "UAV",
+      "ShaderRegister": 1,
+      "RegisterSpace": 0,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "AliveList",
+      "Type": "UAV",
+      "ShaderRegister": 2,
+      "RegisterSpace": 0,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "Counters",
+      "Type": "UAV",
+      "ShaderRegister": 3,
+      "RegisterSpace": 0,
+      "Visibility": "CS"
+    },
+    {
+      "Name": "IndirectArgs",
+      "Type": "UAV",
+      "ShaderRegister": 4,
+      "RegisterSpace": 0,
+      "Visibility": "CS"
+    }
+  ]
+}

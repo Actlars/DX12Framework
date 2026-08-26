@@ -1,8 +1,4 @@
 #pragma once
-// -------------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------------
-#include <Engine/EditorUI/Core/Types.h>
 
 namespace Editor
 {
@@ -15,8 +11,8 @@ namespace Editor
 	enum class EmitterShape : uint8_t
 	{
 		Point,		// 1点から
-		Circle,		// 円周上から
-		Box,		// 矩形の内側から
+		Sphere,		// 球殻の上から
+		Box,		// 直方体の内側から
 	};
 
 	// -------------------------------------------------------------------------------
@@ -28,10 +24,16 @@ namespace Editor
 	//	Niagaraの「エミッタ」に相当する最小構成で、
 	//	発生・寿命・速度・重力・大きさ・色だけを持つ
 	//	この構造体そのものがインスペクタの編集対象になり、
-	//	同じ値をプレビューの再生がそのまま読む
+	//	同じ値をGPUパーティクルがそのまま読む
 	//
-	//	描画方法を一切持たないため、プレビュー(2D)にも
-	//	将来のGPUパーティクル(3D)にも同じ定義を使い回せる
+	//	単位はワールド空間（メートル / 秒）で統一する
+	//	描画方法を一切持たないため、エディタのプレビューでも
+	//	ゲーム中のエフェクトでも同じ定義をそのまま使える
+	//
+	//	この構造体は「編集しやすい形」で値を持つ
+	//	角度は度、重力は下向きの大きさで持ち、
+	//	シェーダーが読む形（ラジアン・ベクトル）への変換は
+	//	EffectEditorPanel::BuildEmitterParams が一手に引き受ける
 	// -------------------------------------------------------------------------------
 	struct EffectAsset
 	{
@@ -40,27 +42,27 @@ namespace Editor
 		// -------------------------------------------------------------------------------
 		// 発生
 		// -------------------------------------------------------------------------------
-		float			SpawnRate	= 60.0f;					// 1秒あたりの発生数
-		EmitterShape	Shape		= EmitterShape::Circle;
-		float			ShapeRadius	= 12.0f;					// Circle/Boxの大きさ
+		float			SpawnRate	= 400.0f;					// 1秒あたりの発生数
+		EmitterShape	Shape		= EmitterShape::Sphere;
+		float			ShapeRadius	= 0.15f;					// Sphere/Boxの大きさ(m)
 
 		// -------------------------------------------------------------------------------
 		// 寿命と動き
 		// -------------------------------------------------------------------------------
-		float	LifeTime		= 1.4f;		// 1粒が消えるまでの秒数
-		float	LifeTimeRandom	= 0.4f;		// 寿命のばらつき(±)
+		float	LifeTime		= 1.6f;		// 1粒が消えるまでの秒数
+		float	LifeTimeRandom	= 0.5f;		// 寿命のばらつき(±)
 
-		float	InitialSpeed		= 90.0f;	// 初速(ピクセル/秒)
-		float	InitialSpeedRandom	= 30.0f;
-		float	SpreadAngle			= 360.0f;	// 射出方向の広がり(度)
-		float	Gravity				= 120.0f;	// 下向きの加速度
-		float	Drag				= 0.6f;		// 速度の減衰(1秒あたりの割合)
+		float	InitialSpeed		= 2.4f;		// 初速(m/秒)
+		float	InitialSpeedRandom	= 0.8f;
+		float	SpreadAngle			= 50.0f;	// 射出方向の広がり(度)
+		float	Gravity				= 2.5f;		// 下向きの加速度(m/秒^2)
+		float	Drag				= 0.5f;		// 速度の減衰(1秒あたりの割合)
 
 		// -------------------------------------------------------------------------------
 		// 見た目
 		// -------------------------------------------------------------------------------
-		float	StartSize	= 10.0f;
-		float	EndSize		= 1.0f;
+		float	StartSize	= 0.22f;	// 直径(m)
+		float	EndSize		= 0.02f;
 
 		// 色は編集しやすいよう0.0～1.0のRGBAで持つ
 		DirectX::XMFLOAT4 StartColor{ 1.0f, 0.78f, 0.35f, 1.0f };
@@ -71,21 +73,7 @@ namespace Editor
 		// -------------------------------------------------------------------------------
 		bool	Looping		= true;
 		float	Duration	= 2.0f;		// Loopingがfalseのときの再生時間
-		int32_t	MaxParticles = 512;		// 同時に存在できる最大数
-
-		// -------------------------------------------------------------------------------
-		// @brief	0.0～1.0のRGBAを、DrawListが扱う頂点カラーへ変換する
-		// -------------------------------------------------------------------------------
-		static EditorUI::Color32 ToColor32(const DirectX::XMFLOAT4& _color)
-		{
-			const auto toByte = [](float _value)
-			{
-				return static_cast<uint32_t>(std::clamp(_value, 0.0f, 1.0f) * 255.0f + 0.5f);
-			};
-
-			return EditorUI::MakeColor(
-				toByte(_color.x), toByte(_color.y), toByte(_color.z), toByte(_color.w));
-		}
+		int32_t	MaxParticles = 8192;	// 同時に存在できる最大数（GPU側のプールの大きさ）
 	};
 
 	// -------------------------------------------------------------------------------

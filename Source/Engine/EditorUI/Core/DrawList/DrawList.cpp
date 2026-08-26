@@ -119,6 +119,27 @@ void EditorUI::DrawList::AddRectOutline(const Rect2D& _rect, Color32 _color, flo
 	//m_Commands.back().ElementCount += 24;
 }
 
+// -------------------------------------------------------------------------------
+// 頂点ごとに色を変えられる三角形
+// -------------------------------------------------------------------------------
+void EditorUI::DrawList::AddTriangleGradient(
+	const DirectX::XMFLOAT2&	_point0, Color32 _color0,
+	const DirectX::XMFLOAT2&	_point1, Color32 _color1,
+	const DirectX::XMFLOAT2&	_point2, Color32 _color2)
+{
+	EnsureCommand();
+
+	uint32_t base = static_cast<uint32_t>(m_Vertices.size());
+
+	// UVはすべて(0,0)。白テクスチャを引くので、頂点カラーがそのまま出る
+	m_Vertices.push_back({ _point0, {0.0f,0.0f}, _color0 });
+	m_Vertices.push_back({ _point1, {0.0f,0.0f}, _color1 });
+	m_Vertices.push_back({ _point2, {0.0f,0.0f}, _color2 });
+
+	m_Indices.insert(m_Indices.end(), { base, base + 1u, base + 2u });
+	m_Commands.back().ElementCount += 3;
+}
+
 void EditorUI::DrawList::AddTriangleFilled(
 	const DirectX::XMFLOAT2&	_point0, 
 	const DirectX::XMFLOAT2&	_point1, 
@@ -184,9 +205,16 @@ void EditorUI::DrawList::AddText(const DirectX::XMFLOAT2& _pos, Color32 _color, 
 	// 現在の描画TextureとしてFontのTextureIdを設定する
 	PushTexture(_font.GetTextureId());
 
-	// 現在の文字を描画するX座標
-	// 最初は指定された描画開始位置から始める
-	float penX = _pos.x;
+	// -------------------------------------------------------------------------------
+	// 描画開始位置をピクセル境界へ吸着させる
+	//
+	// アトラスは1テクセル=1ピクセルで作られているため、
+	// 小数座標に置くとリニア補間で隣のテクセルが混ざり、輪郭がにじむ
+	// 開始位置を整数にし、送り幅も整数にしておけば、
+	// 以降のすべてのグリフがテクセルとピクセルの1対1対応を保てる
+	// -------------------------------------------------------------------------------
+	float penX = std::floor(_pos.x + 0.5f);
+	const float baseY = std::floor(_pos.y + 0.5f);
 	// 文字列を1文字ずつ処理する
 	for (wchar_t ch : _text)
 	{
@@ -198,7 +226,8 @@ void EditorUI::DrawList::AddText(const DirectX::XMFLOAT2& _pos, Color32 _color, 
 			continue; // 未対応文字(アトラス満杯等)は空白扱いでスキップする
 		}
 		// GlyphのBearingを考慮して、実際に文字画像を配置する画面上の矩形を作成する
-		Rect2D bounds = MakeRect({ penX + pGlyph->Bearing.x, _pos.y + pGlyph->Bearing.y }, pGlyph->Size);
+		// Bearingもグリフ生成時に整数で決めているため、位置は整数のまま保たれる
+		Rect2D bounds = MakeRect({ penX + pGlyph->Bearing.x, baseY + pGlyph->Bearing.y }, pGlyph->Size);
 		// FontAtlas上のGlyphのUV領域を使って1文字分のQuadを描画リストへ追加する
 		AddGlyphQuad(bounds, pGlyph->UV, _color);
 

@@ -274,38 +274,47 @@ bool GameScene::InitGameObjects()
 
 // -------------------------------------------------------------------------------
 // 入力処理とカメラ更新
+//
+// カーソルの再中央化はMouseInputの相対モードが受け持つ
+// このシーンは「与えられた移動量を使う」ことに専念する
+//
+//  以前はここでもGetCursorPos / SetCursorPosを行っており、
+//  MouseInputの再中央化と二重に働いて移動量が打ち消し合っていた
+//  そのため、少し動かすとカメラが止まって見える不具合が起きていた
 // -------------------------------------------------------------------------------
 void GameScene::UpdateInput(float _deltaTime)
 {
-    if (GetAsyncKeyState('W') & 0x8000) { m_Camera.MoveForward(_deltaTime); }
-    if (GetAsyncKeyState('S') & 0x8000) { m_Camera.MoveBack(_deltaTime); }
-    if (GetAsyncKeyState('A') & 0x8000) { m_Camera.MoveLeft(_deltaTime); }
-    if (GetAsyncKeyState('D') & 0x8000) { m_Camera.MoveRight(_deltaTime); }
-    if (GetAsyncKeyState('E') & 0x8000) { m_Camera.MoveUp(_deltaTime); }
-    if (GetAsyncKeyState('Q') & 0x8000) { m_Camera.MoveDown(_deltaTime); }
-
-    // Mキーでメッシュレット表示切り替え（エッジ検出）
-    static bool sPrevMKey = false;
-    const bool curMKey = (GetAsyncKeyState('M') & 0x8000) != 0;
-    if (curMKey && !sPrevMKey)
+    if (m_pInputManager == nullptr)
     {
-        m_SceneRenderer.ToggleMeshletDebugMode();
+        return;
     }
-    sPrevMKey = curMKey;
 
-    HWND hWnd = GetActiveWindow();
-    if (hWnd == nullptr) { return; }
+    const Input::KeyboardInput& keyboard = m_pInputManager->GetKeyboardInput();
 
-    RECT rect;
-    GetWindowRect(hWnd, &rect);
-    const LONG cx = (rect.left + rect.right) / 2;
-    const LONG cy = (rect.top + rect.bottom) / 2;
+    // -------------------------------------------------------------------------------
+    // 移動
+    // GetAsyncKeyStateはウィンドウの前後関係を見ないため、
+    // 他アプリを操作中でもカメラが動いてしまう
+    // 入力の窓口をKeyboardInputへ一本化する
+    // -------------------------------------------------------------------------------
+    if (keyboard.IsDown('W')) { m_Camera.MoveForward(_deltaTime); }
+    if (keyboard.IsDown('S')) { m_Camera.MoveBack(_deltaTime);    }
+    if (keyboard.IsDown('A')) { m_Camera.MoveLeft(_deltaTime);    }
+    if (keyboard.IsDown('D')) { m_Camera.MoveRight(_deltaTime);   }
+    if (keyboard.IsDown('E')) { m_Camera.MoveUp(_deltaTime);      }
+    if (keyboard.IsDown('Q')) { m_Camera.MoveDown(_deltaTime);    }
 
-    POINT mousePos;
-    GetCursorPos(&mousePos);
-    m_Camera.AddYaw(static_cast<float>(mousePos.x - cx));
-    m_Camera.AddPitch(static_cast<float>(mousePos.y - cy));
-    SetCursorPos(cx, cy);
+    // -------------------------------------------------------------------------------
+    // 視点回転
+    // MouseInputが相対モードで求めた「中央からのずれ」をそのまま角度へ渡す
+    // -------------------------------------------------------------------------------
+    const POINT delta = m_pInputManager->GetMouseInput().GetDelta();
+
+    if (delta.x != 0 || delta.y != 0)
+    {
+        m_Camera.AddYaw(static_cast<float>(delta.x));
+        m_Camera.AddPitch(static_cast<float>(delta.y));
+    }
 
     m_Camera.Update();
 }

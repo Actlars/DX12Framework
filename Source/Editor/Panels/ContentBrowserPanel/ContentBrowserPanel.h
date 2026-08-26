@@ -26,9 +26,19 @@ namespace Editor
 	{
 	public:
 
-		ContentBrowserPanel();
+		// -------------------------------------------------------------------------------
+		// @brief	コンストラクタ
+		//
+		// @param[in]	_index	同じ種類の中での通し番号（1が最初の1枚）
+		//						タイトルはEditorUIがウィンドウを識別するIdの元になるため、
+		//						2枚目以降は番号を付けて必ず一意にする
+		// -------------------------------------------------------------------------------
+		explicit ContentBrowserPanel(int _index = 1);
 
 		const std::string& GetTitle() const override { return m_Title; }
+
+		// 通し番号を含まない名前。何枚開いているかを数えるのに使う
+		std::string_view GetTypeName() const override { return "Content Browser"; }
 
 		void OnGUI(EditorContext& _ctx) override;
 
@@ -52,7 +62,7 @@ namespace Editor
 		void CreateNewTextFile(EditorContext& _ctx);
 		void CreateNewEffect(EditorContext& _ctx, bool _openEditor);
 
-		std::string m_Title = "Content Browser";
+		std::string m_Title;
 
 		// 右クリックされたエントリ。メニューを閉じるまで覚えておく
 		AssetEntry	m_ContextTarget;

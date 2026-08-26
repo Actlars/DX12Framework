@@ -121,29 +121,43 @@ void EditorUI::Context::EndFrame()
 void EditorUI::Context::InitDockSpace(const EditorUI::Rect2D& _screenBounds)
 {
 	m_ScreenBounds = _screenBounds;
-	m_DockController.Init(_screenBounds);
+	m_DockController.Init(GetDockArea());
 }
 
+// -------------------------------------------------------------------------------
+// 画面サイズの更新
+//
+// ドッキング領域の再計算をここで完結させる
+// NewFrame のホバー判定より前にこの関数が呼ばれるため、
+// 判定に使われる矩形は常にメニューバーを避けた正しいものになる
+// -------------------------------------------------------------------------------
 void EditorUI::Context::UpdateDockSpaceLayout(const EditorUI::Rect2D& _screenBounds)
 {
 	m_ScreenBounds = _screenBounds;
-	m_DockController.UpdateLayout(_screenBounds);
+	m_DockController.UpdateLayout(GetDockArea());
+}
+
+void EditorUI::Context::SetDockAreaInsetTop(float _inset)
+{
+	m_DockAreaInsetTop = (std::max)(0.0f, _inset);
+
+	// 指定が変わった時点で配り直しておく
+	// 次のUpdateDockSpaceLayoutを待つと、1フレームだけ古い矩形が使われる
+	m_DockController.UpdateLayout(GetDockArea());
+}
+
+EditorUI::Rect2D EditorUI::Context::GetDockArea() const
+{
+	return Rect2D
+	{
+		{ m_ScreenBounds.Min.x, m_ScreenBounds.Min.y + m_DockAreaInsetTop },
+		m_ScreenBounds.Max
+	};
 }
 
 const EditorUI::Rect2D& EditorUI::Context::GetScreenBounds() const
 {
 	return m_ScreenBounds;
-}
-
-// -------------------------------------------------------------------------------
-// ドッキングに使ってよい領域を指定する
-//
-// メニューバーの下からをドック領域にすることで、
-// 画面いっぱいに広げたパネルがメニューバーへ重ならなくなる
-// -------------------------------------------------------------------------------
-void EditorUI::Context::SetDockArea(const EditorUI::Rect2D& _dockArea)
-{
-	m_DockController.UpdateLayout(_dockArea);
 }
 
 // -------------------------------------------------------------------------------
@@ -319,10 +333,18 @@ bool EditorUI::Context::BeginWindow(std::string_view _title, bool* _isOpen, Edit
 		m_WindowInteraction.HandleScrollInput(state, frame.WindowRect, m_InputTracker);
 	}
 
+	// このウィンドウで使う余白を確定させる
+	// 指定がなければスタイルの既定値を使う
+	frame.Padding = m_NextPadding.Pending
+		? m_NextPadding.Value
+		: DirectX::XMFLOAT2{ m_Style.WindowPadding, m_Style.WindowPadding };
+
+	m_NextPadding.Pending = false;
+
 	frame.ContentOrigin =
 	{
-		frame.ContentRect.Min.x + m_Style.WindowPadding,
-		frame.ContentRect.Min.y + m_Style.WindowPadding
+		frame.ContentRect.Min.x + frame.Padding.x,
+		frame.ContentRect.Min.y + frame.Padding.y
 	};
 	frame.CursorPos = frame.ContentOrigin;
 
@@ -387,6 +409,12 @@ void EditorUI::Context::SetNextWindowPlacement(const DirectX::XMFLOAT2& _positio
 	m_NextWindow.Forced		= false;
 	m_NextWindow.Position	= _position;
 	m_NextWindow.Size		= _size;
+}
+
+void EditorUI::Context::SetNextWindowPadding(const DirectX::XMFLOAT2& _padding)
+{
+	m_NextPadding.Pending	= true;
+	m_NextPadding.Value		= _padding;
 }
 
 void EditorUI::Context::SetNextWindowPlacementForced(const DirectX::XMFLOAT2& _position, const DirectX::XMFLOAT2& _size)
@@ -754,6 +782,17 @@ void EditorUI::Context::SetStorageBool(EditorUI::Id _id, bool _value)
 	m_StorageBool[_id] = _value;
 }
 
+float EditorUI::Context::GetStorageFloat(EditorUI::Id _id, float _defaultValue) const
+{
+	auto it = m_StorageFloat.find(_id);
+	return (it != m_StorageFloat.end()) ? it->second : _defaultValue;
+}
+
+void EditorUI::Context::SetStorageFloat(EditorUI::Id _id, float _value)
+{
+	m_StorageFloat[_id] = _value;
+}
+
 EditorUI::Id EditorUI::Context::GetActiveId() const
 {
 	return m_WidgetInteractionState.GetActiveId();
@@ -817,6 +856,14 @@ EditorUI::TextEditState& EditorUI::Context::GetTextEditState()
 const EditorUI::TextEditState& EditorUI::Context::GetTextEditState() const
 {
 	return m_WidgetInteractionState.GetTextEditState();
+}
+
+bool EditorUI::Context::IsUiOperationActive() const
+{
+	return m_WidgetInteractionState.IsAnyActive() ||
+		m_WindowInteraction.IsBusy() ||
+		m_DockController.IsPointerBusy() ||
+		!m_OpenPopups.empty();
 }
 
 bool EditorUI::Context::WantCaptureMouse() const
@@ -1047,7 +1094,7 @@ void EditorUI::Context::FinalizeScrollRange(EditorUI::WindowFrame& _frame, Edito
 		return;
 	}
 
-	const float visibleHeight = (std::max)(1.0f, _frame.ContentRect.Height() - m_Style.WindowPadding * 2.0f);
+	const float visibleHeight = (std::max)(1.0f, _frame.ContentRect.Height() - _frame.Padding.y * 2.0f);
 
 	_state.MaxScrollY = (std::max)(0.0f, _frame.ContentHeight - visibleHeight);
 	_state.Scroll.y = std::clamp(_state.Scroll.y, 0.0f, _state.MaxScrollY);

@@ -23,9 +23,19 @@ namespace Editor
 	{
 	public:
 
-		HierarchyPanel();
+		// -------------------------------------------------------------------------------
+		// @brief	コンストラクタ
+		//
+		// @param[in]	_index	同じ種類の中での通し番号（1が最初の1枚）
+		//						タイトルはEditorUIがウィンドウを識別するIdの元になるため、
+		//						2枚目以降は番号を付けて必ず一意にする
+		// -------------------------------------------------------------------------------
+		explicit HierarchyPanel(int _index = 1);
 
 		const std::string& GetTitle() const override { return m_Title; }
+
+		// 通し番号を含まない名前。何枚開いているかを数えるのに使う
+		std::string_view GetTypeName() const override { return "Hierarchy"; }
 
 		void OnGUI(EditorContext& _ctx) override;
 
@@ -37,7 +47,7 @@ namespace Editor
 		// 右クリックメニュー（オブジェクトの作成・複製・削除）
 		void DrawContextMenu(EditorContext& _ctx, GameObject* _pTarget);
 
-		std::string m_Title = "Hierarchy";
+		std::string m_Title;
 
 		// 名前の一部で絞り込むための検索文字列
 		std::string m_Filter;

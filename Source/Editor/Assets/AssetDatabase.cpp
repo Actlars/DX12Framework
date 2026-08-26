@@ -36,6 +36,13 @@ bool Editor::AssetDatabase::Init(const std::filesystem::path& _rootPath)
 	m_RootDirectory		= std::filesystem::absolute(_rootPath, error);
 	m_CurrentDirectory	= m_RootDirectory;
 
+	// ルート以下をまとめて監視する
+	// 失敗しても手動の再読み込みは使えるため、致命的な扱いにはしない
+	if (!m_Watcher.Start(m_RootDirectory, true))
+	{
+		ELOG("AssetDatabase::Init() failed to watch content directory (auto refresh disabled)");
+	}
+
 	Refresh();
 	return true;
 }
@@ -79,6 +86,23 @@ void Editor::AssetDatabase::Refresh()
 		});
 
 	RebuildBreadcrumb();
+}
+
+// -------------------------------------------------------------------------------
+// 外部での変更を取り込む
+//
+// エクスプローラーでファイルを足したり消したりしても、
+// 次のフレームには一覧へ反映される
+// -------------------------------------------------------------------------------
+bool Editor::AssetDatabase::Update()
+{
+	if (!m_Watcher.Poll())
+	{
+		return false;
+	}
+
+	Refresh();
+	return true;
 }
 
 // -------------------------------------------------------------------------------

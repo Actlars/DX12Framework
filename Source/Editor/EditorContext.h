@@ -10,6 +10,9 @@ namespace EditorUI { class Font; }
 class GameObjectManager;
 class ViewportTarget;
 class SceneManager;
+class EditorUIRenderer;
+
+namespace RHI { class Device; }
 
 namespace Editor
 {
@@ -41,6 +44,15 @@ namespace Editor
 		GameObjectManager*	pObjects	= nullptr;	// 現在のシーンの中身(無い場合はnullptr)
 		SceneManager*		pScenes		= nullptr;	// シーンの問い合わせ
 		ViewportTarget*		pViewport	= nullptr;	// ゲーム画面のレンダーターゲット
+
+		// -------------------------------------------------------------------------------
+		// 自前のGPUリソースを持つパネル用
+		//
+		//	エフェクトエディタが、プレビュー専用のレンダーターゲットと
+		//	GPUパーティクルを自分で確保するために必要になる
+		// -------------------------------------------------------------------------------
+		RHI::Device*		pDevice		= nullptr;
+		EditorUIRenderer*	pUIRenderer	= nullptr;
 
 		float DeltaTime = 0.0f;	// 前フレームからの経過時間(秒)
 

@@ -1,0 +1,26 @@
+{
+  "Name": "GpuParticleRenderRootSignature",
+  "Parameters": [
+    {
+      "Name": "ViewParams",
+      "Type": "CBV",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "VS"
+    },
+    {
+      "Name": "Particles",
+      "Type": "SRV",
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "Visibility": "VS"
+    },
+    {
+      "Name": "AliveList",
+      "Type": "SRV",
+      "ShaderRegister": 1,
+      "RegisterSpace": 0,
+      "Visibility": "VS"
+    }
+  ]
+}

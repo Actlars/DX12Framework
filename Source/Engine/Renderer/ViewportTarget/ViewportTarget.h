@@ -90,8 +90,13 @@ public:
 	// -------------------------------------------------------------------------------
 	EditorUI::TextureId GetTextureId() const;
 
+	// 実際に確保されているテクスチャの大きさ（粒度へ切り上げ済み）
 	uint32_t	GetWidth()	const { return m_Width; }
 	uint32_t	GetHeight() const { return m_Height; }
+
+	// 表示に使う大きさ。確保サイズの左上からこの範囲だけを切り出して描く
+	uint32_t	GetViewWidth()	const { return m_ViewWidth; }
+	uint32_t	GetViewHeight() const { return m_ViewHeight; }
 
 	// 縦横比。カメラのアスペクトをパネルに合わせるために使う
 	float		GetAspect() const;
@@ -113,8 +118,13 @@ private:
 
 	EditorUI::TextureId m_TextureId = 0;
 
+	// 確保されているテクスチャの大きさ
 	uint32_t m_Width	= 0;
 	uint32_t m_Height	= 0;
+
+	// 表示に使う大きさ。パネルの大きさそのもの
+	uint32_t m_ViewWidth	= 0;
+	uint32_t m_ViewHeight	= 0;
 
 	// 背景色。ゲーム画面とエディタの余白を区別できる程度に暗くしておく
 	static constexpr float kClearColor[4] = { 0.06f, 0.07f, 0.09f, 1.0f };

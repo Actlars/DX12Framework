@@ -9,7 +9,15 @@
 
 namespace
 {
-	constexpr int kCellPadding = 1;	// 隣接グラフのピクセルが混ざらないようにする余白
+	constexpr int kCellPadding = 1;	// 隣接グリフのピクセルが混ざらないようにする余白
+
+	// -------------------------------------------------------------------------------
+	// 送り幅(advance)からはみ出して描かれる分の余白
+	//
+	// 'W' や斜体のように、文字の絵が送り幅より広いグリフがある
+	// セルを送り幅ちょうどにすると端が切れるため、左右に少しだけ余裕を持たせる
+	// -------------------------------------------------------------------------------
+	constexpr int kGlyphOverhang = 2;
 }
 
 void EditorUI::Font::Term()
@@ -93,7 +101,29 @@ bool EditorUI::Font::Build(
 	if (FAILED(m_pDWriteFactory->GetGdiInterop(m_pGdiInterop.GetAddressOf()))) 
 	{ return false; }
 
-	m_pDWriteFactory->CreateRenderingParams(m_pRenderingParams.GetAddressOf());
+	// -------------------------------------------------------------------------------
+	// 文字を「くっきり」見せるためのラスタライズ設定
+	//
+	//	ClearTypeLevel = 0	サブピクセル描画を切り、グレースケールのアンチエイリアスにする
+	//						そのままだとRGBのにじみ（色の縁取り）がアルファへ混ざる
+	//	GDI_CLASSIC			ステム（縦棒）をピクセル境界へ吸着させるヒンティング付きの描画
+	//						小さいサイズでも線の太さがそろい、輪郭がぼやけない
+	//	EnhancedContrast	細い線が薄く消えるのを防ぐ
+	//
+	//	既定の CreateRenderingParams はClearType + NATURALなので、
+	//	UI用途では輪郭が甘くなる
+	// -------------------------------------------------------------------------------
+	if (FAILED(m_pDWriteFactory->CreateCustomRenderingParams(
+		1.0f,									// ガンマ : 1.0で線形。濃さが素直に出る
+		0.7f,									// EnhancedContrast : 細線の消失を抑える
+		0.0f,									// ClearTypeLevel : 0でグレースケール
+		DWRITE_PIXEL_GEOMETRY_FLAT,
+		DWRITE_RENDERING_MODE_GDI_CLASSIC,
+		m_pRenderingParams.GetAddressOf())))
+	{
+		// 失敗しても描画自体は続けられるよう、既定のパラメータへ落とす
+		m_pDWriteFactory->CreateRenderingParams(m_pRenderingParams.GetAddressOf());
+	}
 
 	DWRITE_FONT_METRICS fontMetrics{};
 	m_pFontFace->GetMetrics(&fontMetrics);
@@ -146,10 +176,18 @@ bool EditorUI::Font::RasterizeGlyph(wchar_t _ch, Glyph& _outGlyph)
 	DWRITE_GLYPH_METRICS metrics{};
 	m_pFontFace->GetDesignGlyphMetrics(&glyphIndex, 1, &metrics);
 
-	const float advancePx = metrics.advanceWidth * m_UnitsPerEmScale;
+	// -------------------------------------------------------------------------------
+	// 送り幅は整数へ丸める
+	//
+	// 小数のまま積み上げると、文字ごとに描画位置が半ピクセルずれ、
+	// リニア補間で輪郭がにじむ（これが「ぼやけて見える」いちばんの原因）
+	// GDI_CLASSICでラスタライズしている以上、送り幅も整数で扱うのが正しい
+	// -------------------------------------------------------------------------------
+	const float advancePx = std::round(metrics.advanceWidth * m_UnitsPerEmScale);
 
 	// このグリフを描画するための、ぴったりサイズのスクラッチ描画面を都度作る
-	const int cellWidth		= (std::max)(1, static_cast<int>(std::ceil(advancePx)) + kCellPadding * 2);
+	// 左右にkGlyphOverhang分の余裕を足し、送り幅より広い絵でも切れないようにする
+	const int cellWidth		= (std::max)(1, static_cast<int>(advancePx) + (kCellPadding + kGlyphOverhang) * 2);
 	const int cellHeight	= (std::max)(1, static_cast<int>(std::ceil(m_LineHeight)) + kCellPadding * 2);
 
 	int placeX = 0;
@@ -178,11 +216,14 @@ bool EditorUI::Font::RasterizeGlyph(wchar_t _ch, Glyph& _outGlyph)
 	run.glyphOffsets	= &offset;
 
 	// ベースラインは上端からascent分だけ下がった位置
-	const float originX = static_cast<float>(kCellPadding);
-	const float originY = static_cast<float>(kCellPadding) + m_AscentPx;
+	// ベースラインを整数へ丸めることで、行ごとの上下のにじみも防ぐ
+	const float originX = static_cast<float>(kCellPadding + kGlyphOverhang);
+	const float originY = static_cast<float>(kCellPadding) + std::round(m_AscentPx);
 
+	// 計測モードもGDI_CLASSICにそろえる
+	// ラスタライズと計測がずれると、ヒンティングの意味がなくなる
 	pScratch->DrawGlyphRun(
-		originX, originY, DWRITE_MEASURING_MODE_NATURAL, &run,
+		originX, originY, DWRITE_MEASURING_MODE_GDI_CLASSIC, &run,
 		m_pRenderingParams.Get(), RGB(255, 255, 255), nullptr);
 
 	// スクラッチのDIBから、R成分(輝度)だけを抜き出してアトラスへコピー
@@ -232,7 +273,9 @@ bool EditorUI::Font::RasterizeGlyph(wchar_t _ch, Glyph& _outGlyph)
 		{ static_cast<float>(cellWidth - kCellPadding * 2) / static_cast<float>(m_AtlasWidth),
 		static_cast<float>(cellHeight - kCellPadding * 2) / static_cast<float>(m_AtlasHeight) });
 	_outGlyph.Size = { static_cast<float>(cellWidth - kCellPadding * 2), static_cast<float>(cellHeight - kCellPadding * 2) };
-	_outGlyph.Bearing = { 0.0f,0.0f };	// セル全体をそのまま矩形として描画する前提
+	// セル左端はペン位置よりkGlyphOverhangだけ左にある
+	// その分を戻さないと、文字全体が右へずれてしまう
+	_outGlyph.Bearing = { -static_cast<float>(kGlyphOverhang), 0.0f };
 	_outGlyph.Advance = advancePx;
 
 	return true;

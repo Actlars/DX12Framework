@@ -1,4 +1,8 @@
 #pragma once
+// -------------------------------------------------------------------------------
+// Includes
+// -------------------------------------------------------------------------------
+#include <Editor/Assets/DirectoryWatcher/DirectoryWatcher.h>
 
 namespace Editor
 {
@@ -65,6 +69,16 @@ namespace Editor
 		void Refresh();
 
 		// -------------------------------------------------------------------------------
+		// @brief	外部（エクスプローラー等）での変更を取り込む
+		//
+		//	毎フレームの先頭で呼ぶ
+		//	変化がなければ何もしないため、コストはほぼゼロ
+		//
+		// @return	true : 読み直しが発生した（表示中の一覧が入れ替わっている）
+		// -------------------------------------------------------------------------------
+		bool Update();
+
+		// -------------------------------------------------------------------------------
 		// 表示中フォルダの移動
 		// -------------------------------------------------------------------------------
 		void SetCurrentDirectory(const std::filesystem::path& _path);
@@ -128,5 +142,8 @@ namespace Editor
 		std::filesystem::path				m_CurrentDirectory;
 		std::vector<AssetEntry>				m_Entries;
 		std::vector<std::filesystem::path>	m_Breadcrumb;
+
+		// コンテンツフォルダ全体を監視し、外部の変更に自動で追従する
+		DirectoryWatcher m_Watcher;
 	};
 }

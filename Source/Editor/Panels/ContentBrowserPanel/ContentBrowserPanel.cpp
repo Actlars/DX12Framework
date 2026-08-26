@@ -40,7 +40,15 @@ namespace
 	}
 }
 
-Editor::ContentBrowserPanel::ContentBrowserPanel()
+// -------------------------------------------------------------------------------
+// コンストラクタ
+//
+// 2枚目以降は末尾に番号を付ける
+// タイトルが重複するとEditorUI側で同じウィンドウとみなされ、
+// 2枚目が1枚目に重なって表示されてしまう
+// -------------------------------------------------------------------------------
+Editor::ContentBrowserPanel::ContentBrowserPanel(int _index)
+	: m_Title(_index <= 1 ? std::string("Content Browser") : "Content Browser " + std::to_string(_index))
 {
 	SetInitialPlacement({ 20.0f, 500.0f }, { 560.0f, 220.0f });
 }
@@ -58,6 +66,14 @@ void Editor::ContentBrowserPanel::OnGUI(EditorContext& _ctx)
 		EditorUI::TextMuted(ui, font, "コンテンツフォルダが初期化されていません");
 		return;
 	}
+
+	// -------------------------------------------------------------------------------
+	// 外部での変更を先に取り込む
+	//
+	// 一覧を描き始めたあとに読み直すと、走査中のvectorが入れ替わってしまう
+	// 必ずこのフレームの描画より前に済ませる
+	// -------------------------------------------------------------------------------
+	_ctx.pAssets->Update();
 
 	DrawBreadcrumb(_ctx);
 	EditorUI::Separator(ui);

@@ -44,6 +44,11 @@ namespace EditorUI
 		float				ContentWidthUsed = 0.0f;	// このフレームで実際に使われたコンテンツの幅(自動サイズ用)
 		float				IndentX			= 0.0f;		// ツリーの階層に応じた左インデント量
 
+		// このウィンドウで使う余白
+		// 既定はStyle::WindowPaddingだが、メニューバーのように
+		// 高さが決まっている帯では小さくしたいので、フレーム単位で持つ
+		DirectX::XMFLOAT2	Padding{ 0.0f, 0.0f };
+
 		Rect2D				LastItemRect{};				// スクロール反映後のスクリーン座標
 		float				LineY			= 0.0f;		// スクロール前の仮想座標
 		bool				HasLastItem		= false;	// 同じウィンドウ内でウィジェットを1つ以上置いたか

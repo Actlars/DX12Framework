@@ -1,0 +1,11 @@
+{
+  "VS": "ParticleVS.cso",
+  "PS": "ParticlePS.cso",
+  "CullMode": "NONE",
+  "DepthEnable": false,
+  "DepthWriteMask": "ZERO",
+  "BlendEnable": true,
+  "PrimitiveTopologyType": "TRIANGLE",
+  "RTVFormat": "R8G8B8A8_UNORM",
+  "DSVFormat": "UNKNOWN"
+}

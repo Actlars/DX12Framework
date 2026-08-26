@@ -237,13 +237,26 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h" />
+    <ClInclude Include="Source\Editor\Assets\AssetDatabase.h" />
+    <ClInclude Include="Source\Editor\Assets\DirectoryWatcher\DirectoryWatcher.h" />
+    <ClInclude Include="Source\Editor\EditorApp\EditorApp.h" />
+    <ClInclude Include="Source\Editor\EditorContext.h" />
+    <ClInclude Include="Source\Editor\Effect\EffectAsset.h" />
+    <ClInclude Include="Source\Editor\Panels\ContentBrowserPanel\ContentBrowserPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\EffectEditorPanel\EffectEditorPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\HierarchyPanel\HierarchyPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\IEditorPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.h" />
+    <ClInclude Include="Source\Editor\Panels\PanelManager\PanelManager.h" />
+    <ClInclude Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.h" />
+    <ClInclude Include="Source\Editor\Selection\Selection.h" />
     <ClInclude Include="Source\Engine\Camera\CameraBase.h" />
     <ClInclude Include="Source\Engine\Camera\FPSCamera\FPSCamera.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Context\Context.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Context\FrameContext\FrameContext.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Context\FrameContext\FrameOutput.h" />
-    <ClInclude Include="Source\Engine\EditorUI\Core\Context\WidgetInteractionState\WidgetInteractionState.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Context\WidgetInteraction\WidgetInteraction.h" />
+    <ClInclude Include="Source\Engine\EditorUI\Core\Context\WidgetInteractionState\WidgetInteractionState.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Context\WindowInteraction\WindowInteraction.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\Context\WindowManager\WindowManager.h" />
     <ClInclude Include="Source\Engine\EditorUI\Core\DrawList\DrawList.h" />
@@ -268,10 +281,12 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\EditorUI\Widgets\WidgetInteraction.h" />
     <ClInclude Include="Source\Engine\EditorUI\Widgets\WidgetPrimitives.h" />
     <ClInclude Include="Source\Engine\EditorUI\Widgets\Widgets.h" />
+    <ClInclude Include="Source\Engine\Effect\GpuParticleSystem\GpuParticleSystem.h" />
+    <ClInclude Include="Source\Engine\Effect\ParticleTypes.h" />
+    <ClInclude Include="Source\Engine\GameObject\Component\Component.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.h" />
     <ClInclude Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.h" />
-    <ClInclude Include="Source\Engine\GameObject\Component\Component.h" />
     <ClInclude Include="Source\Engine\GameObject\GameObject.h" />
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager.h" />
     <ClInclude Include="Source\Engine\GameObject\Renderable\IMeshletRenderable.h" />
@@ -280,10 +295,10 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Input\KeyboardInput\KeyboardInput.h" />
     <ClInclude Include="Source\Engine\Input\MouseInput\MouseInput.h" />
     <ClInclude Include="Source\Engine\Mesh\Material\Material.h" />
+    <ClInclude Include="Source\Engine\Mesh\Mesh\Mesh.h" />
     <ClInclude Include="Source\Engine\Mesh\MeshletResource\MeshletResource.h" />
     <ClInclude Include="Source\Engine\Mesh\MeshLoader\MeshLoader.h" />
     <ClInclude Include="Source\Engine\Mesh\MeshResource.h" />
-    <ClInclude Include="Source\Engine\Mesh\Mesh\Mesh.h" />
     <ClInclude Include="Source\Engine\Mesh\PolygonMeshResource\PolygonMeshResource.h" />
     <ClInclude Include="Source\Engine\Mesh\ResData.h" />
     <ClInclude Include="Source\Engine\Renderer\GraphicsView\GraphicsView.h" />
@@ -293,6 +308,7 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Renderer\Renderer.h" />
     <ClInclude Include="Source\Engine\Renderer\RendererItem\DrawItem.h" />
     <ClInclude Include="Source\Engine\Renderer\RendererItem\MeshletDrawItem.h" />
+    <ClInclude Include="Source\Engine\Renderer\RendererItem\TransformCB.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RenderGraph.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGPassBuilder.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGRenderPass.h" />
@@ -300,7 +316,9 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Renderer\RenderGraph\RGTypes.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderQueue\MeshletRenderQueue\MeshletRenderQueue.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderQueue\RenderQueue.h" />
+    <ClInclude Include="Source\Engine\Renderer\SceneOutput\SceneOutput.h" />
     <ClInclude Include="Source\Engine\Renderer\SceneRenderer\SceneRenderer.h" />
+    <ClInclude Include="Source\Engine\Renderer\ViewportTarget\ViewportTarget.h" />
     <ClInclude Include="Source\Engine\RHI\Core\CommandList\CommandList.h" />
     <ClInclude Include="Source\Engine\RHI\Core\Device\Device.h" />
     <ClInclude Include="Source\Engine\RHI\Core\Fence\Fence.h" />
@@ -337,30 +355,25 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Engine\Utility\StringUtil\StringUtil.h" />
     <ClInclude Include="Source\Game\Scene\GameScene\GameScene.h" />
     <ClInclude Include="Source\Pch.h" />
-    <ClInclude Include="Source\Engine\Renderer\ViewportTarget\ViewportTarget.h" />
-    <ClInclude Include="Source\Editor\EditorContext.h" />
-    <ClInclude Include="Source\Editor\Selection\Selection.h" />
-    <ClInclude Include="Source\Editor\Assets\AssetDatabase.h" />
-    <ClInclude Include="Source\Editor\Effect\EffectAsset.h" />
-    <ClInclude Include="Source\Editor\Effect\EffectPreview.h" />
-    <ClInclude Include="Source\Editor\Panels\IEditorPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\PanelManager\PanelManager.h" />
-    <ClInclude Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\HierarchyPanel\HierarchyPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\ContentBrowserPanel\ContentBrowserPanel.h" />
-    <ClInclude Include="Source\Editor\Panels\EffectEditorPanel\EffectEditorPanel.h" />
-    <ClInclude Include="Source\Editor\EditorApp\EditorApp.h" />
-    <ClInclude Include="Source\Engine\Renderer\SceneOutput\SceneOutput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp" />
+    <ClCompile Include="Source\Editor\Assets\AssetDatabase.cpp" />
+    <ClCompile Include="Source\Editor\Assets\DirectoryWatcher\DirectoryWatcher.cpp" />
+    <ClCompile Include="Source\Editor\EditorApp\EditorApp.cpp" />
+    <ClCompile Include="Source\Editor\Effect\EffectAsset.cpp" />
+    <ClCompile Include="Source\Editor\Panels\ContentBrowserPanel\ContentBrowserPanel.cpp" />
+    <ClCompile Include="Source\Editor\Panels\EffectEditorPanel\EffectEditorPanel.cpp" />
+    <ClCompile Include="Source\Editor\Panels\HierarchyPanel\HierarchyPanel.cpp" />
+    <ClCompile Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.cpp" />
+    <ClCompile Include="Source\Editor\Panels\PanelManager\PanelManager.cpp" />
+    <ClCompile Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.cpp" />
     <ClCompile Include="Source\Engine\Camera\CameraBase.cpp" />
     <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\Context\Context.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\Context\FrameContext\FrameContext.cpp" />
-    <ClCompile Include="Source\Engine\EditorUI\Core\Context\WidgetInteractionState\WidgetInteractionState.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\Context\WidgetInteraction\WidgetInteraction.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Core\Context\WidgetInteractionState\WidgetInteractionState.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\Context\WindowInteraction\WindowInteraction.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\Context\WindowManager\WindowManager.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\DrawList\DrawList.cpp" />
@@ -371,8 +384,11 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\EditorUI\Render\UIFrameGeometry\UIFrameGeometry.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Text\Font\Font.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Text\TextLayout\TextLayout.cpp" />
-    <ClCompile Include="Source\Engine\EditorUI\Widgets\Widgets.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Widgets\ColorWidgets.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Widgets\ContainerWidgets.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Widgets\ValueWidgets.cpp" />
+    <ClCompile Include="Source\Engine\EditorUI\Widgets\Widgets.cpp" />
+    <ClCompile Include="Source\Engine\Effect\GpuParticleSystem\GpuParticleSystem.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\MeshletComponent\MeshletComponent.cpp" />
     <ClCompile Include="Source\Engine\GameObject\Components\TransformComponent\TransformComponent.cpp" />
@@ -382,9 +398,9 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\Input\KeyboardInput\KeyboardInput.cpp" />
     <ClCompile Include="Source\Engine\Input\MouseInput\MouseInput.cpp" />
     <ClCompile Include="Source\Engine\Mesh\Material\Material.cpp" />
+    <ClCompile Include="Source\Engine\Mesh\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Engine\Mesh\MeshletResource\MeshletResource.cpp" />
     <ClCompile Include="Source\Engine\Mesh\MeshLoader\MeshLoader.cpp" />
-    <ClCompile Include="Source\Engine\Mesh\Mesh\Mesh.cpp" />
     <ClCompile Include="Source\Engine\Mesh\PolygonMeshResource\PolygonMeshResource.cpp" />
     <ClCompile Include="Source\Engine\Renderer\GraphicsView\GraphicsView.cpp" />
     <ClCompile Include="Source\Engine\Renderer\PostProcess\PostProcessEffects\BloomEffect\BloomEffect.cpp" />
@@ -395,6 +411,7 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\Renderer\RenderQueue\MeshletRenderQueue\MeshletRenderQueue.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderQueue\RenderQueue.cpp" />
     <ClCompile Include="Source\Engine\Renderer\SceneRenderer\SceneRenderer.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\ViewportTarget\ViewportTarget.cpp" />
     <ClCompile Include="Source\Engine\RHI\Core\CommandList\CommandList.cpp" />
     <ClCompile Include="Source\Engine\RHI\Core\Device\Device.cpp" />
     <ClCompile Include="Source\Engine\RHI\Core\Fence\Fence.cpp" />
@@ -423,18 +440,6 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Engine\Utility\StringUtil\StringUtil.cpp" />
     <ClCompile Include="Source\Game\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\Engine\EditorUI\Widgets\ContainerWidgets.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\ViewportTarget\ViewportTarget.cpp" />
-    <ClCompile Include="Source\Editor\Assets\AssetDatabase.cpp" />
-    <ClCompile Include="Source\Editor\Effect\EffectAsset.cpp" />
-    <ClCompile Include="Source\Editor\Effect\EffectPreview.cpp" />
-    <ClCompile Include="Source\Editor\Panels\PanelManager\PanelManager.cpp" />
-    <ClCompile Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.cpp" />
-    <ClCompile Include="Source\Editor\Panels\HierarchyPanel\HierarchyPanel.cpp" />
-    <ClCompile Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.cpp" />
-    <ClCompile Include="Source\Editor\Panels\ContentBrowserPanel\ContentBrowserPanel.cpp" />
-    <ClCompile Include="Source\Editor\Panels\EffectEditorPanel\EffectEditorPanel.cpp" />
-    <ClCompile Include="Source\Editor\EditorApp\EditorApp.cpp" />
     <ClCompile Include="Source\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -455,6 +460,21 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <None Include="Source\Engine\Shader\Mesh\StandardMesh\StandardMeshShader.hlsli" />
     <SlangTask Include="Source\Engine\Shader\EditorUIShader\UIPixelShader.slang" />
     <SlangTask Include="Source\Engine\Shader\EditorUIShader\UIVertexShader.slang" />
+    <SlangTask Include="Source\Engine\Shader\ParticleShader\ParticleEmit.slang">
+      <ShaderType>Compute</ShaderType>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\ParticleShader\ParticleSimulate.slang">
+      <ShaderType>Compute</ShaderType>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\ParticleShader\ParticleFinalize.slang">
+      <ShaderType>Compute</ShaderType>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\ParticleShader\ParticleVS.slang">
+      <ShaderType>Vertex</ShaderType>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\ParticleShader\ParticlePS.slang">
+      <ShaderType>Pixel</ShaderType>
+    </SlangTask>
     <SlangTask Include="Source\Engine\Shader\slangTest\CoopVecMatMulTest.slang">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_6_10</ShaderModel>
