@@ -210,48 +210,90 @@ EditorUI::Font* EditorUI::Context::GetFont() const
 
 // -------------------------------------------------------------------------------
 // ウィンドウ開始
+// 
+// Windowの永続状態を取得し、このフレームだけ有効なWindowFrameを構築する
+// この関数では主に次を構築する
+// ・WindowIdと永続WindowState
+// ・初回/強制配置
+// ・Dock/Floatingのどちらとして描くか
+// ・Window/Contentの矩形
+// ・TitleBar/TabBarの操作
+// ・Scroll入力
+// ・Widgetが使用するContentOrigin/ClipRect
+// 
+// WindowStateはフレームをまたいで残る永続状態、WindowFrameは今フレームだけの描画・レイアウト情報
 // -------------------------------------------------------------------------------
 bool EditorUI::Context::BeginWindow(std::string_view _title, bool* _isOpen, EditorUI::WindowFlags _flags)
 {
 	if (_isOpen != nullptr && !*_isOpen)
 	{ return false; }
 
+	// -------------------------------------------------------------------------------
+	// WindowIdと永続WindowStateを取得
+	// -------------------------------------------------------------------------------
+
+	// 現在のIdStackのスコープをseedとしてタイトルをHash化し、このWindowを識別する一意のIdを取得
 	const EditorUI::Id id			= m_IdStack.GetId(_title);
+	// 初回だけSetNextWindowPlacementを適用するために使用
 	const bool isNewWindow			= !m_WindowManager.Contains(id);
+	// Windowの永続状態を取得
 	EditorUI::WindowState& state	= m_WindowManager.GetOrCreate(id);
 
 	// タイトルはタイトルバーとタブの表示に使うため、毎フレーム最新に保つ
 	state.Title = std::string(_title);
 
 	// -------------------------------------------------------------------------------
-	// 前フレームに×ボタンが押されていた場合、ここで呼び出し側の変数へ反映する
-	// EditorUI側から直接書き換えず、要求として1フレーム持ち越すことで
-	// 「描画中に呼び出し側の状態が変わる」ことを避けている
+	// 前フレームで発生したClose要求を呼び出し側に反映
+	// ×ボタンが押された瞬間に*_isOpenを書き換えるのではなく、
+	// WindowStateへCloseRequestedだけを記録し、次のBeginWindowで反映する
+	// 安全なBeginWindowのタイミングまで1フレーム遅延させる
 	// -------------------------------------------------------------------------------
 	if (state.CloseRequested)
 	{
+		// Close要求は今回処理したため、消費する
 		state.CloseRequested = false;
 
 		if (_isOpen != nullptr)
 		{
+			// Contextからこのboolを通して閉じたことを通知
 			*_isOpen = false;
 			return false;
 		}
 	}
 
+	// -------------------------------------------------------------------------------
+	// SetNextWindowPlacementによる配置指定を反映
+	// -------------------------------------------------------------------------------
+
 	// 配置指定は「初回生成時」か「強制指定(ポップアップ)」のときだけ適用する
+	// 毎フレームしてしまうと、Move/Resizeするたびに次フレームで元に戻ってしまうため。
+	// Forcedの場合はPopupやMenuBarなど、毎フレーム位置を外部から決定するWindowなので、既存Windowにも適用
 	if (m_NextWindow.Pending && (isNewWindow || m_NextWindow.Forced))
 	{
 		state.Position = m_NextWindow.Position;
+		// 最低サイズ保証
 		state.Size.x = (std::max)(60.0f, m_NextWindow.Size.x);
 		state.Size.y = (std::max)(20.0f, m_NextWindow.Size.y);
 	}
+	// SetNextWindow系の処理は、次の1つのWindowだけに適用するため、BeginWindowで必ずfalseに戻す
 	m_NextWindow.Pending = false;
 	m_NextWindow.Forced  = false;
 
+	// 今フレーム有効なWindowとして扱う
 	m_WindowManager.MarkActive(id);
+	// Window内部用のIdスコープへ入る
+	// 先ほどのGetIdはWindow自身のIdを取得するだけで、IdStackの状態は変更していない。
+	// ここでWindowIdをStackへPushすることで、以降このWindowで
+	// GetId("Button")のようにWidgetIdを生成した場合には、実際には
+	// RootSeet - Hash("Inspector") - InspectorのSeed - Hash("Button") - Inspector内部のButtonId
+	// という階層的なIdになる
+	// そのため、別Windowにも同名の"Button"が存在していても、Idが衝突しない
+	// EndWindowで必ずPopして、このWindowスコープから抜ける
 	m_IdStack.PushString(_title);
 
+	// -------------------------------------------------------------------------------
+	// 今フレーム専用のWindowFrameを生成
+	// -------------------------------------------------------------------------------
 	EditorUI::WindowFrame& frame = m_FrameContext.PushWindowFrame(state, _flags);
 
 	// ポップアップはドッキングの対象外なので、ドック情報を引かない
@@ -411,12 +453,23 @@ void EditorUI::Context::SetNextWindowPlacement(const DirectX::XMFLOAT2& _positio
 	m_NextWindow.Size		= _size;
 }
 
+// -------------------------------------------------------------------------------
+// 次のWindowだけContentPaddingを上書き
+// 
+// MenuBarやPopupのように通常Windowと異なる余白が必要な場合に使用する
+// 指定はBeginWindow内で消費され、後続Windowへ持ち越さない。
+// -------------------------------------------------------------------------------
 void EditorUI::Context::SetNextWindowPadding(const DirectX::XMFLOAT2& _padding)
 {
 	m_NextPadding.Pending	= true;
 	m_NextPadding.Value		= _padding;
 }
 
+// -------------------------------------------------------------------------------
+// 次のWindowの配置を強制指定
+// 
+// Popupや固定MenuBarなど、既存のWindowStateが持つ位置よりも呼び出し側が毎フレーム決める位置を優先したい場合に使用
+// -------------------------------------------------------------------------------
 void EditorUI::Context::SetNextWindowPlacementForced(const DirectX::XMFLOAT2& _position, const DirectX::XMFLOAT2& _size)
 {
 	m_NextWindow.Pending	= true;

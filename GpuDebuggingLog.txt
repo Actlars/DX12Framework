@@ -1,6 +1,6 @@
 Timeout notification received from the OS
 Starting DirectX dump file creation
-Dump full path is C:\Users\gouma\AppData\Local\CrashDumps\DX12Framework-2026-07-19-16-25-37.dxdmp_preview
+Dump full path is C:\Users\gouma\AppData\Local\CrashDumps\DX12Framework-2026-08-26-00-26-07.dxdmp_preview
 Writing application description
 Writing device configuration description
 Writing DirectX dump file capabilities and configuration
@@ -15,5 +15,5 @@ Collecting a debug blob is not supported by this UMD
 Writing D3D objects
 Writing D3D12 journal
 DirectX dump file creation completed
-Watson: Copied dump to C:\Users\gouma\AppData\Local\WerCrashDumps\DX12Framework-2026-07-19-16-25-37.dxdmp_preview
+Watson: Copied dump to C:\Users\gouma\AppData\Local\WerCrashDumps\DX12Framework-2026-08-26-00-26-07.dxdmp_preview
 Watson: Dump prepared and event signaled

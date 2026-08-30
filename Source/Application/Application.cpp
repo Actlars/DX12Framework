@@ -88,7 +88,7 @@ void Application::Run()
 //	1. ウィンドウ → デバイス		描画先が決まってからでないとデバイスを作れない
 //	2. シーン						テクスチャ転送でコマンドキューを使う
 //	3. EditorUIレンダラ → フォント	フォントはアトラスの登録先を必要とする
-//	4. ビューポート → EditorApp		EditorAppはビューポートを参照する
+//	4. ビューポート → EditorApp	EditorAppはビューポートを参照する
 // -------------------------------------------------------------------------------
 bool Application::Init()
 {
@@ -143,6 +143,7 @@ bool Application::Init()
         { 0.0f,0.0f }, { static_cast<float>(m_Width),static_cast<float>(m_Height) });
     m_EditorUIContext.InitDockSpace(screenBounds);
 
+    // フォントをGPUTextureにアップロードする
     if (!m_Font.Build(L"Yu Gothic UI", 16.0f, m_GraphicsView.GetDevice(), &m_EditorUIRenderer))
     {
         ELOG("Application::Init() : Font::Build failed");
@@ -160,7 +161,7 @@ bool Application::Init()
         return false;
     }
 
-    // ─── エディタ本体 ───
+    // エディタ本体の作成
     if (!m_EditorApp.Init(
         &m_EditorUIContext, &m_Font, &m_ViewportTarget, &m_SceneManager,
         m_GraphicsView.GetDevice(), &m_EditorUIRenderer, ContentRootPath))
@@ -249,6 +250,19 @@ void Application::Tick()
                             / static_cast<float>(m_Frequency.QuadPart);
 
     m_PrevTime = now;
+
+    // -------------------------------------------------------------------------------
+    // ウィンドウサイズの変更をここで反映する
+    //
+    // 描画にもUIのレイアウトにも関わるため、フレームの一番最初に済ませる
+    // -------------------------------------------------------------------------------
+    ApplyPendingResize();
+
+    // 最小化中は描画先が存在しないため、フレームごと省く
+    if (m_IsMinimized)
+    {
+        return;
+    }
 
     // 入力更新
     m_InputManager.Update();
@@ -460,9 +474,21 @@ bool Application::InitWnd()
 
     m_hInst = hInst;
 
-    // クライアント領域が Width × Height になるようにウィンドウサイズを調整
+    // -------------------------------------------------------------------------------
+    // ウィンドウスタイル
+    //
+    //  WS_OVERLAPPEDWINDOW は次をまとめて含む
+    //      WS_CAPTION      タイトルバー
+    //      WS_SYSMENU      システムメニュー（右クリックで出るメニュー）
+    //      WS_THICKFRAME   ドラッグでサイズを変えられる枠
+    //      WS_MINIMIZEBOX  最小化ボタン
+    //      WS_MAXIMIZEBOX  最大化ボタン
+    //
+    //  以前は WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU だったため、
+    //  枠を掴んでも伸ばせず、最大化ボタンも出ていなかった
+    // -------------------------------------------------------------------------------
     RECT rc = { 0, 0, static_cast<LONG>(m_Width), static_cast<LONG>(m_Height) };
-    const auto style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+    const auto style = WS_OVERLAPPEDWINDOW;
     AdjustWindowRect(&rc, style, FALSE);
 
     // 最後の引数(lpParam)でthisを渡す
@@ -521,6 +547,74 @@ void Application::HandleWindowMessage(UINT _msg, WPARAM _wp, LPARAM _lp)
     // ホイール量・確定文字・キーの押下通知は、ポーリングでは取得できない
     // メッセージが届いたこの場でInputManagerへ渡し、次のUpdateで確定させる
     m_InputManager.ProcessWindowMessage(_msg, _wp, _lp);
+
+    switch (_msg)
+    {
+    case WM_SIZE:
+    {
+        // -------------------------------------------------------------------------------
+        // 新しいクライアント領域の大きさを控えるだけにする
+        //
+        // ここでバックバッファを作り直すと、描画の途中で差し替わる恐れがある
+        // 実際の反映は次のフレームの先頭（ApplyPendingResize）で行う
+        // -------------------------------------------------------------------------------
+        m_IsMinimized = (_wp == SIZE_MINIMIZED);
+
+        const uint32_t width  = static_cast<uint32_t>(LOWORD(_lp));
+        const uint32_t height = static_cast<uint32_t>(HIWORD(_lp));
+
+        if (!m_IsMinimized && width > 0 && height > 0)
+        {
+            m_PendingWidth   = width;
+            m_PendingHeight  = height;
+            m_ResizePending  = true;
+        }
+        break;
+    }
+
+    default:
+        break;
+    }
+}
+
+// -------------------------------------------------------------------------------
+// 予約されたサイズ変更の反映
+// -------------------------------------------------------------------------------
+void Application::ApplyPendingResize()
+{
+    if (!m_ResizePending)
+    {
+        return;
+    }
+
+    m_ResizePending = false;
+
+    // 同じ大きさなら何もしない
+    if (m_PendingWidth == m_Width && m_PendingHeight == m_Height)
+    {
+        return;
+    }
+
+    // バックバッファ・深度バッファ・ビューポートをまとめて作り直す
+    if (!m_GraphicsView.Resize(m_PendingWidth, m_PendingHeight))
+    {
+        ELOG("Application::ApplyPendingResize() GraphicsView::Resize failed");
+        return;
+    }
+
+    m_Width  = m_PendingWidth;
+    m_Height = m_PendingHeight;
+
+    // -------------------------------------------------------------------------------
+    // UI側の画面サイズもここで更新する
+    //
+    // ドッキング領域はこの矩形から計算されるため、
+    // 更新しないとパネルが古い大きさのまま取り残される
+    // -------------------------------------------------------------------------------
+    m_EditorUIContext.UpdateDockSpaceLayout(
+        EditorUI::MakeRect(
+            { 0.0f, 0.0f },
+            { static_cast<float>(m_Width), static_cast<float>(m_Height) }));
 }
 
 // -------------------------------------------------------------------------------

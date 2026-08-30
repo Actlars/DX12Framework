@@ -34,6 +34,9 @@
     <ClCompile Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.cpp">
       <Filter>Editor\Panels\ViewportPanel</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.cpp">
+      <Filter>Editor\Scene\GameObjectFactory</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\Camera\CameraBase.cpp">
       <Filter>Engine\Camera</Filter>
     </ClCompile>
@@ -289,6 +292,9 @@
     </ClInclude>
     <ClInclude Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.h">
       <Filter>Editor\Panels\ViewportPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.h">
+      <Filter>Editor\Scene\GameObjectFactory</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Selection\Selection.h">
       <Filter>Editor\Selection</Filter>
@@ -730,6 +736,12 @@
     </Filter>
     <Filter Include="Editor\Panels\ViewportPanel">
       <UniqueIdentifier>{ea33dfa8-5afa-4a86-9f1f-a1301c65852b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Scene">
+      <UniqueIdentifier>{8ffb5e69-8e42-e40a-6e06-08562b1f4e1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Scene\GameObjectFactory">
+      <UniqueIdentifier>{1408b4e0-1cbe-797f-9412-480cea36c2cd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Editor\Selection">
       <UniqueIdentifier>{212321f9-0bfe-4266-a7d9-f71987ae1edb}</UniqueIdentifier>

@@ -6,6 +6,7 @@
 #include <Engine/EditorUI/Widgets/Widgets.h>
 #include <Engine/GameObject/GameObjectManager.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
+#include <Editor/Scene/GameObjectFactory/GameObjectFactory.h>
 
 namespace
 {
@@ -176,18 +177,15 @@ void Editor::HierarchyPanel::DrawContextMenu(EditorContext& _ctx, GameObject* _p
 	EditorUI::Context&	ui		= *_ctx.pUI;
 	EditorUI::Font&		font	= *_ctx.pFont;
 
-	GameObjectManager&	objects		= *_ctx.pObjects;
-	Selection&			selection	= *_ctx.pSelection;
-
 	// -------------------------------------------------------------------------------
 	// 作成
+	//
+	// 実際の処理は GameObjectFactory が持つ
+	// メニューバーの「作成」と同じ関数を呼ぶため、挙動が食い違わない
 	// -------------------------------------------------------------------------------
 	if (EditorUI::MenuItem(ui, font, "空のオブジェクトを作成"))
 	{
-		GameObject* pCreated = objects.Add<GameObject>("New Object");
-		pCreated->AddComponent<TransformComponent>();
-
-		selection.SelectObject(pCreated);
+		GameObjectFactory::CreateEmpty(_ctx, "New Object");
 	}
 
 	if (_pTarget == nullptr)
@@ -202,21 +200,7 @@ void Editor::HierarchyPanel::DrawContextMenu(EditorContext& _ctx, GameObject* _p
 	// -------------------------------------------------------------------------------
 	if (EditorUI::MenuItem(ui, font, "複製"))
 	{
-		// Componentまでは複製せず、名前と位置だけを引き継ぐ
-		// 完全な複製にはComponentのクローン機構が必要になるため、ここでは踏み込まない
-		GameObject* pCopy = objects.Add<GameObject>(_pTarget->GetName() + " (Copy)");
-
-		auto* pCopyTransform	= pCopy->AddComponent<TransformComponent>();
-		auto* pSourceTransform	= _pTarget->GetComponent<TransformComponent>();
-
-		if (pCopyTransform != nullptr && pSourceTransform != nullptr)
-		{
-			pCopyTransform->SetPosition(pSourceTransform->GetPosition());
-			pCopyTransform->SetRotation(pSourceTransform->GetRotation());
-			pCopyTransform->SetScale(pSourceTransform->GetScale());
-		}
-
-		selection.SelectObject(pCopy);
+		GameObjectFactory::Duplicate(_ctx, _pTarget);
 	}
 
 	if (EditorUI::MenuItem(ui, font, _pTarget->IsActive() ? "非アクティブにする" : "アクティブにする"))
@@ -228,15 +212,9 @@ void Editor::HierarchyPanel::DrawContextMenu(EditorContext& _ctx, GameObject* _p
 
 	if (EditorUI::MenuItem(ui, font, "削除"))
 	{
-		// 実際の削除はフレーム末のFlushPendingRemovesで行われる
-		objects.Remove(_pTarget);
+		GameObjectFactory::Destroy(_ctx, _pTarget);
 
-		// 消える対象を選んだままにしないよう、ここで選択を外す
-		if (selection.GetObject() == _pTarget)
-		{
-			selection.Clear();
-		}
-
+		// 消えたオブジェクトを指したままにしない
 		m_pContextTarget = nullptr;
 	}
 }

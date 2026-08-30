@@ -249,6 +249,7 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.h" />
     <ClInclude Include="Source\Editor\Panels\PanelManager\PanelManager.h" />
     <ClInclude Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.h" />
+    <ClInclude Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.h" />
     <ClInclude Include="Source\Editor\Selection\Selection.h" />
     <ClInclude Include="Source\Engine\Camera\CameraBase.h" />
     <ClInclude Include="Source\Engine\Camera\FPSCamera\FPSCamera.h" />
@@ -368,6 +369,7 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.cpp" />
     <ClCompile Include="Source\Editor\Panels\PanelManager\PanelManager.cpp" />
     <ClCompile Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.cpp" />
+    <ClCompile Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.cpp" />
     <ClCompile Include="Source\Engine\Camera\CameraBase.cpp" />
     <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp" />
     <ClCompile Include="Source\Engine\EditorUI\Core\Context\Context.cpp" />

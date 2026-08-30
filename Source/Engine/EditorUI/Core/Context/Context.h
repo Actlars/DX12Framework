@@ -187,12 +187,12 @@ namespace EditorUI
 		const DirectX::XMFLOAT2& GetMousePos() const;
 		DirectX::XMFLOAT2 GetMouseDelta() const;
 		float GetMouseWheel() const;
-		bool IsMouseDown(MouseButton _button) const;
-		bool IsMouseClicked(MouseButton _button) const;
-		bool IsMouseReleased(MouseButton _button) const;
-		bool IsMouseDoubleClicked(MouseButton _button) const;
-		bool IsKeyDown(Key _key) const;
-		bool IsKeyPressed(Key _key) const;
+		bool  IsMouseDown(MouseButton _button) const;
+		bool  IsMouseClicked(MouseButton _button) const;
+		bool  IsMouseReleased(MouseButton _button) const;
+		bool  IsMouseDoubleClicked(MouseButton _button) const;
+		bool  IsKeyDown(Key _key) const;
+		bool  IsKeyPressed(Key _key) const;
 		const std::wstring& GetInputCharacters() const;
 
 		// 前フレームからの経過時間(秒)と、起動からの累積時間(秒)
@@ -219,14 +219,14 @@ namespace EditorUI
 		float GetStorageFloat(Id _id, float _defaultValue) const;
 		void  SetStorageFloat(Id _id, float _value);
 
-		Id GetActiveId() const;
+		Id   GetActiveId() const;
 		bool IsActiveId(Id _id) const;
 		bool IsAnyItemActive() const;
 		void SetActive(Id _id);
 		void ClearActiveId(Id _id);
 		void KeepActiveIdAlive(Id _id);
 
-		Id GetHoveredId() const;
+		Id	 GetHoveredId() const;
 		bool IsHoveredId(Id _id) const;
 		void SetHoveredId(Id _id);
 
@@ -290,11 +290,11 @@ namespace EditorUI
 			Id					WindowId = 0;			// 対応するウィンドウのId
 		};
 
-		void ProcessPendingDestroyWindows();
-		bool TryGetWindowRect(Id _windowId, Rect2D& _outRect) const;
-		Id FindTopmostWindowAt(const DirectX::XMFLOAT2& _point) const;
-		void HandleWindowFocusClick();
-		void ApplyDockTabResult(const DockTabInteractionResult& _result);
+		void	ProcessPendingDestroyWindows();
+		bool	TryGetWindowRect(Id _windowId, Rect2D& _outRect) const;
+		Id		FindTopmostWindowAt(const DirectX::XMFLOAT2& _point) const;
+		void	HandleWindowFocusClick();
+		void	ApplyDockTabResult(const DockTabInteractionResult& _result);
 
 		void SetupWindowGeometry(
 			WindowFrame& _frame,
