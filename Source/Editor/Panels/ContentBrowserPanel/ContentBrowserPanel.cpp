@@ -9,6 +9,7 @@
 #include <Editor/Panels/PanelManager/PanelManager.h>
 #include <Editor/Panels/EffectEditorPanel/EffectEditorPanel.h>
 #include <Editor/Effect/EffectAsset.h>
+#include <Editor/Prefab/PrefabSystem/PrefabSystem.h>
 
 namespace
 {
@@ -229,6 +230,17 @@ void Editor::ContentBrowserPanel::OpenEntry(EditorContext& _ctx, const AssetEntr
 	{
 		EffectEditorPanel::OpenForAsset(_ctx, _entry.Path);
 	}
+
+	// -------------------------------------------------------------------------------
+	// プレファブは「シーンへ置く」ことが開くことにあたる
+	//
+	// 設計図を眺めても仕方がないため、専用の編集画面は用意していない
+	// 置いたオブジェクトをインスペクタで直し、必要なら保存し直す流れになる
+	// -------------------------------------------------------------------------------
+	if (_entry.Type == AssetType::Prefab)
+	{
+		PrefabSystem::InstantiateFromFile(_ctx, _entry.Path);
+	}
 }
 
 // -------------------------------------------------------------------------------
@@ -249,6 +261,20 @@ void Editor::ContentBrowserPanel::DrawContextMenu(EditorContext& _ctx, const Ass
 		{
 			// メニューを閉じたあとに開く必要はないため、その場で実行してよい
 			OpenEntry(_ctx, *_pTarget);
+		}
+
+		// -------------------------------------------------------------------------------
+		// プレファブだけの操作
+		//
+		// ダブルクリックと同じことをするが、
+		// メニューに項目として出しておくと「置ける」ことが分かる
+		// -------------------------------------------------------------------------------
+		if (_pTarget->Type == AssetType::Prefab)
+		{
+			if (EditorUI::MenuItem(ui, font, "シーンへ配置", _ctx.pObjects != nullptr))
+			{
+				PrefabSystem::InstantiateFromFile(_ctx, _pTarget->Path);
+			}
 		}
 
 		if (EditorUI::MenuItem(ui, font, "削除"))

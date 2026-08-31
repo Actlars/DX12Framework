@@ -17,6 +17,7 @@ namespace Editor
 	{
 		Folder,
 		Effect,		// .effect  Niagara風のエフェクトエディタで開く
+		Prefab,		// .prefab  ダブルクリックでシーンへ配置する「オブジェクトの設計図」
 		Scene,		// .scene
 		Model,		// .fbx / .obj / .gltf
 		Texture,	// .png / .jpg / .dds

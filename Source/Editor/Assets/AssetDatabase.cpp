@@ -361,6 +361,7 @@ Editor::AssetType Editor::AssetDatabase::ClassifyPath(const std::filesystem::pat
 	const std::string extension = ToLower(_path.extension().string());
 
 	if (extension == ".effect")							{ return AssetType::Effect;  }
+	if (extension == ".prefab")							{ return AssetType::Prefab;  }
 	if (extension == ".scene")							{ return AssetType::Scene;   }
 	if (extension == ".fbx" || extension == ".obj" ||
 		extension == ".gltf" || extension == ".glb")	{ return AssetType::Model;   }
@@ -385,6 +386,7 @@ std::string_view Editor::AssetDatabase::GetTypeLabel(AssetType _type)
 	{
 	case AssetType::Folder:		return "FOLDER";
 	case AssetType::Effect:		return "EFFECT";
+	case AssetType::Prefab:		return "PREFAB";
 	case AssetType::Scene:		return "SCENE";
 	case AssetType::Model:		return "MODEL";
 	case AssetType::Texture:	return "TEX";

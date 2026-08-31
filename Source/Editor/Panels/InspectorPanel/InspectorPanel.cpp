@@ -5,16 +5,23 @@
 
 #include <Engine/EditorUI/Widgets/Widgets.h>
 #include <Engine/GameObject/GameObject.h>
-#include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
+
 #include <Editor/Assets/AssetDatabase.h>
+#include <Editor/Commands/ComponentCommands/ComponentCommands.h>
+#include <Editor/Commands/ObjectCommands/ObjectCommands.h>
+#include <Editor/Components/ComponentRegistry/ComponentRegistry.h>
 #include <Editor/Panels/PanelManager/PanelManager.h>
 #include <Editor/Panels/EffectEditorPanel/EffectEditorPanel.h>
+#include <Editor/Prefab/PrefabSystem/PrefabSystem.h>
 
 namespace
 {
 	// インスペクタ全体で共有するレイアウト
 	// 同じ値を使うことで、どの行もラベルの右端がそろう
 	constexpr EditorUI::PropertyLayout kInspectorLayout{ 88.0f, 0.0f, 4.0f };
+
+	// 「コンポーネントを追加」で開くメニュー。Idの元になるためパネル内で一意にする
+	constexpr std::string_view kAddComponentMenu = "InspectorAddComponentMenu";
 }
 
 // -------------------------------------------------------------------------------
@@ -66,8 +73,48 @@ void Editor::InspectorPanel::OnGUI(EditorContext& _ctx)
 
 // -------------------------------------------------------------------------------
 // GameObjectの中身
+//
+// 上から
+//	1. 基本情報（名前・アクティブ・ID）
+//	2. 持っているコンポーネント
+//	3. コンポーネントの追加と、プレファブとしての保存
 // -------------------------------------------------------------------------------
 void Editor::InspectorPanel::DrawObjectInspector(EditorContext& _ctx, GameObject& _object)
+{
+	EditorUI::Context& ui = *_ctx.pUI;
+
+	DrawObjectHeader(_ctx, _object);
+
+	EditorUI::Separator(ui);
+
+	DrawComponentSections(_ctx, _object);
+
+	EditorUI::Separator(ui);
+
+	DrawAddComponentMenu(_ctx, _object);
+
+	// -------------------------------------------------------------------------------
+	// プレファブとして保存
+	//
+	// 今の構成を設計図としてコンテンツフォルダへ書き出す
+	// 以後は同じ構成をいくつでも置けるようになる
+	// -------------------------------------------------------------------------------
+	if (EditorUI::Button(ui, "プレファブとして保存", *_ctx.pFont, { 200.0f, 24.0f }))
+	{
+		std::filesystem::path savedPath;
+
+		if (PrefabSystem::SaveToContent(_ctx, _object, savedPath))
+		{
+			// 保存先が分かるよう、作られたファイルをそのまま選択する
+			_ctx.pSelection->SelectAsset(savedPath);
+		}
+	}
+}
+
+// -------------------------------------------------------------------------------
+// 基本情報
+// -------------------------------------------------------------------------------
+void Editor::InspectorPanel::DrawObjectHeader(EditorContext& _ctx, GameObject& _object)
 {
 	EditorUI::Context&	ui		= *_ctx.pUI;
 	EditorUI::Font&		font	= *_ctx.pFont;
@@ -86,85 +133,137 @@ void Editor::InspectorPanel::DrawObjectInspector(EditorContext& _ctx, GameObject
 
 	if (EditorUI::Property(ui, font, "Name", &m_NameBuffer, {}, kInspectorLayout))
 	{
-		_object.SetName(m_NameBuffer);
+		// -------------------------------------------------------------------------------
+		// 確定した時点で履歴へ積む
+		//
+		// 重複する名前は連番が足されるため、実際に付いた名前を写し直す
+		// そうしないと、入力欄と表示名が食い違ったままになる
+		// -------------------------------------------------------------------------------
+		ObjectCommands::Rename(_ctx, &_object, m_NameBuffer);
+
+		m_NameBuffer = _object.GetName();
 	}
 
 	bool active = _object.IsActive();
 	if (EditorUI::Property(ui, font, "Active", &active, kInspectorLayout))
 	{
-		_object.SetActive(active);
+		ObjectCommands::SetActive(_ctx, &_object, active);
 	}
 
 	EditorUI::TextMuted(ui, font, "ID : " + std::to_string(_object.GetID()));
-
-	EditorUI::Separator(ui);
-
-	// -------------------------------------------------------------------------------
-	// コンポーネント
-	// 今はTransformのみ対応。ほかのコンポーネントも同じ形で足していける
-	// -------------------------------------------------------------------------------
-	DrawTransformSection(_ctx, _object);
 }
 
 // -------------------------------------------------------------------------------
-// Transformの編集
+// 持っているコンポーネントを並べる
 //
-// GameObjectが実際に持っている値を直接読み書きするため、
-// 編集した結果はそのままシーンの見た目に反映される
+// 並び順は ComponentRegistry の登録順
+// オブジェクトごとに順番が変わらないため、目で追いやすくなる
 // -------------------------------------------------------------------------------
-void Editor::InspectorPanel::DrawTransformSection(EditorContext& _ctx, GameObject& _object)
+void Editor::InspectorPanel::DrawComponentSections(EditorContext& _ctx, GameObject& _object)
 {
 	EditorUI::Context&	ui		= *_ctx.pUI;
 	EditorUI::Font&		font	= *_ctx.pFont;
 
-	auto* pTransform = _object.GetComponent<TransformComponent>();
-	if (pTransform == nullptr)
+	bool anyComponent = false;
+
+	for (const ComponentTypeInfo& info : ComponentRegistry::GetAll())
 	{
-		EditorUI::TextMuted(ui, font, "TransformComponent がありません");
-		return;
+		if (info.Has == nullptr || !info.Has(_object))
+		{
+			continue;	// 持っていない型は並べない
+		}
+
+		anyComponent = true;
+
+		DrawComponentSection(_ctx, _object, info);
 	}
 
-	if (!EditorUI::CollapsingHeader(ui, font, "Transform"))
+	if (!anyComponent)
 	{
-		return;
+		EditorUI::TextMuted(ui, font, "コンポーネントがありません");
 	}
+}
+
+// -------------------------------------------------------------------------------
+// コンポーネント1つぶんの枠
+// -------------------------------------------------------------------------------
+void Editor::InspectorPanel::DrawComponentSection(
+	EditorContext&				_ctx,
+	GameObject&					_object,
+	const ComponentTypeInfo&	_typeInfo)
+{
+	EditorUI::Context&	ui		= *_ctx.pUI;
+	EditorUI::Font&		font	= *_ctx.pFont;
 
 	// -------------------------------------------------------------------------------
-	// コンポーネント側はSet経由でしか書き換えられないため、
-	// いったんローカルへ取り出し、変化があったときだけ書き戻す
+	// 型ごとにIdの範囲を分ける
+	//
+	// MeshとMeshletはどちらも "Visible" という行を持つ
+	// 同じ名前のままだとEditorUIが同じウィジェットとみなしてしまうため、
+	// 型ごとの目印でスコープを切っておく
 	// -------------------------------------------------------------------------------
-	DirectX::XMFLOAT3 position	= pTransform->GetPosition();
-	DirectX::XMFLOAT3 rotation	= pTransform->GetRotation();
-	DirectX::XMFLOAT3 scale		= pTransform->GetScale();
+	ui.GetIdStack().PushPtr(&_typeInfo);
 
-	if (EditorUI::Property(ui, font, "Position", &position, {}, kInspectorLayout))
+	if (EditorUI::CollapsingHeader(ui, font, _typeInfo.DisplayName))
 	{
-		pTransform->SetPosition(position);
+		// 中身は型ごとの担当へ任せる
+		if (_typeInfo.DrawInspector != nullptr)
+		{
+			_typeInfo.DrawInspector(_ctx, _object);
+		}
+
+		// -------------------------------------------------------------------------------
+		// 取り外し
+		//
+		// Transformのように外せない型ではボタン自体を出さない
+		// 押せないボタンを並べるより、無いほうが迷わない
+		// -------------------------------------------------------------------------------
+		if (_typeInfo.IsRemovable)
+		{
+			if (EditorUI::Button(ui, "コンポーネントを削除", font, { 180.0f, 22.0f }))
+			{
+				ComponentCommands::Remove(_ctx, &_object, _typeInfo);
+			}
+		}
 	}
 
-	// 回転は角度なので、-360～360に制限しつつ少し速めに動かす
-	EditorUI::NumericEditorOptions<float> rotationOptions;
-	rotationOptions.Min			= -360.0f;
-	rotationOptions.Max			=  360.0f;
-	rotationOptions.DragSpeed	= 0.5L;
-	rotationOptions.Precision	= 1;
-	rotationOptions.Step		= 0.0f;		// 丸めずに、そのままの値を扱う
+	ui.GetIdStack().Pop();
+}
 
-	if (EditorUI::Property(ui, font, "Rotation", &rotation, rotationOptions, kInspectorLayout))
+// -------------------------------------------------------------------------------
+// コンポーネントの追加
+//
+// 一覧は ComponentRegistry から作る
+// すでに持っている型は選べないようにして、押しても何も起きない項目を無くす
+// -------------------------------------------------------------------------------
+void Editor::InspectorPanel::DrawAddComponentMenu(EditorContext& _ctx, GameObject& _object)
+{
+	EditorUI::Context&	ui		= *_ctx.pUI;
+	EditorUI::Font&		font	= *_ctx.pFont;
+
+	if (EditorUI::Button(ui, "コンポーネントを追加", font, { 200.0f, 24.0f }))
 	{
-		pTransform->SetRotation(rotation);
+		// 押したボタンの真下に開き、どのボタンから出たメニューかを分かりやすくする
+		if (const EditorUI::WindowFrame* pFrame = ui.GetCurrentWindow())
+		{
+			ui.OpenPopupAt(kAddComponentMenu,
+				{ pFrame->LastItemRect.Min.x, pFrame->LastItemRect.Max.y });
+		}
 	}
 
-	// スケールは0以下にすると表示が潰れるため、下限を設ける
-	EditorUI::NumericEditorOptions<float> scaleOptions;
-	scaleOptions.Min		= 0.01f;
-	scaleOptions.Max		= 100.0f;
-	scaleOptions.DragSpeed	= 0.01L;
-	scaleOptions.Step		= 0.0f;
-
-	if (EditorUI::Property(ui, font, "Scale", &scale, scaleOptions, kInspectorLayout))
+	if (EditorUI::BeginPopup(ui, kAddComponentMenu))
 	{
-		pTransform->SetScale(scale);
+		for (const ComponentTypeInfo& info : ComponentRegistry::GetAll())
+		{
+			const bool alreadyHas = (info.Has != nullptr && info.Has(_object));
+
+			if (EditorUI::MenuItem(ui, font, info.DisplayName, !alreadyHas))
+			{
+				ComponentCommands::Add(_ctx, &_object, info);
+			}
+		}
+
+		EditorUI::EndPopup(ui);
 	}
 }
 
@@ -218,6 +317,26 @@ void Editor::InspectorPanel::DrawAssetInspector(EditorContext& _ctx)
 		if (EditorUI::Button(ui, "エフェクトエディタで開く", font, { 200.0f, 26.0f }))
 		{
 			EffectEditorPanel::OpenForAsset(_ctx, path);
+		}
+	}
+
+	// -------------------------------------------------------------------------------
+	// プレファブは「シーンへ置く」ことが開くことにあたる
+	// -------------------------------------------------------------------------------
+	if (type == AssetType::Prefab)
+	{
+		EditorUI::Separator(ui);
+
+		const bool hasScene = (_ctx.pObjects != nullptr);
+
+		if (EditorUI::Button(ui, "シーンへ配置", font, { 200.0f, 26.0f }) && hasScene)
+		{
+			PrefabSystem::InstantiateFromFile(_ctx, path);
+		}
+
+		if (!hasScene)
+		{
+			EditorUI::TextMuted(ui, font, "シーンが読み込まれていません");
 		}
 	}
 }

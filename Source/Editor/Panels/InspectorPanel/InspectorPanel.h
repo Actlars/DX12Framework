@@ -8,6 +8,8 @@ class GameObject;
 
 namespace Editor
 {
+	struct ComponentTypeInfo;
+
 	// -------------------------------------------------------------------------------
 	// InspectorPanel class
 	//
@@ -19,9 +21,15 @@ namespace Editor
 	//	これにより「選ぶ側」のパネルが増えても、このパネルは変更しなくてよい
 	//
 	//	表示の分岐
-	//		SceneObject	… 名前・アクティブ・Transformなどのコンポーネント
+	//		SceneObject	… 名前・アクティブ・持っているコンポーネント
 	//		Asset		… ファイルの情報と、開くための操作
 	//		None		… 何も選ばれていないことの案内
+	//
+	//	コンポーネントの中身は自分で描かない
+	//	どの型をどう見せるかは ComponentRegistry / ComponentInspectors が持ち、
+	//	このパネルは見出し・折りたたみ・削除ボタンといった、
+	//	どの型でも共通する枠だけを描く
+	//	そのため、新しいコンポーネントが増えてもこのファイルは変更不要になる
 	// -------------------------------------------------------------------------------
 	class InspectorPanel : public IEditorPanel
 	{
@@ -48,16 +56,38 @@ namespace Editor
 		// GameObjectの中身を並べる
 		void DrawObjectInspector(EditorContext& _ctx, GameObject& _object);
 
-		// TransformComponentを持っていれば、その値を編集できるようにする
-		void DrawTransformSection(EditorContext& _ctx, GameObject& _object);
+		// 名前・アクティブ・IDといった、コンポーネント以前の基本情報
+		void DrawObjectHeader(EditorContext& _ctx, GameObject& _object);
+
+		// 持っているコンポーネントを、登録順に並べる
+		void DrawComponentSections(EditorContext& _ctx, GameObject& _object);
+
+		// -------------------------------------------------------------------------------
+		// @brief	コンポーネント1つぶんの枠を描く
+		//
+		//	見出し・折りたたみ・削除ボタンまでがここの担当
+		//	中身は _typeInfo が指すインスペクタ関数へ任せる
+		// -------------------------------------------------------------------------------
+		void DrawComponentSection(
+			EditorContext&				_ctx,
+			GameObject&					_object,
+			const ComponentTypeInfo&	_typeInfo);
+
+		// 「コンポーネントを追加」ボタンと、その中身
+		void DrawAddComponentMenu(EditorContext& _ctx, GameObject& _object);
 
 		// 選択中のアセットの情報を並べる
 		void DrawAssetInspector(EditorContext& _ctx);
 
 		std::string m_Title;
 
-		// 名前の編集用。GameObject::GetNameは参照を返すが、
-		// InputTextは書き換え可能なstd::stringを要求するため、いったんここへ写して使う
+		// -------------------------------------------------------------------------------
+		// 名前の編集用
+		//
+		//	GameObject::GetNameは参照を返すが、InputTextは書き換え可能な
+		//	std::stringを要求するため、いったんここへ写して使う
+		//	選択が変わったときだけ写し直す（毎フレーム写すと入力中の文字が消える）
+		// -------------------------------------------------------------------------------
 		std::string	m_NameBuffer;
 		uint64_t	m_NameBufferOwner = 0;	// どのオブジェクトの名前を写しているか
 	};

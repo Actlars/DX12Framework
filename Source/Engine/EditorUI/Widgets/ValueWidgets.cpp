@@ -973,8 +973,9 @@ bool EditorUI::InputText(
 
 	const std::wstring display = StringUtil::Utf8ToWide(*_value);
 
+	// ActivateNowが指定された場合、クリックを待たずにその場で編集を始める
 	const TextFieldResult result = TextFieldBehavior(
-		_ctx, id, _font, bounds, display, config, false, background);
+		_ctx, id, _font, bounds, display, config, _options.ActivateNow, background);
 
 	if (!result.Committed)
 	{

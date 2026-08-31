@@ -12,64 +12,79 @@ namespace Editor
 	// GameObjectFactory
 	//
 	// 概要 :
-	//	エディタから GameObject を作る・複製する・消すための処理をまとめたもの
+	//	GameObjectを「作る・複製する・シーンへ出し入れする」ための土台
 	//
-	//	同じ操作をメニューバーとヒエラルキーの両方から行えるようにしたいが、
-	//	それぞれに手続きを書くと、片方だけ直して挙動が食い違う原因になる
-	//	「何をするか」をここへ一本化し、各UIは「いつ呼ぶか」だけを持つ
-	//
-	//	どの関数も基底クラスの GameObject をそのまま使う
-	//	派生クラスを増やさずコンポーネントで機能を足していく設計に合わせている
+	//	ここにあるのは取り消しのできない生の操作だけで、
+	//	履歴（Undo / Redo）のことは一切知らない
+	//	画面から呼ぶ操作は ObjectCommands 側にあり、そちらがこの関数を組み合わせて
+	//	1回分の取り消し可能な操作を組み立てる
 	//
 	// 責務の分担 :
-	//	GameObjectManager	オブジェクトの所有と寿命（エンジン側）
-	//	GameObjectFactory	エディタ操作としての作成・複製・削除（このファイル）
+	//	GameObjectManager	オブジェクトの所有と寿命				（エンジン側）
+	//	GameObjectFactory	生成と、シーンへの出し入れ				（このファイル）
+	//	ObjectCommands		取り消し可能な操作としてのまとめ上げ
 	//	各パネル / メニュー	どの操作をどこに置くか
+	//
+	// 「切り離す(Detach)」を軸にしている理由 :
+	//	削除を「破棄」で実装すると、取り消すときに作り直すしかない
+	//	作り直したオブジェクトはIDもポインタも変わり、
+	//	コンポーネントが持っていたGPUリソースなどの初期化状態も失われる
+	//	そこで削除は破棄せず、実体を履歴側が預かる形にしている
+	//	これにより「元に戻す」は預かっていたものをそのまま戻すだけで済む
 	//
 	// 状態を持たないため、クラスではなく関数の集まりにしている
 	// -------------------------------------------------------------------------------
 	namespace GameObjectFactory
 	{
 		// -------------------------------------------------------------------------------
-		// @brief	空のオブジェクトを1つ作る
+		// @brief	空のオブジェクトを1つ作る（シーンにはまだ入れない）
 		//
 		//	TransformComponent だけを持つ、いちばん素朴なオブジェクト
-		//	作成後はそのまま選択状態になるので、続けてインスペクタで編集できる
+		//	基底クラスの GameObject をそのまま使い、機能はコンポーネントで足していく
 		//
-		// @param[in]	_ctx		共有参照（シーンと選択状態を使う）
+		// @param[in]	_ctx		共有参照（重複しない名前を決めるのに使う）
 		// @param[in]	_baseName	付けたい名前。同名があれば連番を足して重複を避ける
 		// @param[in]	_position	初期位置
-		// @return	作成したオブジェクト。シーンが無い場合などは nullptr
+		// @return	作成したオブジェクト（所有権つき）
 		// -------------------------------------------------------------------------------
-		GameObject* CreateEmpty(
-			EditorContext&				_ctx,
+		std::unique_ptr<GameObject> CreateEmptyDetached(
+			const EditorContext&		_ctx,
 			std::string_view			_baseName = "New Object",
 			const DirectX::XMFLOAT3&	_position = { 0.0f, 0.0f, 0.0f });
 
 		// -------------------------------------------------------------------------------
-		// @brief	既存のオブジェクトを複製する
+		// @brief	既存のオブジェクトを写し取って、新しいオブジェクトを作る
 		//
-		//	名前と Transform を引き継ぐ
-		//	Component まで複製するにはクローンの仕組みが必要になるため、
-		//	そこには踏み込んでいない（「残っている課題」を参照）
+		//	名前・アクティブ状態・登録済みコンポーネントの値を引き継ぐ
+		//	どこまで引き継げるかは ComponentRegistry の登録内容で決まるため、
+		//	新しいコンポーネントを足すときはそちらへ1行加えるだけでよい
 		//
 		// @param[in]	_ctx		共有参照
 		// @param[in]	_pSource	複製元
-		// @return	作成したオブジェクト。複製元が無効なら nullptr
+		// @return	作成したオブジェクト（所有権つき）。複製元が無効ならnullptr
 		// -------------------------------------------------------------------------------
-		GameObject* Duplicate(EditorContext& _ctx, const GameObject* _pSource);
+		std::unique_ptr<GameObject> CloneDetached(
+			const EditorContext&	_ctx,
+			const GameObject*		_pSource);
 
 		// -------------------------------------------------------------------------------
-		// @brief	オブジェクトを削除する
-		//
-		//	実際に消えるのはフレーム末（GameObjectManager::FlushPendingRemoves）
-		//	選択中だった場合は、消える対象を選んだままにしないよう選択も外す
+		// @brief	オブジェクトをシーンへ入れる（所有権を手放す）
 		//
 		// @param[in]	_ctx		共有参照
-		// @param[in]	_pTarget	削除するオブジェクト
-		// @return	true : 削除を予約した
+		// @param[in]	_pObject	入れるオブジェクト
+		// @return	シーンに入ったオブジェクト。シーンが無い場合はnullptr
+		//			（その場合 _pObject は破棄されずに呼び出し元へ残らないため注意）
 		// -------------------------------------------------------------------------------
-		bool Destroy(EditorContext& _ctx, GameObject* _pTarget);
+		GameObject* Attach(EditorContext& _ctx, std::unique_ptr<GameObject> _pObject);
+
+		// -------------------------------------------------------------------------------
+		// @brief	オブジェクトをシーンから外す（破棄せず、所有権を受け取る）
+		//
+		// @param[in]	_ctx		共有参照
+		// @param[in]	_pObject	外すオブジェクト
+		// @return	外したオブジェクト（所有権つき）。見つからなければnullptr
+		// -------------------------------------------------------------------------------
+		std::unique_ptr<GameObject> Detach(EditorContext& _ctx, GameObject* _pObject);
 
 		// -------------------------------------------------------------------------------
 		// @brief	シーン内で重複しない名前を作る
@@ -79,7 +94,19 @@ namespace Editor
 		//
 		// @param[in]	_ctx		共有参照
 		// @param[in]	_baseName	元にしたい名前
+		// @param[in]	_pIgnore	重複判定から除外するオブジェクト
+		//							名前の変更で「自分自身」と衝突しないようにするために使う
 		// -------------------------------------------------------------------------------
-		std::string MakeUniqueName(const EditorContext& _ctx, std::string_view _baseName);
+		std::string MakeUniqueName(
+			const EditorContext&	_ctx,
+			std::string_view		_baseName,
+			const GameObject*		_pIgnore = nullptr);
+
+		// -------------------------------------------------------------------------------
+		// @brief	そのオブジェクトが今もシーンに存在するかを調べる
+		//
+		//	履歴は生ポインタを持つため、操作の前に必ず確認する
+		// -------------------------------------------------------------------------------
+		bool IsAlive(const EditorContext& _ctx, const GameObject* _pObject);
 	}
 }

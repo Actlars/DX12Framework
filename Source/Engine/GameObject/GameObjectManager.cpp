@@ -53,6 +53,35 @@ void GameObjectManager::FlushPendingRemoves()
 }
 
 // -------------------------------------------------------------------------------
+//		破棄せずに管理下から切り離す（所有権を呼び出し側へ渡す）
+// -------------------------------------------------------------------------------
+std::unique_ptr<GameObject> GameObjectManager::Detach(GameObject* _pObject)
+{
+	if (_pObject == nullptr)
+	{ return nullptr; }
+
+	std::lock_guard<std::mutex> lock(m_Mutex);
+
+	auto it = std::find_if(m_Objects.begin(), m_Objects.end(),
+		[_pObject](const std::unique_ptr<GameObject>& _obj)
+		{ return _obj.get() == _pObject; });
+
+	if (it == m_Objects.end())
+	{ return nullptr; }
+
+	// 所有権を手放してから、空になった枠を取り除く
+	std::unique_ptr<GameObject> detached = std::move(*it);
+	m_Objects.erase(it);
+
+	// 削除予約が残っていると、戻したあとに消されてしまうため取り下げる
+	m_PendingRemoves.erase(
+		std::remove(m_PendingRemoves.begin(), m_PendingRemoves.end(), _pObject),
+		m_PendingRemoves.end());
+
+	return detached;
+}
+
+// -------------------------------------------------------------------------------
 //		全オブジェクトの更新
 // -------------------------------------------------------------------------------
 void GameObjectManager::Update(float _deltaTime)

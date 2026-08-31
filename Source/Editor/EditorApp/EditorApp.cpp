@@ -14,7 +14,8 @@
 #include <Editor/Panels/InspectorPanel/InspectorPanel.h>
 #include <Editor/Panels/ContentBrowserPanel/ContentBrowserPanel.h>
 #include <Editor/Panels/EffectEditorPanel/EffectEditorPanel.h>
-#include <Editor/Scene/GameObjectFactory/GameObjectFactory.h>
+#include <Editor/Commands/ObjectCommands/ObjectCommands.h>
+#include <Editor/Prefab/PrefabSystem/PrefabSystem.h>
 
 namespace
 {
@@ -43,6 +44,7 @@ namespace
 
 	// メニューバーから開くドロップダウン
 	constexpr std::string_view kCreateMenu = "CreateMenu";
+	constexpr std::string_view kEditMenu   = "EditMenu";
 	constexpr std::string_view kWindowMenu = "WindowMenu";
 	constexpr std::string_view kToolsMenu  = "ToolsMenu";
 }
@@ -110,6 +112,15 @@ bool Editor::EditorApp::Init(
 
 void Editor::EditorApp::Term()
 {
+	// -------------------------------------------------------------------------------
+	// 履歴を先に捨てる
+	//
+	// 削除されたオブジェクトの実体を抱えているため、
+	// エンジン側の終了処理が進む前に手放しておく
+	// -------------------------------------------------------------------------------
+	m_History.Clear();
+	m_pPreviousObjects = nullptr;
+
 	m_pUI			= nullptr;
 	m_pFont			= nullptr;
 	m_pViewport		= nullptr;
@@ -225,6 +236,14 @@ void Editor::EditorApp::BuildUI(float _deltaTime)
 	// Scene変更やGameObject削除によって、Selectionが無効なオブジェクトを指していないか確認
 	ValidateSelection();
 
+	// -------------------------------------------------------------------------------
+	// キーボードショートカット
+	//
+	// パネルを描く前に処理する
+	// 先に済ませておくことで、Undoの結果がこのフレームの表示へそのまま反映される
+	// -------------------------------------------------------------------------------
+	ProcessShortcuts();
+
 	// 画面サイズが確定したこの時点で、初回だけ既定レイアウトを組む
 	if (!m_LayoutInitialized)
 	{
@@ -299,6 +318,7 @@ void Editor::EditorApp::BuildContext(float _deltaTime)
 	m_Context.pPanels		= &m_Panels;
 	m_Context.pSelection	= &m_Selection;
 	m_Context.pAssets		= &m_Assets;
+	m_Context.pHistory		= &m_History;
 	m_Context.pScenes		= m_pScenes;
 	m_Context.pViewport		= m_pViewport;
 	m_Context.pDevice		= m_pDevice;
@@ -317,6 +337,18 @@ void Editor::EditorApp::BuildContext(float _deltaTime)
 		{
 			m_Context.pObjects = pScene->GetObjectManager();
 		}
+	}
+
+	// -------------------------------------------------------------------------------
+	// シーンが切り替わったら履歴を捨てる
+	//
+	// 履歴は前のシーンのGameObjectを指し、削除されたものは実体まで抱えている
+	// そのまま残すと、別のシーンへ前のシーンのオブジェクトを復元してしまう
+	// -------------------------------------------------------------------------------
+	if (m_Context.pObjects != m_pPreviousObjects)
+	{
+		m_History.Clear();
+		m_pPreviousObjects = m_Context.pObjects;
 	}
 }
 
@@ -419,6 +451,20 @@ void Editor::EditorApp::DrawMenuBar()
 		EditorUI::SameLine(ui);
 
 		// -------------------------------------------------------------------------------
+		// 編集メニュー
+		//
+		// 元に戻す / やり直す の入り口
+		// ショートカットからも同じ処理を呼ぶが、
+		// 「何ができるか」が目に見える場所にも必要なため項目として置く
+		// -------------------------------------------------------------------------------
+		if (EditorUI::Button(ui, "編集", *m_pFont, { 64.0f, kMenuButtonHeight }))
+		{
+			openMenuUnderLastItem(kEditMenu);
+		}
+
+		EditorUI::SameLine(ui);
+
+		// -------------------------------------------------------------------------------
 		// Windowメニュー
 		// -------------------------------------------------------------------------------
 		if (EditorUI::Button(ui, "ウィンドウ", *m_pFont, { 90.0f, kMenuButtonHeight }))
@@ -444,6 +490,17 @@ void Editor::EditorApp::DrawMenuBar()
 		if (EditorUI::BeginPopup(ui, kCreateMenu))
 		{
 			DrawCreateMenu();
+			EditorUI::EndPopup(ui);
+		}
+
+		// -------------------------------------------------------------------------------
+		// EditPopup
+		//
+		// 操作の履歴をたどる
+		// -------------------------------------------------------------------------------
+		if (EditorUI::BeginPopup(ui, kEditMenu))
+		{
+			DrawEditMenu();
 			EditorUI::EndPopup(ui);
 		}
 
@@ -574,19 +631,19 @@ void Editor::EditorApp::DrawCreateMenu()
 	// -------------------------------------------------------------------------------
 	if (EditorUI::MenuItem(ui, *m_pFont, "空のオブジェクト", hasScene))
 	{
-		GameObjectFactory::CreateEmpty(m_Context, "New Object");
+		ObjectCommands::CreateEmpty(m_Context, "New Object");
 	}
 
 	if (EditorUI::MenuItem(ui, *m_pFont, "グループ", hasScene))
 	{
 		// 子をまとめる目印として置くオブジェクト
-		GameObjectFactory::CreateEmpty(m_Context, "Group");
+		ObjectCommands::CreateEmpty(m_Context, "Group");
 	}
 
 	if (EditorUI::MenuItem(ui, *m_pFont, "スポーン地点", hasScene))
 	{
 		// 出現位置の目印。位置だけを持つ用途
-		GameObjectFactory::CreateEmpty(m_Context, "Spawn Point");
+		ObjectCommands::CreateEmpty(m_Context, "Spawn Point");
 	}
 
 	EditorUI::MenuSeparator(ui);
@@ -599,12 +656,179 @@ void Editor::EditorApp::DrawCreateMenu()
 
 	if (EditorUI::MenuItem(ui, *m_pFont, "選択オブジェクトを複製", hasSelection))
 	{
-		GameObjectFactory::Duplicate(m_Context, pSelected);
+		ObjectCommands::Duplicate(m_Context, pSelected);
 	}
 
 	if (EditorUI::MenuItem(ui, *m_pFont, "選択オブジェクトを削除", hasSelection))
 	{
-		GameObjectFactory::Destroy(m_Context, pSelected);
+		ObjectCommands::Destroy(m_Context, pSelected);
+	}
+
+	EditorUI::MenuSeparator(ui);
+
+	// -------------------------------------------------------------------------------
+	// プレファブ（オブジェクトの設計図）
+	//
+	//	保存 : 今の構成をコンテンツフォルダへ書き出す
+	//	配置 : コンテンツブラウザで選んでいるプレファブをシーンへ置く
+	//
+	//	どちらもコンテンツブラウザ側からも行えるが、
+	//	「作成」の流れの中にも置いておくと、
+	//	作る → 整える → 設計図にする がひと続きになる
+	// -------------------------------------------------------------------------------
+	if (EditorUI::MenuItem(ui, *m_pFont, "選択オブジェクトをプレファブとして保存", hasSelection))
+	{
+		std::filesystem::path savedPath;
+
+		if (PrefabSystem::SaveToContent(m_Context, *pSelected, savedPath))
+		{
+			// 保存したファイルをそのまま選択し、どこに出来たかを分かるようにする
+			m_Selection.SelectAsset(savedPath);
+		}
+	}
+
+	// コンテンツブラウザでプレファブを選んでいるときだけ有効
+	const bool prefabSelected =
+		m_Selection.GetType() == SelectionType::Asset &&
+		PrefabSystem::IsPrefabPath(m_Selection.GetAssetPath());
+
+	if (EditorUI::MenuItem(ui, *m_pFont, "選択プレファブをシーンへ配置", prefabSelected && hasScene))
+	{
+		PrefabSystem::InstantiateFromFile(m_Context, m_Selection.GetAssetPath());
+	}
+}
+
+// -------------------------------------------------------------------------------
+// 編集メニュー
+// -------------------------------------------------------------------------------
+void Editor::EditorApp::DrawEditMenu()
+{
+	EditorUI::Context& ui = *m_pUI;
+
+	// -------------------------------------------------------------------------------
+	// 戻る先 / 進む先の操作名を項目に含める
+	//
+	// 「元に戻す」だけでは何が戻るのか分からないため、
+	// 「元に戻す : オブジェクトの削除」のように直前の操作を添える
+	// -------------------------------------------------------------------------------
+	const auto makeLabel = [](std::string_view _action, std::string_view _target)
+	{
+		std::string label(_action);
+
+		if (!_target.empty())
+		{
+			label += " : ";
+			label += _target;
+		}
+
+		return label;
+	};
+
+	if (EditorUI::MenuItem(ui, *m_pFont,
+		makeLabel("元に戻す", m_History.GetUndoLabel()), m_History.CanUndo()))
+	{
+		m_History.Undo(m_Context);
+	}
+
+	if (EditorUI::MenuItem(ui, *m_pFont,
+		makeLabel("やり直す", m_History.GetRedoLabel()), m_History.CanRedo()))
+	{
+		m_History.Redo(m_Context);
+	}
+
+	EditorUI::MenuSeparator(ui);
+
+	// -------------------------------------------------------------------------------
+	// どこまで戻れるかの目安
+	//
+	// 選べない項目として置き、表示専用であることを見た目で示す
+	// -------------------------------------------------------------------------------
+	EditorUI::MenuItem(ui, *m_pFont,
+		"戻せる操作 : " + std::to_string(m_History.GetUndoCount()) + " 件" +
+		"   やり直せる操作 : " + std::to_string(m_History.GetRedoCount()) + " 件",
+		false);
+
+	EditorUI::MenuSeparator(ui);
+
+	GameObject* pSelected	= m_Selection.GetObject();
+	const bool hasSelection	= (pSelected != nullptr);
+
+	if (EditorUI::MenuItem(ui, *m_pFont, "複製  (Ctrl+D)", hasSelection))
+	{
+		ObjectCommands::Duplicate(m_Context, pSelected);
+	}
+
+	if (EditorUI::MenuItem(ui, *m_pFont, "削除  (Delete)", hasSelection))
+	{
+		ObjectCommands::Destroy(m_Context, pSelected);
+	}
+}
+
+// -------------------------------------------------------------------------------
+// キーボードショートカット
+//
+//	Ctrl+Z			元に戻す
+//	Ctrl+Y			やり直す
+//	Ctrl+Shift+Z	やり直す（別の慣習に合わせた割り当て）
+//	Ctrl+D			選択オブジェクトを複製
+//	Delete			選択オブジェクトを削除
+// -------------------------------------------------------------------------------
+void Editor::EditorApp::ProcessShortcuts()
+{
+	EditorUI::Context& ui = *m_pUI;
+
+	// -------------------------------------------------------------------------------
+	// 文字を入力している最中は何も処理しない
+	//
+	// 名前の編集中にCtrl+Zを押したときに、
+	// 入力欄ではなくシーンが巻き戻ってしまうのを防ぐ
+	// -------------------------------------------------------------------------------
+	if (ui.GetTextEditState().Widget != 0)
+	{
+		return;
+	}
+
+	const bool ctrl		= ui.IsKeyDown(EditorUI::Key::Ctrl);
+	const bool shift	= ui.IsKeyDown(EditorUI::Key::Shift);
+
+	if (ctrl)
+	{
+		// Ctrl+Shift+Z を先に見る
+		// 先にCtrl+Zを判定すると、Shiftを押していても「元に戻す」になってしまう
+		if (shift && ui.IsKeyPressed(EditorUI::Key::Z))
+		{
+			m_History.Redo(m_Context);
+			return;
+		}
+
+		if (ui.IsKeyPressed(EditorUI::Key::Z))
+		{
+			m_History.Undo(m_Context);
+			return;
+		}
+
+		if (ui.IsKeyPressed(EditorUI::Key::Y))
+		{
+			m_History.Redo(m_Context);
+			return;
+		}
+
+		if (ui.IsKeyPressed(EditorUI::Key::D))
+		{
+			ObjectCommands::Duplicate(m_Context, m_Selection.GetObject());
+			return;
+		}
+	}
+
+	// -------------------------------------------------------------------------------
+	// Delete
+	//
+	// 修飾キーを押していないときだけ反応させる
+	// Ctrl+Delete などに別の意味を割り当てられるようにしておくため
+	// -------------------------------------------------------------------------------
+	if (!ctrl && !shift && ui.IsKeyPressed(EditorUI::Key::Delete))
+	{
+		ObjectCommands::Destroy(m_Context, m_Selection.GetObject());
 	}
 }
 

@@ -17,6 +17,14 @@ namespace
     constexpr auto ContentRootPath = L"C:/DX12NextPlay/DX12Framework/Assets/Content";
 
     // -------------------------------------------------------------------------------
+    // ウィンドウの位置と大きさの保存先
+    //
+    // アセットではなく利用者ごとの設定なので、Contentとは別のフォルダへ置く
+    // 無ければ終了時に自動で作られる
+    // -------------------------------------------------------------------------------
+    constexpr auto WindowSettingsPath = L"C:/DX12NextPlay/DX12Framework/Config/Window.json";
+
+    // -------------------------------------------------------------------------------
     // EditorUIのキーと、Windowsの仮想キーコードの対応表
     //
     // EditorUI側はWindowsのキーコードを知らない設計にしてあるため、
@@ -46,6 +54,10 @@ namespace
         { EditorUI::Key::Shift,     VK_SHIFT     },
         { EditorUI::Key::Alt,       VK_MENU      },
         { EditorUI::Key::A,         'A'          },
+        { EditorUI::Key::D,         'D'          },
+        { EditorUI::Key::Y,         'Y'          },
+        { EditorUI::Key::Z,         'Z'          },
+        { EditorUI::Key::F2,        VK_F2        },
     };
 
 } // namespace
@@ -513,7 +525,15 @@ bool Application::InitWnd()
         return false;
     }
 
-    ShowWindow(m_hWnd, SW_SHOWNORMAL);
+    // -------------------------------------------------------------------------------
+    // 前回終了時の位置と大きさを反映する
+    //
+    // ShowWindowより前に行うことで、既定サイズで一瞬表示されてから
+    // 動くというちらつきを避ける
+    // -------------------------------------------------------------------------------
+    RestoreWindowPlacement();
+
+    ShowWindow(m_hWnd, m_WindowSettings.Maximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
     UpdateWindow(m_hWnd);
     SetFocus(m_hWnd);
 
@@ -525,6 +545,13 @@ bool Application::InitWnd()
 // -------------------------------------------------------------------------------
 void Application::TermWnd()
 {
+    // -------------------------------------------------------------------------------
+    // 位置と大きさを覚えてから閉じる
+    //
+    // ウィンドウを壊したあとでは取得できないため、必ずDestroyWindowより前に行う
+    // -------------------------------------------------------------------------------
+    SaveWindowPlacement();
+
     if (m_hWnd != nullptr)
     {
         DestroyWindow(m_hWnd);
@@ -537,6 +564,117 @@ void Application::TermWnd()
 
     m_hInst = nullptr;
     m_hWnd = nullptr;
+}
+
+// -------------------------------------------------------------------------------
+// 前回終了時のウィンドウ配置を復元する
+// -------------------------------------------------------------------------------
+void Application::RestoreWindowPlacement()
+{
+    if (m_hWnd == nullptr)
+    {
+        return;
+    }
+
+    if (!m_WindowSettings.Load(WindowSettingsPath))
+    {
+        return;	// 初回起動、または内容が使えない
+    }
+
+    // -------------------------------------------------------------------------------
+    // 画面の外に出ていないかを確かめる
+    //
+    // モニタを外した後などに前回の位置をそのまま使うと、
+    // 見えない場所にウィンドウが開いて操作できなくなる
+    // 少しでも見えている位置なら、そのまま使ってよい
+    // -------------------------------------------------------------------------------
+    const RECT bounds =
+    {
+        m_WindowSettings.PositionX,
+        m_WindowSettings.PositionY,
+        m_WindowSettings.PositionX + m_WindowSettings.Width,
+        m_WindowSettings.PositionY + m_WindowSettings.Height
+    };
+
+    if (MonitorFromRect(&bounds, MONITOR_DEFAULTTONULL) == nullptr)
+    {
+        // どのモニタにも重なっていないため、既定の位置のままにする
+        // 最大化の指定だけは活かす（どのモニタでも意味が通るため）
+        return;
+    }
+
+    SetWindowPos(
+        m_hWnd,
+        nullptr,
+        m_WindowSettings.PositionX,
+        m_WindowSettings.PositionY,
+        m_WindowSettings.Width,
+        m_WindowSettings.Height,
+        SWP_NOZORDER | SWP_NOACTIVATE);
+
+    // -------------------------------------------------------------------------------
+    // クライアント領域の大きさを、実際の値へ合わせておく
+    //
+    // このあとGraphicsDeviceがこの値でスワップチェインを作るため、
+    // ここでずれていると初回だけ表示が引き伸ばされる
+    // -------------------------------------------------------------------------------
+    RECT clientRect = {};
+    if (GetClientRect(m_hWnd, &clientRect))
+    {
+        const uint32_t width  = static_cast<uint32_t>(clientRect.right  - clientRect.left);
+        const uint32_t height = static_cast<uint32_t>(clientRect.bottom - clientRect.top);
+
+        if (width > 0 && height > 0)
+        {
+            m_Width  = width;
+            m_Height = height;
+        }
+    }
+}
+
+// -------------------------------------------------------------------------------
+// 今のウィンドウ配置を保存する
+// -------------------------------------------------------------------------------
+void Application::SaveWindowPlacement() const
+{
+    if (m_hWnd == nullptr)
+    {
+        return;
+    }
+
+    // -------------------------------------------------------------------------------
+    // GetWindowPlacementを使う理由
+    //
+    // GetWindowRectは「今見えている矩形」を返すため、最大化中は画面いっぱいになる
+    // その値を保存すると、次の起動で最大化を解除したときに
+    // 画面いっぱいの大きさのままになってしまう
+    // GetWindowPlacementなら「元に戻したときの矩形」と最大化状態を別々に取得できる
+    // -------------------------------------------------------------------------------
+    WINDOWPLACEMENT placement = {};
+    placement.length = sizeof(placement);
+
+    if (!GetWindowPlacement(m_hWnd, &placement))
+    {
+        return;
+    }
+
+    WindowSettings settings;
+
+    settings.PositionX	= placement.rcNormalPosition.left;
+    settings.PositionY	= placement.rcNormalPosition.top;
+    settings.Width		= placement.rcNormalPosition.right  - placement.rcNormalPosition.left;
+    settings.Height		= placement.rcNormalPosition.bottom - placement.rcNormalPosition.top;
+
+    // 最小化した状態で終了した場合は、次回まで持ち越さない
+    // 最小化のまま開き直しても操作できないため
+    settings.Maximized	= (placement.showCmd == SW_SHOWMAXIMIZED);
+
+    if (!settings.IsValid())
+    {
+        return;
+    }
+
+    settings.Save(WindowSettingsPath);
 }
 
 // -------------------------------------------------------------------------------
@@ -571,6 +709,16 @@ void Application::HandleWindowMessage(UINT _msg, WPARAM _wp, LPARAM _lp)
         }
         break;
     }
+
+    case WM_CLOSE:
+        // -------------------------------------------------------------------------------
+        // 閉じる直前に、位置と大きさを覚えておく
+        //
+        // このあとDefWindowProcがウィンドウを破棄するため、
+        // 終了処理まで待つと GetWindowPlacement が失敗して保存できない
+        // -------------------------------------------------------------------------------
+        SaveWindowPlacement();
+        break;
 
     default:
         break;

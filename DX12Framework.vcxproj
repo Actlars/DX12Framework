@@ -237,8 +237,15 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h" />
+    <ClInclude Include="Source\Application\WindowSettings\WindowSettings.h" />
     <ClInclude Include="Source\Editor\Assets\AssetDatabase.h" />
     <ClInclude Include="Source\Editor\Assets\DirectoryWatcher\DirectoryWatcher.h" />
+    <ClInclude Include="Source\Editor\Commands\CommandHistory\CommandHistory.h" />
+    <ClInclude Include="Source\Editor\Commands\ComponentCommands\ComponentCommands.h" />
+    <ClInclude Include="Source\Editor\Commands\IEditorCommand.h" />
+    <ClInclude Include="Source\Editor\Commands\ObjectCommands\ObjectCommands.h" />
+    <ClInclude Include="Source\Editor\Components\ComponentInspectors\ComponentInspectors.h" />
+    <ClInclude Include="Source\Editor\Components\ComponentRegistry\ComponentRegistry.h" />
     <ClInclude Include="Source\Editor\EditorApp\EditorApp.h" />
     <ClInclude Include="Source\Editor\EditorContext.h" />
     <ClInclude Include="Source\Editor\Effect\EffectAsset.h" />
@@ -249,6 +256,8 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClInclude Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.h" />
     <ClInclude Include="Source\Editor\Panels\PanelManager\PanelManager.h" />
     <ClInclude Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.h" />
+    <ClInclude Include="Source\Editor\Prefab\PrefabAsset\PrefabAsset.h" />
+    <ClInclude Include="Source\Editor\Prefab\PrefabSystem\PrefabSystem.h" />
     <ClInclude Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.h" />
     <ClInclude Include="Source\Editor\Selection\Selection.h" />
     <ClInclude Include="Source\Engine\Camera\CameraBase.h" />
@@ -359,8 +368,14 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application\Application.cpp" />
+    <ClCompile Include="Source\Application\WindowSettings\WindowSettings.cpp" />
     <ClCompile Include="Source\Editor\Assets\AssetDatabase.cpp" />
     <ClCompile Include="Source\Editor\Assets\DirectoryWatcher\DirectoryWatcher.cpp" />
+    <ClCompile Include="Source\Editor\Commands\CommandHistory\CommandHistory.cpp" />
+    <ClCompile Include="Source\Editor\Commands\ComponentCommands\ComponentCommands.cpp" />
+    <ClCompile Include="Source\Editor\Commands\ObjectCommands\ObjectCommands.cpp" />
+    <ClCompile Include="Source\Editor\Components\ComponentInspectors\ComponentInspectors.cpp" />
+    <ClCompile Include="Source\Editor\Components\ComponentRegistry\ComponentRegistry.cpp" />
     <ClCompile Include="Source\Editor\EditorApp\EditorApp.cpp" />
     <ClCompile Include="Source\Editor\Effect\EffectAsset.cpp" />
     <ClCompile Include="Source\Editor\Panels\ContentBrowserPanel\ContentBrowserPanel.cpp" />
@@ -369,6 +384,8 @@ copy /Y "$(ProjectDir)External\Assimp\bin\zd.dll" "$(OutDir)"</Command>
     <ClCompile Include="Source\Editor\Panels\InspectorPanel\InspectorPanel.cpp" />
     <ClCompile Include="Source\Editor\Panels\PanelManager\PanelManager.cpp" />
     <ClCompile Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.cpp" />
+    <ClCompile Include="Source\Editor\Prefab\PrefabAsset\PrefabAsset.cpp" />
+    <ClCompile Include="Source\Editor\Prefab\PrefabSystem\PrefabSystem.cpp" />
     <ClCompile Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.cpp" />
     <ClCompile Include="Source\Engine\Camera\CameraBase.cpp" />
     <ClCompile Include="Source\Engine\Camera\FPSCamera\FPSCamera.cpp" />

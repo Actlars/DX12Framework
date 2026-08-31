@@ -44,7 +44,17 @@ namespace Editor
 		// 検索欄に入力された文字で一覧を絞り込む
 		bool MatchesFilter(std::string_view _name) const;
 
-		// 右クリックメニュー（オブジェクトの作成・複製・削除）
+		// 1行ぶんの表示。名前変更中はその行だけ入力欄に差し替わる
+		void DrawObjectRow(EditorContext& _ctx, GameObject& _object, bool& _outRightClicked);
+
+		// 名前変更中の行（入力欄）
+		void DrawRenameRow(EditorContext& _ctx, GameObject& _object);
+
+		// 名前の変更を始める / やめる
+		void BeginRename(GameObject& _object);
+		void EndRename();
+
+		// 右クリックメニュー（オブジェクトの作成・複製・名前変更・削除）
 		void DrawContextMenu(EditorContext& _ctx, GameObject* _pTarget);
 
 		std::string m_Title;
@@ -55,5 +65,18 @@ namespace Editor
 		// 右クリックで対象にしたオブジェクト
 		// メニューを閉じるまで覚えておく必要があるため、フレームをまたいで保持する
 		GameObject* m_pContextTarget = nullptr;
+
+		// -------------------------------------------------------------------------------
+		// 名前の変更
+		//
+		//	対象の行だけを入力欄に差し替えて、その場で打ち直せるようにする
+		//	（別のウィンドウを開くより、どれを変更しているかが分かりやすい）
+		//
+		//	m_RenameActivateは「開始した最初の1フレームだけ入力欄へ移る」ための合図
+		//	毎フレーム立てたままにすると、確定しても入力状態へ戻ってしまう
+		// -------------------------------------------------------------------------------
+		GameObject* m_pRenameTarget		= nullptr;
+		std::string m_RenameBuffer;
+		bool		m_RenameActivate	= false;
 	};
 }

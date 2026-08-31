@@ -4,11 +4,29 @@
     <ClCompile Include="Source\Application\Application.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Application\WindowSettings\WindowSettings.cpp">
+      <Filter>Application\WindowSettings</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Editor\Assets\AssetDatabase.cpp">
       <Filter>Editor\Assets</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Assets\DirectoryWatcher\DirectoryWatcher.cpp">
       <Filter>Editor\Assets\DirectoryWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Commands\CommandHistory\CommandHistory.cpp">
+      <Filter>Editor\Commands\CommandHistory</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Commands\ComponentCommands\ComponentCommands.cpp">
+      <Filter>Editor\Commands\ComponentCommands</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Commands\ObjectCommands\ObjectCommands.cpp">
+      <Filter>Editor\Commands\ObjectCommands</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Components\ComponentInspectors\ComponentInspectors.cpp">
+      <Filter>Editor\Components\ComponentInspectors</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Components\ComponentRegistry\ComponentRegistry.cpp">
+      <Filter>Editor\Components\ComponentRegistry</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\EditorApp\EditorApp.cpp">
       <Filter>Editor\EditorApp</Filter>
@@ -33,6 +51,12 @@
     </ClCompile>
     <ClCompile Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.cpp">
       <Filter>Editor\Panels\ViewportPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Prefab\PrefabAsset\PrefabAsset.cpp">
+      <Filter>Editor\Prefab\PrefabAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Prefab\PrefabSystem\PrefabSystem.cpp">
+      <Filter>Editor\Prefab\PrefabSystem</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.cpp">
       <Filter>Editor\Scene\GameObjectFactory</Filter>
@@ -257,11 +281,32 @@
     <ClInclude Include="Source\Application\Application.h">
       <Filter>Application</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\WindowSettings\WindowSettings.h">
+      <Filter>Application\WindowSettings</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Editor\Assets\AssetDatabase.h">
       <Filter>Editor\Assets</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Assets\DirectoryWatcher\DirectoryWatcher.h">
       <Filter>Editor\Assets\DirectoryWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Commands\CommandHistory\CommandHistory.h">
+      <Filter>Editor\Commands\CommandHistory</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Commands\ComponentCommands\ComponentCommands.h">
+      <Filter>Editor\Commands\ComponentCommands</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Commands\IEditorCommand.h">
+      <Filter>Editor\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Commands\ObjectCommands\ObjectCommands.h">
+      <Filter>Editor\Commands\ObjectCommands</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Components\ComponentInspectors\ComponentInspectors.h">
+      <Filter>Editor\Components\ComponentInspectors</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Components\ComponentRegistry\ComponentRegistry.h">
+      <Filter>Editor\Components\ComponentRegistry</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\EditorApp\EditorApp.h">
       <Filter>Editor\EditorApp</Filter>
@@ -292,6 +337,12 @@
     </ClInclude>
     <ClInclude Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.h">
       <Filter>Editor\Panels\ViewportPanel</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Prefab\PrefabAsset\PrefabAsset.h">
+      <Filter>Editor\Prefab\PrefabAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Editor\Prefab\PrefabSystem\PrefabSystem.h">
+      <Filter>Editor\Prefab\PrefabSystem</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.h">
       <Filter>Editor\Scene\GameObjectFactory</Filter>
@@ -701,6 +752,9 @@
     <Filter Include="Application">
       <UniqueIdentifier>{e28b736e-98ec-404e-8077-f85d795151a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\WindowSettings">
+      <UniqueIdentifier>{1b19f495-f70e-3417-5bc8-91d19f2922aa}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Editor">
       <UniqueIdentifier>{bd7288c9-a57d-4111-a6a3-ae977f0cfe1c}</UniqueIdentifier>
     </Filter>
@@ -709,6 +763,27 @@
     </Filter>
     <Filter Include="Editor\Assets\DirectoryWatcher">
       <UniqueIdentifier>{c746efd6-016a-c87f-348b-db6d87c23ff1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Commands">
+      <UniqueIdentifier>{16a48942-23b9-e228-70ff-67bfe2a30ff3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Commands\CommandHistory">
+      <UniqueIdentifier>{a9a6f954-f03d-edb4-3a27-d2544cc1e928}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Commands\ComponentCommands">
+      <UniqueIdentifier>{6d64c106-bb5f-c3f7-b775-0533ba2629cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Commands\ObjectCommands">
+      <UniqueIdentifier>{60b5b458-c314-943d-9620-f80754c1e001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Components">
+      <UniqueIdentifier>{474e0415-049d-bbbc-bde5-00b1bcfa5b9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Components\ComponentInspectors">
+      <UniqueIdentifier>{cb7db9e2-15be-90a3-1b8e-ece25249c452}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Components\ComponentRegistry">
+      <UniqueIdentifier>{27836a81-6ef4-0fa9-29cf-ba0bfc8b5756}</UniqueIdentifier>
     </Filter>
     <Filter Include="Editor\EditorApp">
       <UniqueIdentifier>{89a6456c-aea5-45d4-b6bd-18772dc380dd}</UniqueIdentifier>
@@ -736,6 +811,15 @@
     </Filter>
     <Filter Include="Editor\Panels\ViewportPanel">
       <UniqueIdentifier>{ea33dfa8-5afa-4a86-9f1f-a1301c65852b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Prefab">
+      <UniqueIdentifier>{b4da93fe-491b-004c-3647-199d0481d85c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Prefab\PrefabAsset">
+      <UniqueIdentifier>{8b8cdf2f-89c4-9a3a-3e96-88d78c48e89e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor\Prefab\PrefabSystem">
+      <UniqueIdentifier>{9c597ad7-60e3-bed6-8645-73a1bbfcecfb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Editor\Scene">
       <UniqueIdentifier>{8ffb5e69-8e42-e40a-6e06-08562b1f4e1a}</UniqueIdentifier>

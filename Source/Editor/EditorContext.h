@@ -18,6 +18,7 @@ namespace Editor
 {
 	class AssetDatabase;
 	class PanelManager;
+	class CommandHistory;
 
 	// -------------------------------------------------------------------------------
 	// EditorContext struct
@@ -40,6 +41,15 @@ namespace Editor
 		PanelManager*		pPanels		= nullptr;	// パネルの開閉と生成
 		Selection*			pSelection	= nullptr;	// 選択状態の共有
 		AssetDatabase*		pAssets		= nullptr;	// コンテンツブラウザのファイル木
+
+		// -------------------------------------------------------------------------------
+		// 操作の履歴（Undo / Redo）
+		//
+		//	シーンを書き換える操作は、どのパネルから行っても必ずここを通す
+		//	そうしないと「一部の操作だけ取り消せない」という分かりにくい状態になる
+		//	実際の呼び出しは ObjectCommands / ComponentCommands 経由で行う
+		// -------------------------------------------------------------------------------
+		CommandHistory*		pHistory	= nullptr;
 
 		GameObjectManager*	pObjects	= nullptr;	// 現在のシーンの中身(無い場合はnullptr)
 		SceneManager*		pScenes		= nullptr;	// シーンの問い合わせ

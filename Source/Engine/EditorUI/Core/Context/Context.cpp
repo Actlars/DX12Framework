@@ -296,6 +296,10 @@ bool EditorUI::Context::BeginWindow(std::string_view _title, bool* _isOpen, Edit
 	// -------------------------------------------------------------------------------
 	EditorUI::WindowFrame& frame = m_FrameContext.PushWindowFrame(state, _flags);
 
+	// -------------------------------------------------------------------------------
+	// Dock状態を取得
+	// -------------------------------------------------------------------------------
+
 	// ポップアップはドッキングの対象外なので、ドック情報を引かない
 	const bool isPopup = HasFlag(_flags, EditorUI::WindowFlags::Popup);
 	const EditorUI::DockWindowInfo dockInfo = (isPopup || HasFlag(_flags, EditorUI::WindowFlags::NoDock))

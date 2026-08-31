@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# エディタが実行時に書き出す、利用者ごとの設定
+# ウィンドウの位置と大きさなど。共有する必要がないため追跡しない
+Config/
