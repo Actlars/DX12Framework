@@ -7,6 +7,8 @@
 #include <Engine/Renderer/PostProcess/PostProcessStack/PostProcessStack.h>
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
 #include <Engine/Renderer/RenderQueue/MeshletRenderQueue/MeshletRenderQueue.h>
+#include <Engine/Renderer/RenderQueue/DebugLineRenderQueue/DebugLineRenderQueue.h>
+#include <Engine/Renderer/RendererItem/DebugLineDrawItem/DebugLineDrawItem.h>
 #include <Engine/RHI/Pipeline/RootSignature/RootSignatureLayout/RootSignatureLayout.h>
 #include <Engine/RHI/Resource/Sampler/Sampler.h>
 #include <Engine/RHI/Resource/Buffer/ConstantBuffer/ConstantBuffer.h>
@@ -147,5 +149,10 @@ private:
 	RHI::RootSignatureLayout m_NTCPreviewRootSignatureLayout;
 	ID3D12PipelineState* m_pNTCPreviewPSO = nullptr;
 	RHI::Texture* m_pNTCPreviewTexture = nullptr;
+
+	// DebugLinehader
+	RHI::RootSignatureLayout	m_DebugLineRootSignatureLayout;
+	ID3D12PipelineState*		m_pDebugLinePSO = nullptr;
+	DebugLineRenderQueue		m_DebugRenderQueue;
 
 };

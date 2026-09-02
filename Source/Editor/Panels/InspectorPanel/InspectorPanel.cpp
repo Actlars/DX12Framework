@@ -9,7 +9,9 @@
 #include <Editor/Assets/AssetDatabase.h>
 #include <Editor/Commands/ComponentCommands/ComponentCommands.h>
 #include <Editor/Commands/ObjectCommands/ObjectCommands.h>
-#include <Editor/Components/ComponentRegistry/ComponentRegistry.h>
+#include <Engine/Asset/PrefabAsset/PrefabAsset.h>
+#include <Engine/GameObject/ComponentRegistry/ComponentRegistry.h>
+#include <Editor/Components/ComponentInspectors/ComponentInspectors.h>
 #include <Editor/Panels/PanelManager/PanelManager.h>
 #include <Editor/Panels/EffectEditorPanel/EffectEditorPanel.h>
 #include <Editor/Prefab/PrefabSystem/PrefabSystem.h>
@@ -175,7 +177,7 @@ void Editor::InspectorPanel::DrawComponentSections(EditorContext& _ctx, GameObje
 
 		anyComponent = true;
 
-		DrawComponentSection(_ctx, _object, info);
+		DrawComponentSection(_ctx, _object, info, ComponentInspectors::GetDisplay(info.TypeName));
 	}
 
 	if (!anyComponent)
@@ -188,9 +190,10 @@ void Editor::InspectorPanel::DrawComponentSections(EditorContext& _ctx, GameObje
 // コンポーネント1つぶんの枠
 // -------------------------------------------------------------------------------
 void Editor::InspectorPanel::DrawComponentSection(
-	EditorContext&				_ctx,
-	GameObject&					_object,
-	const ComponentTypeInfo&	_typeInfo)
+	EditorContext&					_ctx,
+	GameObject&						_object,
+	const ComponentTypeInfo&		_typeInfo,
+	const ComponentDisplayInfo&		_display)
 {
 	EditorUI::Context&	ui		= *_ctx.pUI;
 	EditorUI::Font&		font	= *_ctx.pFont;
@@ -204,12 +207,12 @@ void Editor::InspectorPanel::DrawComponentSection(
 	// -------------------------------------------------------------------------------
 	ui.GetIdStack().PushPtr(&_typeInfo);
 
-	if (EditorUI::CollapsingHeader(ui, font, _typeInfo.DisplayName))
+	if (EditorUI::CollapsingHeader(ui, font, _display.DisplayName))
 	{
 		// 中身は型ごとの担当へ任せる
-		if (_typeInfo.DrawInspector != nullptr)
+		if (_display.Draw != nullptr)
 		{
-			_typeInfo.DrawInspector(_ctx, _object);
+			_display.Draw(_ctx, _object);
 		}
 
 		// -------------------------------------------------------------------------------
@@ -218,7 +221,7 @@ void Editor::InspectorPanel::DrawComponentSection(
 		// Transformのように外せない型ではボタン自体を出さない
 		// 押せないボタンを並べるより、無いほうが迷わない
 		// -------------------------------------------------------------------------------
-		if (_typeInfo.IsRemovable)
+		if (_display.IsRemovable)
 		{
 			if (EditorUI::Button(ui, "コンポーネントを削除", font, { 180.0f, 22.0f }))
 			{
@@ -257,7 +260,8 @@ void Editor::InspectorPanel::DrawAddComponentMenu(EditorContext& _ctx, GameObjec
 		{
 			const bool alreadyHas = (info.Has != nullptr && info.Has(_object));
 
-			if (EditorUI::MenuItem(ui, font, info.DisplayName, !alreadyHas))
+			if (EditorUI::MenuItem(ui, font,
+					ComponentInspectors::GetDisplay(info.TypeName).DisplayName, !alreadyHas))
 			{
 				ComponentCommands::Add(_ctx, &_object, info);
 			}

@@ -4,8 +4,8 @@
 #include "GameObjectFactory.h"
 
 #include <Engine/GameObject/GameObjectManager.h>
+#include <Engine/GameObject/ComponentRegistry/ComponentRegistry.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
-#include <Editor/Components/ComponentRegistry/ComponentRegistry.h>
 
 namespace
 {
@@ -35,20 +35,15 @@ namespace
 // -------------------------------------------------------------------------------
 // 重複しない名前を作る
 // -------------------------------------------------------------------------------
-std::string Editor::GameObjectFactory::MakeUniqueName(
-	const EditorContext&	_ctx,
-	std::string_view		_baseName,
-	const GameObject*		_pIgnore)
+std::string GameObjectFactory::MakeUniqueName(
+	const GameObjectManager&	_objects,
+	std::string_view			_baseName,
+	const GameObject*			_pIgnore)
 {
 	const std::string baseName(_baseName);
 
-	if (_ctx.pObjects == nullptr)
-	{
-		return baseName;
-	}
-
 	// そのままの名前が空いていれば、番号を足さない
-	if (!IsNameUsed(*_ctx.pObjects, baseName, _pIgnore))
+	if (!IsNameUsed(_objects, baseName, _pIgnore))
 	{
 		return baseName;
 	}
@@ -61,7 +56,7 @@ std::string Editor::GameObjectFactory::MakeUniqueName(
 	{
 		std::string candidate = baseName + " (" + std::to_string(suffix) + ")";
 
-		if (!IsNameUsed(*_ctx.pObjects, candidate, _pIgnore))
+		if (!IsNameUsed(_objects, candidate, _pIgnore))
 		{
 			return candidate;
 		}
@@ -73,8 +68,8 @@ std::string Editor::GameObjectFactory::MakeUniqueName(
 // -------------------------------------------------------------------------------
 // 空のオブジェクトを作る（シーンにはまだ入れない）
 // -------------------------------------------------------------------------------
-std::unique_ptr<GameObject> Editor::GameObjectFactory::CreateEmptyDetached(
-	const EditorContext&		_ctx,
+std::unique_ptr<GameObject> GameObjectFactory::CreateEmpty(
+	const GameObjectManager&	_objects,
 	std::string_view			_baseName,
 	const DirectX::XMFLOAT3&	_position)
 {
@@ -83,7 +78,7 @@ std::unique_ptr<GameObject> Editor::GameObjectFactory::CreateEmptyDetached(
 	//
 	// 派生クラスを増やさず、必要な機能は Component で足していく設計
 	// -------------------------------------------------------------------------------
-	auto pObject = std::make_unique<GameObject>(MakeUniqueName(_ctx, _baseName));
+	auto pObject = std::make_unique<GameObject>(MakeUniqueName(_objects, _baseName));
 
 	// -------------------------------------------------------------------------------
 	// Transform は「シーン上のどこにあるか」を表す最低限の情報なので必ず付ける
@@ -100,19 +95,15 @@ std::unique_ptr<GameObject> Editor::GameObjectFactory::CreateEmptyDetached(
 // -------------------------------------------------------------------------------
 // 複製（シーンにはまだ入れない）
 // -------------------------------------------------------------------------------
-std::unique_ptr<GameObject> Editor::GameObjectFactory::CloneDetached(
-	const EditorContext&	_ctx,
-	const GameObject*		_pSource)
+std::unique_ptr<GameObject> GameObjectFactory::Clone(
+	const GameObjectManager&	_objects,
+	const GameObject&			_source)
 {
-	if (_pSource == nullptr)
-	{
-		return nullptr;
-	}
-
 	// 名前は元の名前を基準にする。連番は MakeUniqueName が付ける
-	auto pClone = std::make_unique<GameObject>(MakeUniqueName(_ctx, _pSource->GetName()));
+	auto pClone = std::make_unique<GameObject>(
+		MakeUniqueName(_objects, _source.GetName()));
 
-	pClone->SetActive(_pSource->IsActive());
+	pClone->SetActive(_source.IsActive());
 
 	// -------------------------------------------------------------------------------
 	// コンポーネントの中身は ComponentRegistry が写す
@@ -120,54 +111,22 @@ std::unique_ptr<GameObject> Editor::GameObjectFactory::CloneDetached(
 	// どこまで引き継げるかを1か所（登録表）に集約することで、
 	// 複製・プレファブ・コンポーネント削除の取り消しが必ず同じ結果になる
 	// -------------------------------------------------------------------------------
-	ComponentRegistry::CopyComponents(*_pSource, *pClone);
+	ComponentRegistry::CopyComponents(_source, *pClone);
 
 	return pClone;
 }
 
 // -------------------------------------------------------------------------------
-// シーンへ入れる
-// -------------------------------------------------------------------------------
-GameObject* Editor::GameObjectFactory::Attach(
-	EditorContext&				_ctx,
-	std::unique_ptr<GameObject> _pObject)
-{
-	if (_ctx.pObjects == nullptr || _pObject == nullptr)
-	{
-		// シーンが無い場合、ここで _pObject は破棄される
-		// 呼び出し元は戻り値がnullptrなら「入らなかった」と判断する
-		return nullptr;
-	}
-
-	return _ctx.pObjects->AddExisting(std::move(_pObject));
-}
-
-// -------------------------------------------------------------------------------
-// シーンから外す（破棄はしない）
-// -------------------------------------------------------------------------------
-std::unique_ptr<GameObject> Editor::GameObjectFactory::Detach(
-	EditorContext&	_ctx,
-	GameObject*		_pObject)
-{
-	if (_ctx.pObjects == nullptr || _pObject == nullptr)
-	{
-		return nullptr;
-	}
-
-	return _ctx.pObjects->Detach(_pObject);
-}
-
-// -------------------------------------------------------------------------------
 // まだシーンに存在するか
 // -------------------------------------------------------------------------------
-bool Editor::GameObjectFactory::IsAlive(const EditorContext& _ctx, const GameObject* _pObject)
+bool GameObjectFactory::IsAlive(const GameObjectManager& _objects, const GameObject* _pObject)
 {
-	if (_ctx.pObjects == nullptr || _pObject == nullptr)
+	if (_pObject == nullptr)
 	{
 		return false;
 	}
 
-	const auto& objects = _ctx.pObjects->GetObjects();
+	const auto& objects = _objects.GetObjects();
 
 	return std::any_of(objects.begin(), objects.end(),
 		[_pObject](const std::unique_ptr<GameObject>& _candidate)

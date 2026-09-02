@@ -39,8 +39,9 @@ bool Renderer::Init(RHI::Device* _pGraphicsDevice)
 	m_ViewPort.MaxDepth = 1.0f;
 
 	// シザー矩形の設定
-	m_Scissor.left		= 0.0f;
-	m_Scissor.top		= 0.0f;
+	// D3D12_RECTの各成分はLONGのため、0.0fではなく整数で入れる
+	m_Scissor.left		= 0;
+	m_Scissor.top		= 0;
 	m_Scissor.right		= static_cast<LONG>(m_pDevice->GetWidth());
 	m_Scissor.bottom	= static_cast<LONG>(m_pDevice->GetHeight());
 

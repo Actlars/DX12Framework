@@ -6,6 +6,7 @@
 #include <Engine/Renderer/GraphicsView/GraphicsView.h>
 #include <Engine/Renderer/ViewportTarget/ViewportTarget.h>
 #include <Engine/Scene/SceneManager/SceneManager.h>
+#include <Engine/Resource/ModelLibrary/ModelLibrary.h>
 
 #include <Engine/EditorUI/Render/EditorUIRenderer/EditorUIRenderer.h>
 #include <Engine/EditorUI/Core/Context/Context.h>
@@ -145,6 +146,15 @@ private:
 	void SaveWindowPlacement() const;
 
 	// -------------------------------------------------------------------------------
+	// @brief	EditorUIが希望する形へマウスカーソルを切り替える
+	//
+	//	EditorUIはWindowsのAPIを知らないため、「こう見せたい」という希望しか持てない
+	//	それをWin32のカーソルへ翻訳するのがここ
+	//	WM_SETCURSORのたびに呼ばれる
+	// -------------------------------------------------------------------------------
+	void ApplyMouseCursor() const;
+
+	// -------------------------------------------------------------------------------
 	// @brief	予約されたウィンドウサイズの変更を反映する
 	//
 	//	WM_SIZEはメッセージ処理の途中で届くため、その場で作り直すのは危険
@@ -195,6 +205,15 @@ private:
 	// DX12基盤
 	GraphicsView	m_GraphicsView;	// DX12のデバイスとRendererの管理
 	SceneManager	m_SceneManager;	// シーン管理
+
+	// -------------------------------------------------------------------------------
+	// モデルの置き場
+	//
+	//	シーンより長生きする必要があるため、所有者はここ
+	//	（シーンが持つと、切り替えのたびに読み直しになる）
+	//	シーンとエディタは参照だけを受け取る
+	// -------------------------------------------------------------------------------
+	ModelLibrary	m_ModelLibrary;
 	ViewportTarget	m_ViewportTarget;	// ゲーム画面の描画先（オフスクリーン）
 
 	// UI

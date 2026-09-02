@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include <Engine/Renderer/RenderQueue/RenderQueue.h>
 #include <Engine/Renderer/RenderQueue/MeshletRenderQueue/MeshletRenderQueue.h>
+#include <Engine/Renderer/RenderQueue/DebugLineRenderQueue/DebugLineRenderQueue.h>
 
 // -------------------------------------------------------------------------------
 //		ユニークIDの生成（スレッドセーフ）
@@ -80,6 +81,17 @@ void GameObject::SubmitMeshlet(MeshletRenderQueue* _pQueue)
 	{
 		if (pMeshletRenderable->IsVisible())
 		{ pMeshletRenderable->Submit(_pQueue); }
+	}
+}
+
+void GameObject::SubmitDebugLine(DebugLineRenderQueue* _pQueue)
+{
+	if (!m_IsActive || _pQueue == nullptr) 
+	{ return; }
+
+	for (auto* pDebugLineRenderable : m_DebugLineRenderables)
+	{
+		{ pDebugLineRenderable->SubmitDebugLine(_pQueue); }
 	}
 }
 

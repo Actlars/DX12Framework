@@ -73,6 +73,32 @@ void MeshComponent::OnDetach()
 // -------------------------------------------------------------------------------
 //		メッシュとマテリアルの設定
 // -------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------
+//		描きたいモデルの指定（希望を記録するだけ）
+//
+//		実際の割り当てはシーンがApplyModelで行う
+//		ここでGPUリソースを取りに行かないのは、
+//		コンポーネントがデバイスもModelLibraryも知らないため
+// -------------------------------------------------------------------------------
+void MeshComponent::SetModelRequest(std::string_view _modelKey, uint32_t _partIndex)
+{
+	m_ModelKey	= std::string(_modelKey);
+	m_PartIndex	= _partIndex;
+}
+
+// -------------------------------------------------------------------------------
+//		希望どおりのモデルを実際に結び付ける（シーンから呼ぶ）
+// -------------------------------------------------------------------------------
+void MeshComponent::ApplyModel(Mesh* _pMesh, Material* _pMaterial)
+{
+	m_pMesh		= _pMesh;
+	m_pMaterial	= _pMaterial;
+
+	// 反映済みとして控える。次のフレームからは NeedsModelUpdate() がfalseになる
+	m_AppliedModelKey	= m_ModelKey;
+	m_AppliedPartIndex	= m_PartIndex;
+}
+
 void MeshComponent::SetMesh(Mesh* _pMesh, Material* _pMaterial)
 {
 	m_pMesh		= _pMesh;

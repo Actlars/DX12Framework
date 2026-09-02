@@ -5,6 +5,8 @@
 #include <Engine/Scene/IScene.h>
 #include <Engine/RHI/Core/Device/Device.h>
 
+class ModelLibrary;
+
 // -------------------------------------------------------------------------------
 // SceneManager class
 // 
@@ -57,8 +59,10 @@ public:
 	//			GraphicsDeviceへの参照を保持する（所有権なし）
 	// 
 	// @param[in]	_pGraphicsDevice	GraphicsDeviceへのポインタ
+	// @param[in]	_pModels			モデルの置き場へのポインタ
+	//									切り替わる各シーンへそのまま渡す
 	// -------------------------------------------------------------------------------
-	void Init(RHI::Device* _pGrahicsDevice);
+	void Init(RHI::Device* _pGrahicsDevice, ModelLibrary* _pModels);
 
 	// -------------------------------------------------------------------------------
 	// @brief	終了処理	現在のシーンを終了させて解放する
@@ -120,6 +124,9 @@ private:
 	// private variables
 	// -------------------------------------------------------------------------------
 	RHI::Device*			m_pGraphicsDevice = nullptr;	// 所有権なし
+
+	// モデルの置き場。シーンより長生きするため、参照だけを持つ
+	ModelLibrary*			m_pModels = nullptr;
 	std::unique_ptr<IScene> m_pCurrentScene;				// 現在のシーン
 	std::unique_ptr<IScene> m_pNextScene;					// 予約済みの次のシーン
 

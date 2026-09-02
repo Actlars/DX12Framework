@@ -140,6 +140,27 @@ bool SceneRenderer::Init(RHI::Device* _pDevice)
         return false;
     }
 
+    // -------------------------------------------------------------------------------
+    // DebugLine描画パイプライン初期化
+    // -------------------------------------------------------------------------------
+    if (!m_DebugLineRootSignatureLayout.LoadFromJson(pDevice, L"Assets/Config/Json/RootSignature/Debug/DebugLine.json"))
+    {
+        ELOG("SceneRenderer::Init() : DebugLineSignatureLayout load failed");
+        return false;
+    }
+
+    m_pDebugLinePSO = m_pDevice->GetPipelineCache()->GetOrCreate(
+        pDevice, L"Assets/Config/Json/PipelineState/Debug/DebugLine.json",
+        m_DebugLineRootSignatureLayout.GetRootSignature(),
+        DebugLineVertex::InputLayout);
+    if (m_pDebugLinePSO == nullptr)
+    {
+        ELOG("SceneRenderer::Init() : DebugLine PSO creation failed");
+        return false;
+    }
+
+    m_DebugRenderQueue.Init(_pDevice->GetDevice(), _pDevice->GetFrameCount());
+
     return true;
 }
 
@@ -148,8 +169,9 @@ bool SceneRenderer::Init(RHI::Device* _pDevice)
 // -------------------------------------------------------------------------------
 void SceneRenderer::Term()
 {
-    m_pMeshPSO  = nullptr;
-    m_pDevice   = nullptr;
+    m_pDebugLinePSO = nullptr;
+    m_pMeshPSO      = nullptr;
+    m_pDevice       = nullptr;
 }
 
 // -------------------------------------------------------------------------------
@@ -282,6 +304,50 @@ void SceneRenderer::Render(ID3D12GraphicsCommandList* _pCmd, GameObjectManager& 
             // カメラ行列・フレームインデックスはGameScene::UpdateViewProjが
             // MeshletComponentへ渡すのでここではSubmitのみ行う
             m_MeshletRenderQueue.Execute(cmd);
+        });
+
+    // デバッグライン描画
+    m_RenderGraph.AddPass(
+        "DebugLinePass",
+        [colorHandle, depthHandle](RG::PassBuilder& _builder)
+        {
+            _builder.Use(colorHandle, D3D12_RESOURCE_STATE_RENDER_TARGET);
+            _builder.Use(depthHandle, D3D12_RESOURCE_STATE_DEPTH_WRITE);;
+        },
+        [this, colorHandle, depthHandle, &_camera, &_objects, output](ID3D12GraphicsCommandList* _pCmd, const RG::ResourceRegistry& _res)
+        {
+            auto handleRTV = output.ColorRTV;
+            auto handleDSV = output.DepthDSV;
+            _pCmd->OMSetRenderTargets(1, &handleRTV, FALSE, &handleDSV);
+            SetFullViewport(_pCmd, output.Width, output.Height);
+            // -------------------------------------------------------------------------------
+            // DebugLine用Pipeline
+            // -------------------------------------------------------------------------------
+            _pCmd->SetGraphicsRootSignature(m_DebugLineRootSignatureLayout.GetRootSignature());
+            _pCmd->SetPipelineState(m_pDebugLinePSO);
+
+            // -----------------------------------------------------------------------
+            // ViewProjection
+            // -----------------------------------------------------------------------
+            const Math::Matrix viewProjection =
+                _camera.GetView() *
+                _camera.GetProj();
+
+            _pCmd->SetGraphicsRoot32BitConstants(
+                m_DebugLineRootSignatureLayout
+                .GetSlot("ViewProjection"), 16, &viewProjection, 0);
+
+            // -----------------------------------------------------------------------
+            // 各GameObjectからDebugLineを集める
+            // -----------------------------------------------------------------------
+            _objects.SubmitDebugLine(
+                &m_DebugRenderQueue);
+
+            // -----------------------------------------------------------------------
+            // 一括描画
+            // -----------------------------------------------------------------------
+            m_DebugRenderQueue.Execute(_pCmd, m_pDevice->GetFrameIndex());
+
         });
 
     // -------------------------------------------------------------------------------

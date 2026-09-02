@@ -5,10 +5,14 @@
 
 #include <Engine/EditorUI/Widgets/Widgets.h>
 #include <Engine/GameObject/GameObject.h>
+#include <Engine/GameObject/ComponentRegistry/ComponentRegistry.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
 #include <Engine/GameObject/Components/MeshComponent/MeshComponent.h>
 #include <Engine/GameObject/Components/MeshletComponent/MeshletComponent.h>
+#include <Engine/GameObject/Components/HitComponent/BoxCollisionComponent/BoxCollisionComponent.h>
+#include <Engine/Resource/ModelLibrary/ModelLibrary.h>
 
+#include <Editor/Commands/ComponentCommands/ComponentCommands.h>
 #include <Editor/Commands/ObjectCommands/ObjectCommands.h>
 #include <Editor/EditorContext.h>
 
@@ -18,6 +22,12 @@ namespace
 
 	// どの行もラベルの右端がそろうよう、インスペクタ全体で同じレイアウトを使う
 	constexpr EditorUI::PropertyLayout kInspectorLayout{ 88.0f, 0.0f, 4.0f };
+
+	// モデル選択メニューの名前。Idの元になるため一意にする
+	constexpr std::string_view kModelPickerMenu = "ComponentModelPicker";
+
+	// モデルとして扱う拡張子
+	constexpr std::string_view kModelExtensions[] = { ".fbx", ".obj", ".gltf", ".glb" };
 
 	// -------------------------------------------------------------------------------
 	// TransformEditSession struct
@@ -43,6 +53,226 @@ namespace
 	};
 
 	TransformEditSession s_TransformEdit;
+
+	// -------------------------------------------------------------------------------
+	// 選べるモデルの一覧
+	//
+	//	メニューを開いた瞬間だけ作り直す
+	//	毎フレーム走査するとフォルダの中身を何度も読むことになり、
+	//	かといって起動時に1度だけでは、あとから足したモデルが出てこない
+	// -------------------------------------------------------------------------------
+	std::vector<std::string> s_ModelCandidates;
+
+	bool IsModelFile(const std::filesystem::path& _path)
+	{
+		if (!_path.has_extension())
+		{
+			return false;
+		}
+
+		std::string extension = _path.extension().string();
+
+		std::transform(extension.begin(), extension.end(), extension.begin(),
+			[](unsigned char _c) { return static_cast<char>(std::tolower(_c)); });
+
+		return std::find(std::begin(kModelExtensions), std::end(kModelExtensions), extension)
+			!= std::end(kModelExtensions);
+	}
+
+	// -------------------------------------------------------------------------------
+	// プロジェクトのAssetsフォルダからモデルファイルを集める
+	//
+	// 読み込み済みのものも混ぜる
+	// （Assetsの外にあるモデルを一度でも使っていれば、選び直せるようにするため）
+	// -------------------------------------------------------------------------------
+	void RebuildModelCandidates(const ModelLibrary& _models)
+	{
+		s_ModelCandidates = _models.GetLoadedKeys();
+
+		const std::filesystem::path assetsRoot = _models.GetProjectRoot() / "Assets";
+
+		std::error_code error;
+		if (std::filesystem::exists(assetsRoot, error) && !error)
+		{
+			for (const auto& entry : std::filesystem::recursive_directory_iterator(
+					assetsRoot, std::filesystem::directory_options::skip_permission_denied, error))
+			{
+				if (error)
+				{
+					break;
+				}
+
+				if (!entry.is_regular_file() || !IsModelFile(entry.path()))
+				{
+					continue;
+				}
+
+				s_ModelCandidates.emplace_back(_models.ToKey(entry.path()));
+			}
+		}
+
+		// 同じものが二重に並ばないようにする
+		std::sort(s_ModelCandidates.begin(), s_ModelCandidates.end());
+		s_ModelCandidates.erase(
+			std::unique(s_ModelCandidates.begin(), s_ModelCandidates.end()),
+			s_ModelCandidates.end());
+	}
+
+	// -------------------------------------------------------------------------------
+	// モデルを選ぶボタンとメニュー
+	//
+	//	選ばれたモデルのキーを _outSelected へ入れてtrueを返す
+	//	「指定を外す」を選んだ場合は空文字が入る
+	//
+	//	ここでは値を書き換えない
+	//	書き換え方（Meshか、Meshletか）は呼び出し側の型ごとに違うため
+	// -------------------------------------------------------------------------------
+	bool DrawModelPicker(
+		EditorContext&		_ctx,
+		std::string_view	_currentKey,
+		std::string&		_outSelected)
+	{
+		EditorUI::Context&	ui		= *_ctx.pUI;
+		EditorUI::Font&		font	= *_ctx.pFont;
+
+		if (_ctx.pModels == nullptr)
+		{
+			EditorUI::TextMuted(ui, font, "モデルの置き場がありません");
+			return false;
+		}
+
+		// -------------------------------------------------------------------------------
+		// 今の指定を表示する
+		//
+		// パスは長くなりがちなので、折り返して全体が読めるようにする
+		// -------------------------------------------------------------------------------
+		EditorUI::TextMuted(ui, font, "Model");
+
+		if (_currentKey.empty())
+		{
+			EditorUI::TextMuted(ui, font, "（未設定）");
+		}
+		else
+		{
+			EditorUI::TextWrapped(ui, font, std::string(_currentKey));
+		}
+
+		if (EditorUI::Button(ui, "モデルを選択", font, { 160.0f, 22.0f }))
+		{
+			// 開いた瞬間に一覧を作り直す
+			RebuildModelCandidates(*_ctx.pModels);
+
+			// 押したボタンの真下に開き、どこから出たメニューかを分かりやすくする
+			if (const EditorUI::WindowFrame* pFrame = ui.GetCurrentWindow())
+			{
+				ui.OpenPopupAt(kModelPickerMenu,
+					{ pFrame->LastItemRect.Min.x, pFrame->LastItemRect.Max.y });
+			}
+		}
+
+		bool selected = false;
+
+		if (EditorUI::BeginPopup(ui, kModelPickerMenu))
+		{
+			if (EditorUI::MenuItem(ui, font, "（指定を外す）"))
+			{
+				_outSelected.clear();
+				selected = true;
+			}
+
+			EditorUI::MenuSeparator(ui);
+
+			if (s_ModelCandidates.empty())
+			{
+				EditorUI::MenuItem(ui, font, "モデルが見つかりません", false);
+			}
+
+			for (const std::string& candidate : s_ModelCandidates)
+			{
+				// 選択中のものには印を付け、今どれが使われているか分かるようにする
+				const std::string label = (candidate == _currentKey ? "* " : "  ") + candidate;
+
+				if (EditorUI::MenuItem(ui, font, label))
+				{
+					_outSelected	= candidate;
+					selected		= true;
+				}
+			}
+
+			EditorUI::EndPopup(ui);
+		}
+
+		return selected;
+	}
+
+	// -------------------------------------------------------------------------------
+	// コンポーネントの値の変更を、取り消せる操作として履歴へ積む
+	//
+	//	書き換え前後の値をComponentRegistry経由で写し取り、そのまま渡すだけ
+	//	型ごとに専用のコマンドを作らずに済む
+	// -------------------------------------------------------------------------------
+	void SubmitValueChange(
+		EditorContext&				_ctx,
+		GameObject&					_object,
+		std::string_view			_typeName,
+		const nlohmann::json&		_before)
+	{
+		const ComponentTypeInfo* pInfo = ComponentRegistry::Find(_typeName);
+
+		if (pInfo == nullptr)
+		{
+			return;
+		}
+
+		ComponentCommands::SetValues(
+			_ctx, &_object, *pInfo,
+			_before,
+			ComponentRegistry::CaptureComponent(_object, *pInfo));
+	}
+}
+
+// -------------------------------------------------------------------------------
+// 型名に対応する見せ方
+// -------------------------------------------------------------------------------
+const Editor::ComponentDisplayInfo& Editor::ComponentInspectors::GetDisplay(std::string_view _typeName)
+{
+	// -------------------------------------------------------------------------------
+	// 見せ方の登録表
+	//
+	//	新しいコンポーネントをエディタで扱いやすくするときは、ここへ1項目足す
+	//	足さなくても表示はできる（型名がそのまま出る）ため、
+	//	エンジン側の登録とどちらが先でも構わない
+	// -------------------------------------------------------------------------------
+	static const std::vector<ComponentDisplayInfo> s_Table =
+	{
+		{ "TransformComponent",		"Transform",	false,	&DrawTransform		},
+		{ "MeshComponent",			"Mesh",			true,	&DrawMesh			},
+		{ "MeshletComponent",		"Meshlet",		true,	&DrawMeshlet		},
+		{ "BoxCollisionComponent",	"BoxCollision", false,	&DrawBoxCollision	},
+	};
+
+	for (const ComponentDisplayInfo& info : s_Table)
+	{
+		if (info.TypeName == _typeName)
+		{
+			return info;
+		}
+	}
+
+	// -------------------------------------------------------------------------------
+	// 登録が無い型のための既定
+	//
+	// 表示名に型名をそのまま使う
+	// staticで持つのは、参照を返すため寿命が必要になるから
+	// -------------------------------------------------------------------------------
+	static ComponentDisplayInfo s_Fallback;
+
+	s_Fallback.TypeName		= _typeName;
+	s_Fallback.DisplayName	= _typeName;
+	s_Fallback.IsRemovable	= true;
+	s_Fallback.Draw			= nullptr;
+
+	return s_Fallback;
 }
 
 // -------------------------------------------------------------------------------
@@ -125,8 +355,9 @@ void Editor::ComponentInspectors::DrawTransform(EditorContext& _ctx, GameObject&
 // -------------------------------------------------------------------------------
 // Mesh
 //
-// メッシュそのものの割り当てはシーン側が行うため、
-// ここでは「入っているか」と「表示するか」だけを扱う
+// 描くモデルをここで選べる
+// 選んだ時点では見た目は変わらず、次のフレームにシーンが実体を結び付ける
+// （MeshComponentのコメントを参照）
 // -------------------------------------------------------------------------------
 void Editor::ComponentInspectors::DrawMesh(EditorContext& _ctx, GameObject& _object)
 {
@@ -139,18 +370,78 @@ void Editor::ComponentInspectors::DrawMesh(EditorContext& _ctx, GameObject& _obj
 		return;
 	}
 
+	const ComponentTypeInfo* pInfo = ComponentRegistry::Find("MeshComponent");
+	if (pInfo == nullptr)
+	{
+		return;
+	}
+
+	// -------------------------------------------------------------------------------
+	// モデルの選択
+	// -------------------------------------------------------------------------------
+	std::string selectedKey;
+
+	if (DrawModelPicker(_ctx, pMesh->GetModelKey(), selectedKey))
+	{
+		const nlohmann::json before = ComponentRegistry::CaptureComponent(_object, *pInfo);
+
+		// 別のモデルへ移ったら、パート番号は先頭へ戻す
+		// 前のモデルの番号をそのまま使うと、範囲外になって何も出なくなる
+		pMesh->SetModelRequest(selectedKey, 0);
+
+		SubmitValueChange(_ctx, _object, "MeshComponent", before);
+	}
+
+	// -------------------------------------------------------------------------------
+	// モデル内の何番目を描くか
+	//
+	// 1つのモデルファイルは、体・髪・服のように複数のメッシュに分かれていることが多い
+	// MeshComponentが描くのはそのうちの1つなので、番号で選ぶ
+	// -------------------------------------------------------------------------------
+	if (!pMesh->GetModelKey().empty())
+	{
+		uint32_t part = pMesh->GetPartIndex();
+
+		EditorUI::NumericEditorOptions<uint32_t> partOptions;
+		partOptions.Min			= 0;
+		partOptions.Max			= 255;
+		partOptions.DragSpeed	= 0.1L;
+
+		if (EditorUI::Property(ui, font, "Part", &part, partOptions, kInspectorLayout))
+		{
+			const nlohmann::json before = ComponentRegistry::CaptureComponent(_object, *pInfo);
+
+			pMesh->SetModelRequest(pMesh->GetModelKey(), part);
+
+			SubmitValueChange(_ctx, _object, "MeshComponent", before);
+		}
+	}
+
+	// -------------------------------------------------------------------------------
+	// 反映状況
+	//
+	// 選んだ直後はまだ結び付いていないため、そのことを見えるようにする
+	// -------------------------------------------------------------------------------
+	if (pMesh->GetModelKey().empty())
+	{
+		EditorUI::TextMuted(ui, font, "モデルが未設定です");
+		return;
+	}
+
 	if (!pMesh->HasMesh())
 	{
-		// 表示フラグを出しても意味が無い状態なので、理由だけを示す
-		EditorUI::TextMuted(ui, font, "メッシュが未設定です");
-		EditorUI::TextMuted(ui, font, "モデルの割り当てはシーン側で行われます");
+		EditorUI::TextMuted(ui, font, "読み込み待ち、またはパート番号が範囲外です");
 		return;
 	}
 
 	bool visible = pMesh->IsVisible();
 	if (EditorUI::Property(ui, font, "Visible", &visible, kInspectorLayout))
 	{
+		const nlohmann::json before = ComponentRegistry::CaptureComponent(_object, *pInfo);
+
 		pMesh->SetVisible(visible);
+
+		SubmitValueChange(_ctx, _object, "MeshComponent", before);
 	}
 }
 
@@ -168,11 +459,27 @@ void Editor::ComponentInspectors::DrawMeshlet(EditorContext& _ctx, GameObject& _
 		return;
 	}
 
-	const size_t meshCount = pMeshlet->GetMeshCount();
+	const ComponentTypeInfo* pInfo = ComponentRegistry::Find("MeshletComponent");
+	if (pInfo == nullptr)
+	{
+		return;
+	}
 
-	EditorUI::TextMuted(ui, font, "Meshes : " + std::to_string(meshCount));
+	std::string selectedKey;
 
-	if (meshCount == 0)
+	if (DrawModelPicker(_ctx, pMeshlet->GetModelKey(), selectedKey))
+	{
+		const nlohmann::json before = ComponentRegistry::CaptureComponent(_object, *pInfo);
+
+		pMeshlet->SetModelRequest(selectedKey);
+
+		SubmitValueChange(_ctx, _object, "MeshletComponent", before);
+	}
+
+	// メッシュレットはモデル全体をまとめて描くため、パート番号は無い
+	EditorUI::TextMuted(ui, font, "Meshes : " + std::to_string(pMeshlet->GetMeshCount()));
+
+	if (pMeshlet->GetMeshCount() == 0)
 	{
 		EditorUI::TextMuted(ui, font, "モデルが未読み込みです");
 		return;
@@ -181,6 +488,118 @@ void Editor::ComponentInspectors::DrawMeshlet(EditorContext& _ctx, GameObject& _
 	bool visible = pMeshlet->IsVisible();
 	if (EditorUI::Property(ui, font, "Visible", &visible, kInspectorLayout))
 	{
+		const nlohmann::json before = ComponentRegistry::CaptureComponent(_object, *pInfo);
+
 		pMeshlet->SetVisible(visible);
+
+		SubmitValueChange(_ctx, _object, "MeshletComponent", before);
 	}
+}
+
+// -------------------------------------------------------------------------------
+// BoxCollision
+// -------------------------------------------------------------------------------
+void Editor::ComponentInspectors::DrawBoxCollision(EditorContext& _ctx, GameObject& _object)
+{
+	EditorUI::Context& ui = *_ctx.pUI;
+	EditorUI::Font& font = *_ctx.pFont;
+
+	auto* pBoxCollision = _object.GetComponent<BoxCollisionComponent>();
+
+	if (pBoxCollision == nullptr)
+	{ return; }
+
+	const ComponentTypeInfo* pInfo = ComponentRegistry::Find("BoxCollisionComponent");
+	if (pInfo == nullptr) 
+	{ return; }
+
+	// -------------------------------------------------------------------------------
+	// Size
+	// 
+	// BoxCollisionでは、HalfExtentsとして保持している
+	// Inspectorでは実際のBoxサイズとして扱うため、2倍して使う
+	// -------------------------------------------------------------------------------
+	const AABB& localAABB = pBoxCollision->GetLocalAABB();
+
+	Math::Vector3 size
+	{
+		localAABB.HalfExtents.x * 2.0f,
+		localAABB.HalfExtents.y * 2.0f,
+		localAABB.HalfExtents.z * 2.0f
+	};
+
+	EditorUI::NumericEditorOptions<float> sizeOptions;
+
+	sizeOptions.Min = 0.001f;
+	sizeOptions.Max = 10000.0f;
+	sizeOptions.DragSpeed = 0.01L;
+	sizeOptions.Precision = 3;
+	sizeOptions.Step = 0.0f;
+
+	if (EditorUI::Property(ui, font, "Size", &size, sizeOptions, kInspectorLayout))
+	{
+		const nlohmann::json before = ComponentRegistry::CaptureComponent(_object, *pInfo);
+		pBoxCollision->SetSize(Math::Vector3{ size.x * 0.5f,size.y * 0.5f,size.z * 0.5f });
+		SubmitValueChange(_ctx, _object, "BoxCollisionComponent", before);
+	}
+
+	// -------------------------------------------------------------------------------
+	// Offset
+	// -------------------------------------------------------------------------------
+	Math::Vector3 offset
+	{
+		localAABB.Center.x,
+		localAABB.Center.y,
+		localAABB.Center.z
+	};
+
+	EditorUI::NumericEditorOptions<float> offsetOptions;
+
+	offsetOptions.Min = -100000.0f;
+	offsetOptions.Max = 100000.0f;
+	offsetOptions.DragSpeed = 0.01f;
+	offsetOptions.Precision = 3;
+	offsetOptions.Step = 0.0f;
+
+	if (EditorUI::Property(ui, font, "Offset", &offset, offsetOptions, kInspectorLayout))
+	{
+		const nlohmann::json before = ComponentRegistry::CaptureComponent(_object, *pInfo);
+		pBoxCollision->SetOffset(offset);
+		SubmitValueChange(_ctx, _object, "BoxCollisionComponent", before);
+	}
+
+	// -------------------------------------------------------------------------------
+	// DebugDraw
+	// -------------------------------------------------------------------------------
+	bool debugDraw = pBoxCollision->IsDebugDrawEnabled();
+
+	if (EditorUI::Property(ui, font, "DebugDraw", &debugDraw, kInspectorLayout))
+	{
+		const nlohmann::json before = ComponentRegistry::CaptureComponent(_object, *pInfo);
+		pBoxCollision->SetDebugDrawEnabled(debugDraw);
+		SubmitValueChange(_ctx, _object, "BoxCollisionComponent", before);
+	}
+
+	// -------------------------------------------------------------------------------
+	// DebugColor
+	// -------------------------------------------------------------------------------
+	const Math::Vector4& currentColor = pBoxCollision->GetDebugColor();
+
+	Math::Vector4 color = currentColor;
+
+	EditorUI::NumericEditorOptions<float> colorOptions;
+
+	colorOptions.Min = 0.0f;
+	colorOptions.Max = 1.0f;
+	colorOptions.DragSpeed = 0.01L;
+	colorOptions.Precision = 2;
+	colorOptions.Step = 0.0f;
+
+	if (EditorUI::Property(ui, font, "DebugColor", &color, colorOptions, kInspectorLayout))
+	{
+		const nlohmann::json before = ComponentRegistry::CaptureComponent(_object, *pInfo);
+		pBoxCollision->SetDebugColor(color);
+		SubmitValueChange(_ctx, _object, "BoxCollisionComponent", before);
+	}
+
 }

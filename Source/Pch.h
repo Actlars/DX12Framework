@@ -58,6 +58,7 @@
 // -------------------------------------------------------------------------------
 
 #include <DirectXMath.h>
+#include <Engine/Math/Math.h>
 
 #include <DirectXTex.h>
 #pragma comment(lib, "DirectXTex.lib")

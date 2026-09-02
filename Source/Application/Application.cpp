@@ -17,6 +17,14 @@ namespace
     constexpr auto ContentRootPath = L"C:/DX12NextPlay/DX12Framework/Assets/Content";
 
     // -------------------------------------------------------------------------------
+    // プロジェクトのルート
+    //
+    // モデルやシーンのパスは、ここからの相対で扱う
+    // ファイルへ絶対パスを書くと、プロジェクトを別の場所へ移した時点で開けなくなるため
+    // -------------------------------------------------------------------------------
+    constexpr auto ProjectRootPath = L"C:/DX12NextPlay/DX12Framework";
+
+    // -------------------------------------------------------------------------------
     // ウィンドウの位置と大きさの保存先
     //
     // アセットではなく利用者ごとの設定なので、Contentとは別のフォルダへ置く
@@ -115,8 +123,16 @@ bool Application::Init()
     // DX12 の低レベル処理は全て GraphicsDevice に委譲する
     m_GraphicsView.Init(m_hWnd, m_Width, m_Height);
 
+    // ─── モデルの置き場 ───
+    // シーンより先に用意する。シーンの初期化中に読み込みが走るため
+    if (!m_ModelLibrary.Init(m_GraphicsView.GetDevice(), ProjectRootPath))
+    {
+        ELOG("Application::Init() : ModelLibrary::Init failed");
+        return false;
+    }
+
     // SceneManagerの初期化
-    m_SceneManager.Init(m_GraphicsView.GetDevice());
+    m_SceneManager.Init(m_GraphicsView.GetDevice(), &m_ModelLibrary);
 
     // InputManagerの初期化
     if (!m_InputManager.Init(m_hWnd))
@@ -128,7 +144,8 @@ bool Application::Init()
     // ─── 最初のシーンを登録して即時切り替え ───
     // 遅延切り替えだが最初のシーンは即時適用する
     GameScene::Desc sceneDesc;
-    sceneDesc.ModelPath         = L"C:/DX12NextPlay/DX12Framework/Assets/Model/Elinyaa/Elinyaa.fbx";
+    // プロジェクトからの相対パスで指定する（ModelLibraryが絶対パスへ直す）
+    sceneDesc.ModelPath         = L"Assets/Model/Player/Elinyaa/Elinyaa.fbx";
     sceneDesc.pInputManager     = &m_InputManager;
     sceneDesc.CameraPosition    = { 0.0f, 1.0f, -5.0f };
     sceneDesc.CameraMoveSpeed   = 10.0f;
@@ -176,7 +193,7 @@ bool Application::Init()
     // エディタ本体の作成
     if (!m_EditorApp.Init(
         &m_EditorUIContext, &m_Font, &m_ViewportTarget, &m_SceneManager,
-        m_GraphicsView.GetDevice(), &m_EditorUIRenderer, ContentRootPath))
+        m_GraphicsView.GetDevice(), &m_EditorUIRenderer, &m_ModelLibrary, ContentRootPath))
     {
         ELOG("Application::Init() : EditorApp::Init failed");
         return false;
@@ -221,6 +238,9 @@ void Application::Term()
 
     // SceneManagerを先に終了する（GPUリソースを持つので、GraphicsDeviceより前）
     m_SceneManager.Term();
+
+    // シーンが参照し終わってから、モデルの実体を解放する
+    m_ModelLibrary.Term();
 
     // ビューポートのリソースもデバイスより前に解放する
     m_ViewportTarget.Term();
@@ -355,18 +375,57 @@ void Application::Tick()
 // -------------------------------------------------------------------------------
 void Application::UpdateEditorUI(float _deltaTime)
 {
+    // 左上を(0,0)とし、現在のClient領域全体をScreenBoundsとして扱う。
     const EditorUI::Rect2D screenBounds = EditorUI::MakeRect(
         { 0.0f,0.0f },
         { static_cast<float>(m_Width), static_cast<float>(m_Height) });
 
+    // -------------------------------------------------------------------------------
+    // DockSpaceを現在の画面サイズへ追従させる
+    // -------------------------------------------------------------------------------
+
+    // NewFrameによるHover/Splitter判定より前にDockNodeのBoundsを更新する
+    // ここではDockTreeそのものを作り直すのではなく、
+    // 現在保持しているSplitRatioを維持したまま各Nodeの矩形だけを再計算
     m_EditorUIContext.UpdateDockSpaceLayout(screenBounds);
 
+    // -------------------------------------------------------------------------------
+    // 今フレームの入力状態を取得
+    // -------------------------------------------------------------------------------
+
+    // Application側で保持しているMouse・Keyboard入力をEditorUIが扱えるInputStateへまとめる
     const EditorUI::InputState input = PollInputState(_deltaTime);
+
+    // -------------------------------------------------------------------------------
+    // EditorUIのフレーム開始処理
+    // -------------------------------------------------------------------------------
+
+    // NewFrameでは主に、
+    // ・Clicked/Releasedなど今フレームの入力状態確定
+    // ・遅延Window削除の反映
+    // ・Widget/Window/DockのInteraction状態更新
+    // ・前フレームで確定したWindow矩形を利用したHover/Focus判定
+    // ・Dock中のSplitterやWindow移動処理終了
+    // を行う
     m_EditorUIContext.NewFrame(input);
 
-    // どんなパネルを出すかはEditorAppが決める
+    
+    // -------------------------------------------------------------------------------
+    // Editor本体のWindow/Panel/Widgetを構築
+    // -------------------------------------------------------------------------------
+
+    // Hierarchy/Inspector/Viewport/ContentBrowserなど、
+    // 実際にどのWindowをBeginして何を描画するかはEditorAppへ移譲する
     m_EditorApp.BuildUI(_deltaTime);
 
+    // -------------------------------------------------------------------------------
+    // EditorUIのフレーム終了処理
+    // -------------------------------------------------------------------------------
+
+    // 各Windowが生成したDrawListを最終的な描画順へ並べる
+    // 基本的なz-orderは、
+    // DockWindow → FloatingWindow → Popup → Overlayの順に並べ替える
+    // ここで完了したFrameOutputを、後段のEditorUIRendererがGPUへ描画する
     m_EditorUIContext.EndFrame();
 }
 
@@ -474,7 +533,16 @@ bool Application::InitWnd()
     wc.style            = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc      = WndProc;
     wc.hIcon            = LoadIcon(hInst, IDI_APPLICATION);
-    wc.hCursor          = LoadCursor(hInst, IDC_ARROW);
+    // -------------------------------------------------------------------------------
+    // 既定のマウスカーソル
+    //
+    //  第1引数はnullptrにする
+    //  モジュールハンドルを渡すと「このexeの中にある、その名前のカーソル資源」を
+    //  探しに行って見つからず、NULLが入る
+    //  hCursorがNULLのウィンドウはカーソルの形をOSに任せきりになるため、
+    //  ウィンドウ枠でリサイズ矢印になったあと、中へ入っても矢印のまま戻らなくなる
+    // -------------------------------------------------------------------------------
+    wc.hCursor          = LoadCursor(nullptr, IDC_ARROW);
     wc.hbrBackground    = GetSysColorBrush(COLOR_BACKGROUND);
     wc.lpszClassName    = WindowClassName;
     wc.hIconSm          = LoadIcon(hInst, IDI_APPLICATION);
@@ -564,6 +632,29 @@ void Application::TermWnd()
 
     m_hInst = nullptr;
     m_hWnd = nullptr;
+}
+
+// -------------------------------------------------------------------------------
+// EditorUIが希望する形へマウスカーソルを切り替える
+//
+// EditorUIはWindowsのAPIを知らないため、形の希望を持つだけで実際には変えられない
+// その希望をWin32のカーソルへ翻訳するのが、プラットフォーム層であるここの役目
+// -------------------------------------------------------------------------------
+void Application::ApplyMouseCursor() const
+{
+    LPCTSTR cursorName = IDC_ARROW;
+
+    switch (m_EditorUIContext.GetMouseCursor())
+    {
+    case EditorUI::MouseCursor::TextInput:   cursorName = IDC_IBEAM;     break;
+    case EditorUI::MouseCursor::ResizeNWSE:  cursorName = IDC_SIZENWSE;  break;
+    case EditorUI::MouseCursor::Hand:        cursorName = IDC_HAND;      break;
+
+    case EditorUI::MouseCursor::Arrow:
+    default:                                 cursorName = IDC_ARROW;     break;
+    }
+
+    SetCursor(LoadCursor(nullptr, cursorName));
 }
 
 // -------------------------------------------------------------------------------
@@ -710,6 +801,15 @@ void Application::HandleWindowMessage(UINT _msg, WPARAM _wp, LPARAM _lp)
         break;
     }
 
+    case WM_SETCURSOR:
+        // クライアント領域の中だけ、こちらでカーソルの形を決める
+        // 枠の上（HTLEFTなど）はOSに任せたほうが、実際の操作と形が一致する
+        if (LOWORD(_lp) == HTCLIENT)
+        {
+            ApplyMouseCursor();
+        }
+        break;
+
     case WM_CLOSE:
         // -------------------------------------------------------------------------------
         // 閉じる直前に、位置と大きさを覚えておく
@@ -788,6 +888,19 @@ LRESULT CALLBACK Application::WndProc(HWND _hWnd, UINT _msg, WPARAM _wp, LPARAM 
     {
     case WM_DESTROY:
         PostQuitMessage(0);
+        break;
+
+    case WM_SETCURSOR:
+        // -------------------------------------------------------------------------------
+        // クライアント領域のカーソルは自分で決めたので、DefWindowProcへ渡さない
+        //
+        // 渡すとウィンドウクラスの既定カーソル(矢印)で上書きされ、
+        // 入力欄のIビームなどが一瞬で戻ってしまう
+        // -------------------------------------------------------------------------------
+        if (pApp != nullptr && LOWORD(_lp) == HTCLIENT)
+        {
+            return TRUE;
+        }
         break;
 
     default:

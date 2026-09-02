@@ -117,6 +117,15 @@ void GameObjectManager::SubmitMeshlet(MeshletRenderQueue* _pQueue)
 	}
 }
 
+void GameObjectManager::SubmitDebugLine(DebugLineRenderQueue* _pQueue)
+{
+	for (auto& obj : m_Objects)
+	{
+		if (obj->IsActive())
+		{ obj->SubmitDebugLine(_pQueue); }
+	}
+}
+
 // -------------------------------------------------------------------------------
 //		名前で検索
 // -------------------------------------------------------------------------------
@@ -145,6 +154,21 @@ std::vector<GameObject*> GameObjectManager::FindAll(
 	}
 
 	return result;
+}
+
+// -------------------------------------------------------------------------------
+// 同じオブジェクトを探す
+// -------------------------------------------------------------------------------
+bool GameObjectManager::Contains(const GameObject* _pObject)
+{
+	for (const auto& obj : m_Objects)
+	{
+		if (obj.get() == _pObject)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 // -------------------------------------------------------------------------------

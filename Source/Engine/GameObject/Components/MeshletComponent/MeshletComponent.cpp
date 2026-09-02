@@ -106,6 +106,38 @@ bool MeshletComponent::Init(RHI::Device* _pDevice,const std::wstring& _modelPath
 // -------------------------------------------------------------------------------
 //		デタッチ時の処理（定数バッファの解放）
 // -------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------
+//		描きたいモデルの指定（希望を記録するだけ）
+// -------------------------------------------------------------------------------
+void MeshletComponent::SetModelRequest(std::string_view _modelKey)
+{
+	m_ModelKey = std::string(_modelKey);
+}
+
+// -------------------------------------------------------------------------------
+//		希望どおりのモデルを読み直す（シーンから呼ぶ）
+//
+//		メッシュレットは読み込み時に分割まで済ませる作りのため、
+//		モデルを変えるには作り直すしかない
+//		以前のものを先に解放してから読み直す
+// -------------------------------------------------------------------------------
+bool MeshletComponent::ApplyModel(RHI::Device* _pDevice, const std::wstring& _absolutePath)
+{
+	// 反映済みとして先に控える
+	// 読み込みに失敗した場合も、毎フレーム読み直そうとして固まるのを防ぐ
+	m_AppliedModelKey = m_ModelKey;
+
+	// 前のモデルを解放する
+	OnDetach();
+
+	if (_pDevice == nullptr || _absolutePath.empty())
+	{
+		return false;	// 「モデル無し」にした場合もここへ来る
+	}
+
+	return Init(_pDevice, _absolutePath);
+}
+
 void MeshletComponent::OnDetach()
 {
 	m_TransformCBs.clear();

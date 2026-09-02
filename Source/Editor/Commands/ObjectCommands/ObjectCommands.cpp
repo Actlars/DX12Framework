@@ -6,8 +6,10 @@
 #include <Engine/GameObject/GameObject.h>
 #include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
 
+#include <Engine/GameObject/GameObjectManager.h>
+#include <Engine/GameObject/GameObjectFactory/GameObjectFactory.h>
+
 #include <Editor/Commands/CommandHistory/CommandHistory.h>
-#include <Editor/Scene/GameObjectFactory/GameObjectFactory.h>
 
 // -------------------------------------------------------------------------------
 // コマンドの実装
@@ -18,6 +20,18 @@
 namespace
 {
 	using namespace Editor;
+
+	// -------------------------------------------------------------------------------
+	// 対象がまだシーンに居るか
+	//
+	// 履歴は生ポインタを持つため、触る前に必ず確かめる
+	// シーンが無い場合もfalseになる
+	// -------------------------------------------------------------------------------
+	bool IsTargetAlive(const EditorContext& _ctx, const GameObject* _pObject)
+	{
+		return _ctx.pObjects != nullptr
+			&& GameObjectFactory::IsAlive(*_ctx.pObjects, _pObject);
+	}
 
 	// -------------------------------------------------------------------------------
 	// ObjectLifetimeCommand class
@@ -90,7 +104,8 @@ namespace
 			if (_ctx.pObjects == nullptr)
 			{ return false; }
 
-			GameObject* pAttached = GameObjectFactory::Attach(_ctx, std::move(m_pHeld));
+			// 所有権をシーンへ渡す。以降の実体の寿命はシーンが持つ
+			GameObject* pAttached = _ctx.pObjects->AddExisting(std::move(m_pHeld));
 			if (pAttached == nullptr)
 			{ return false; }
 
@@ -111,7 +126,11 @@ namespace
 			if (m_pObject == nullptr)
 			{ return false; }
 
-			std::unique_ptr<GameObject> pDetached = GameObjectFactory::Detach(_ctx, m_pObject);
+			if (_ctx.pObjects == nullptr)
+			{ return false; }
+
+			// 破棄せずに受け取る。これで取り消したときに同じものを戻せる
+			std::unique_ptr<GameObject> pDetached = _ctx.pObjects->Detach(m_pObject);
 			if (pDetached == nullptr)
 			{ return false; }	// すでにシーンに無い
 
@@ -157,8 +176,7 @@ namespace
 
 		bool Apply(EditorContext& _ctx, const std::string& _name)
 		{
-			// 履歴は生ポインタを持つため、触る前に必ず生存を確かめる
-			if (!GameObjectFactory::IsAlive(_ctx, m_pObject))
+			if (!IsTargetAlive(_ctx, m_pObject))
 			{ return false; }
 
 			m_pObject->SetName(_name);
@@ -192,7 +210,7 @@ namespace
 
 		bool Apply(EditorContext& _ctx, bool _active)
 		{
-			if (!GameObjectFactory::IsAlive(_ctx, m_pObject))
+			if (!IsTargetAlive(_ctx, m_pObject))
 			{ return false; }
 
 			m_pObject->SetActive(_active);
@@ -232,7 +250,7 @@ namespace
 
 		bool Apply(EditorContext& _ctx, const TransformValues& _values)
 		{
-			if (!GameObjectFactory::IsAlive(_ctx, m_pObject))
+			if (!IsTargetAlive(_ctx, m_pObject))
 			{ return false; }
 
 			ObjectCommands::ApplyTransform(*m_pObject, _values);
@@ -312,7 +330,7 @@ GameObject* Editor::ObjectCommands::CreateEmpty(
 		return nullptr;	// シーンが読み込まれていない
 	}
 
-	auto pObject = GameObjectFactory::CreateEmptyDetached(_ctx, _baseName, _position);
+	auto pObject = GameObjectFactory::CreateEmpty(*_ctx.pObjects, _baseName, _position);
 	if (pObject == nullptr)
 	{
 		return nullptr;
@@ -337,7 +355,7 @@ GameObject* Editor::ObjectCommands::Duplicate(EditorContext& _ctx, const GameObj
 		return nullptr;
 	}
 
-	auto pClone = GameObjectFactory::CloneDetached(_ctx, _pSource);
+	auto pClone = GameObjectFactory::Clone(*_ctx.pObjects, *_pSource);
 	if (pClone == nullptr)
 	{
 		return nullptr;
@@ -377,7 +395,7 @@ GameObject* Editor::ObjectCommands::Spawn(
 // -------------------------------------------------------------------------------
 bool Editor::ObjectCommands::Destroy(EditorContext& _ctx, GameObject* _pTarget)
 {
-	if (!GameObjectFactory::IsAlive(_ctx, _pTarget))
+	if (!IsTargetAlive(_ctx, _pTarget))
 	{
 		return false;
 	}
@@ -394,7 +412,7 @@ bool Editor::ObjectCommands::Rename(
 	GameObject*			_pTarget,
 	std::string_view	_newName)
 {
-	if (!GameObjectFactory::IsAlive(_ctx, _pTarget))
+	if (!IsTargetAlive(_ctx, _pTarget))
 	{
 		return false;
 	}
@@ -406,7 +424,7 @@ bool Editor::ObjectCommands::Rename(
 	}
 
 	// 自分自身は重複判定から外す。変更前の自分と衝突して連番が付くのを防ぐ
-	const std::string newName = GameObjectFactory::MakeUniqueName(_ctx, _newName, _pTarget);
+	const std::string newName = GameObjectFactory::MakeUniqueName(*_ctx.pObjects, _newName, _pTarget);
 
 	// 変化が無いなら履歴を汚さない
 	if (newName == _pTarget->GetName())
@@ -423,7 +441,7 @@ bool Editor::ObjectCommands::Rename(
 // -------------------------------------------------------------------------------
 bool Editor::ObjectCommands::SetActive(EditorContext& _ctx, GameObject* _pTarget, bool _active)
 {
-	if (!GameObjectFactory::IsAlive(_ctx, _pTarget))
+	if (!IsTargetAlive(_ctx, _pTarget))
 	{
 		return false;
 	}
@@ -446,7 +464,7 @@ bool Editor::ObjectCommands::SetTransform(
 	const TransformValues&	_before,
 	const TransformValues&	_after)
 {
-	if (!GameObjectFactory::IsAlive(_ctx, _pTarget))
+	if (!IsTargetAlive(_ctx, _pTarget))
 	{
 		return false;
 	}

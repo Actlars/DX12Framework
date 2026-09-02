@@ -87,6 +87,8 @@ namespace Editor
 		//	生ポインタを保持しているため、フレームの先頭で必ず1回呼ぶ
 		//
 		// @param[in]	_isAlive	そのポインタがまだ有効かを答える関数
+		// 
+		// bool型を返す関数を返り値で返し、引数ではGameObject*を渡す関数を設定する
 		// -------------------------------------------------------------------------------
 		void Validate(const std::function<bool(const GameObject*)>& _isAlive)
 		{

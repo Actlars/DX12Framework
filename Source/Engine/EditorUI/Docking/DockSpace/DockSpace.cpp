@@ -432,29 +432,88 @@ bool EditorUI::DockSpace::IsSingleEmptyRoot() const
 	return it != m_Nodes.end() && it->second.IsLeaf && it->second.Windows.empty();
 }
 
+// -------------------------------------------------------------------------------
+// 指定Node以下のBoundsを再帰的に配分する
+// 
+// SplitNodeは自身のSplitRatioに従ってBoundsをChildA/ChildBへ分割する
+// Leafに到達した時点で再帰を終了する
+// 
+// SplitHorizontal == true  : X方向に分割し、ChildAが左、ChildBが右
+// SplitHorizontal == false : Y方向に分割し、ChildAが上、ChildBが下
+// Tree構造は変更せず、Geometryのみ更新
+// -------------------------------------------------------------------------------
 void EditorUI::DockSpace::RecomputeBounds(int _nodeId, const Rect2D& _bounds)
 {
+	// 再計算対象のNodeを取得
 	auto it = m_Nodes.find(_nodeId);
+	// 指定されたNodeが存在しない場合、これ以上子Nodeをたどることができないため処理を終了する
 	if (it == m_Nodes.end())
 	{ return; }
 
 	DockNode& node = it->second;
+
+	// -------------------------------------------------------------------------------
+	// 現在Nodeへ新しいBoundsを設定
+	// -------------------------------------------------------------------------------
+	
+	// 親Nodeから割り当てられた領域が、このNodeが画面上で使用する新しい領域とする
 	node.Bounds = _bounds;
 
+	// -------------------------------------------------------------------------------
+	// LeafNodeならここで終了
+	// -------------------------------------------------------------------------------
 	if (node.IsLeaf) 
 	{ return; }	// Leafには子がないのでここで終わり
 
-	// SplitRatioにしたがって、自分の領域を2つの子の領域に分割する
+	// -------------------------------------------------------------------------------
+	// SplitNodeのBoundsをChildA/ChildBへ配分
+	// -------------------------------------------------------------------------------
+
+	// SplitRatioは「ChildAが親領域の何割を使用しているか」を表す
+	// 例 : SplitRatio = 0.3の場合
+	// ChildA : 30% , ChildB : 70%の割合で領域を分割する
 	if (node.SplitHorizontal)
 	{
+		// 左右方向へ分割
+		//
+		// _bounds.Min.x					_bounds.Max.x 
+		//		|								   | 
+		//		+--------------+-------------------+ 
+		//		|	ChildA	   |		ChildB	   | 
+		//		+--------------+-------------------+ 
+		//					   ^ 
+		//					splitX 
+		//
+		// Splitは親Boundsの左端からWidth * SplitRatioだけ進んだ位置になる
 		const float splitX = _bounds.Min.x + _bounds.Width() * node.SplitRatio;
+		// ChildAに左側の領域を渡す
+		// Min : 親Boundsの左上, Max : splitXまで
 		RecomputeBounds(node.ChildA, { _bounds.Min, {splitX, _bounds.Max.y} });
+		// ChildBに右側の領域を渡す
+		// Min : SplitXから, Max : 親Boundsの右下
 		RecomputeBounds(node.ChildB, { {splitX, _bounds.Min.y}, _bounds.Max });
 	}
 	else
 	{
+		// 上下方向へ分割
+		// 
+		// _bounds.Min.y 
+		//		| 
+		//		+-------------------------+ 
+		//		|		ChildA			  | 
+		//		+-------------------------+ <- splitY 
+		//		|		ChildB			  | 
+		//		+-------------------------+ 
+		//		| 
+		// _bounds.Max.y
+		// 
+		// Splitは親Boundsの上端からHeight * SplitRatioだけ進んだ位置になる
 		const float splitY = _bounds.Min.y + _bounds.Height() * node.SplitRatio;
+		// ChildAに上側の領域を渡す
+		// Min : 親Boundsの左上, Max : SplitYまで
 		RecomputeBounds(node.ChildA, { _bounds.Min, {_bounds.Max.x, splitY} });
+		// ChildBに下側の領域を渡す
+		// Min : SplitYまで、 Max : 親Boundsの右下
 		RecomputeBounds(node.ChildB, { {_bounds.Min.x, splitY}, _bounds.Max });
 	}
 }

@@ -5,6 +5,7 @@
 #include <typeindex>
 #include <Engine/GameObject/Renderable/IRenderable.h>
 #include <Engine/GameObject/Renderable/IMeshletRenderable.h>
+#include <Engine/GameObject/Renderable/IDebugLineRenderable.h>
 #include <Engine/GameObject/Component/Component.h>
 #include <typeindex>
 
@@ -76,6 +77,9 @@ public:
 	// @brief	毎フレームの描画コマンドを積む処理
 	virtual void SubmitMeshlet(MeshletRenderQueue* _pQueue);
 
+	// @brief	毎フレームのコリジョンのデバッグラインの描画コマンドを積む
+	virtual void SubmitDebugLine(DebugLineRenderQueue* _pQueue);
+
 	// -------------------------------------------------------------------------------
 	// @brief	コンポーネントを追加する
 	// 
@@ -115,6 +119,11 @@ public:
 		// IMeshletRenderableを実装していれば描画リストにも追加
 		if (auto* pMeshletRenderable = dynamic_cast<IMeshletRenderable*>(pComp)) 
 		{ m_MeshletRenderables.emplace_back(pMeshletRenderable); }
+
+
+		if (auto* pDebugRenderable = dynamic_cast<IDebugLineRenderable*>(pComp)) 
+		{ m_DebugLineRenderables.emplace_back(pDebugRenderable); }
+
 
 		return pComp;
 	}
@@ -176,6 +185,13 @@ public:
 				m_MeshletRenderables.end());
 		}
 
+		if (auto* pDebugLineRenderable = dynamic_cast<IDebugLineRenderable*>(pComp))
+		{
+			m_DebugLineRenderables.erase(
+				std::remove(m_DebugLineRenderables.begin(), m_DebugLineRenderables.end(), pDebugLineRenderable),
+				m_DebugLineRenderables.end());
+		}
+
 		// コンポーネントリストから削除
 		m_Components.erase(
 			std::remove_if(m_Components.begin(), m_Components.end(), [pComp](const std::unique_ptr<Component>& c)
@@ -220,6 +236,9 @@ protected:
 
 	// IMeshletRenderableを実装するコンポーネントへの参照リスト（所有権なし）
 	std::vector<IMeshletRenderable*>				m_MeshletRenderables;
+
+	// IDebugLineRenderableを実行するコンポーネントへの参照リスト（所有権なし）
+	std::vector<IDebugLineRenderable*>				m_DebugLineRenderables;
 
 
 

@@ -25,9 +25,6 @@
     <ClCompile Include="Source\Editor\Components\ComponentInspectors\ComponentInspectors.cpp">
       <Filter>Editor\Components\ComponentInspectors</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Components\ComponentRegistry\ComponentRegistry.cpp">
-      <Filter>Editor\Components\ComponentRegistry</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Editor\EditorApp\EditorApp.cpp">
       <Filter>Editor\EditorApp</Filter>
     </ClCompile>
@@ -52,14 +49,20 @@
     <ClCompile Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.cpp">
       <Filter>Editor\Panels\ViewportPanel</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Prefab\PrefabAsset\PrefabAsset.cpp">
-      <Filter>Editor\Prefab\PrefabAsset</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Editor\Prefab\PrefabSystem\PrefabSystem.cpp">
       <Filter>Editor\Prefab\PrefabSystem</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.cpp">
-      <Filter>Editor\Scene\GameObjectFactory</Filter>
+    <ClCompile Include="Source\Editor\Scene\SceneEditor\SceneEditor.cpp">
+      <Filter>Editor\Scene\SceneEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Asset\AssetTextFile\AssetTextFile.cpp">
+      <Filter>Engine\Asset\AssetTextFile</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Asset\PrefabAsset\PrefabAsset.cpp">
+      <Filter>Engine\Asset\PrefabAsset</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Asset\SceneAsset\SceneAsset.cpp">
+      <Filter>Engine\Asset\SceneAsset</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Camera\CameraBase.cpp">
       <Filter>Engine\Camera</Filter>
@@ -124,6 +127,9 @@
     <ClCompile Include="Source\Engine\Effect\GpuParticleSystem\GpuParticleSystem.cpp">
       <Filter>Engine\Effect\GpuParticleSystem</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\ComponentRegistry\ComponentRegistry.cpp">
+      <Filter>Engine\GameObject\ComponentRegistry</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.cpp">
       <Filter>Engine\GameObject\Components\MeshComponent</Filter>
     </ClCompile>
@@ -135,6 +141,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\GameObject.cpp">
       <Filter>Engine\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\GameObjectFactory\GameObjectFactory.cpp">
+      <Filter>Engine\GameObject\GameObjectFactory</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GameObject\GameObjectManager.cpp">
       <Filter>Engine\GameObject</Filter>
@@ -192,6 +201,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\ViewportTarget\ViewportTarget.cpp">
       <Filter>Engine\Renderer\ViewportTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Resource\ModelLibrary\ModelLibrary.cpp">
+      <Filter>Engine\Resource\ModelLibrary</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\RHI\Core\CommandList\CommandList.cpp">
       <Filter>Engine\RHI\Core\CommandList</Filter>
@@ -276,6 +288,21 @@
     </ClCompile>
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Pch.cpp" />
+    <ClCompile Include="Source\Engine\GameObject\Components\HitComponent\BoxCollisionComponent\BoxCollision\BoxCollision.cpp">
+      <Filter>Engine\GameObject\Components\HitComponent\BoxCollisionComponent\BoxCollision</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameObject\Components\HitComponent\BoxCollisionComponent\BoxCollisionComponent.cpp">
+      <Filter>Engine\GameObject\Components\HitComponent\BoxCollisionComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\RenderQueue\DebugLineRenderQueue\DebugLineRenderQueue.cpp">
+      <Filter>Engine\Renderer\RenderQueue\DebugLineRenderQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Mesh\DebugLineResource\DebugLineResource.cpp">
+      <Filter>Engine\Mesh\DebugLineResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Renderer\RendererItem\DebugLineDrawItem\DebugLineDrawItem.cpp">
+      <Filter>Engine\Renderer\RendererItem\DebugLineDrawItem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\Application.h">
@@ -304,9 +331,6 @@
     </ClInclude>
     <ClInclude Include="Source\Editor\Components\ComponentInspectors\ComponentInspectors.h">
       <Filter>Editor\Components\ComponentInspectors</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Components\ComponentRegistry\ComponentRegistry.h">
-      <Filter>Editor\Components\ComponentRegistry</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\EditorApp\EditorApp.h">
       <Filter>Editor\EditorApp</Filter>
@@ -338,17 +362,23 @@
     <ClInclude Include="Source\Editor\Panels\ViewportPanel\ViewportPanel.h">
       <Filter>Editor\Panels\ViewportPanel</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Prefab\PrefabAsset\PrefabAsset.h">
-      <Filter>Editor\Prefab\PrefabAsset</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Editor\Prefab\PrefabSystem\PrefabSystem.h">
       <Filter>Editor\Prefab\PrefabSystem</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Scene\GameObjectFactory\GameObjectFactory.h">
-      <Filter>Editor\Scene\GameObjectFactory</Filter>
+    <ClInclude Include="Source\Editor\Scene\SceneEditor\SceneEditor.h">
+      <Filter>Editor\Scene\SceneEditor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Selection\Selection.h">
       <Filter>Editor\Selection</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Asset\AssetTextFile\AssetTextFile.h">
+      <Filter>Engine\Asset\AssetTextFile</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Asset\PrefabAsset\PrefabAsset.h">
+      <Filter>Engine\Asset\PrefabAsset</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Asset\SceneAsset\SceneAsset.h">
+      <Filter>Engine\Asset\SceneAsset</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Camera\CameraBase.h">
       <Filter>Engine\Camera</Filter>
@@ -452,6 +482,9 @@
     <ClInclude Include="Source\Engine\GameObject\Component\Component.h">
       <Filter>Engine\GameObject\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\ComponentRegistry\ComponentRegistry.h">
+      <Filter>Engine\GameObject\ComponentRegistry</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Engine\GameObject\Components\MeshComponent\MeshComponent.h">
       <Filter>Engine\GameObject\Components\MeshComponent</Filter>
     </ClInclude>
@@ -463,6 +496,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\GameObject\GameObject.h">
       <Filter>Engine\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\GameObjectFactory\GameObjectFactory.h">
+      <Filter>Engine\GameObject\GameObjectFactory</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameObject\GameObjectManager.h">
       <Filter>Engine\GameObject</Filter>
@@ -556,6 +592,9 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\ViewportTarget\ViewportTarget.h">
       <Filter>Engine\Renderer\ViewportTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Resource\ModelLibrary\ModelLibrary.h">
+      <Filter>Engine\Resource\ModelLibrary</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\RHI\Core\CommandList\CommandList.h">
       <Filter>Engine\RHI\Core\CommandList</Filter>
@@ -663,6 +702,30 @@
       <Filter>Game\Scene\GameScene</Filter>
     </ClInclude>
     <ClInclude Include="Source\Pch.h" />
+    <ClInclude Include="Source\Engine\GameObject\Components\HitComponent\BoxCollisionComponent\BoxCollision\BoxCollision.h">
+      <Filter>Engine\GameObject\Components\HitComponent\BoxCollisionComponent\BoxCollision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\Components\HitComponent\BoxCollisionComponent\BoxCollision\HitBox.h">
+      <Filter>Engine\GameObject\Components\HitComponent\BoxCollisionComponent\BoxCollision</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\Components\HitComponent\BoxCollisionComponent\BoxCollisionComponent.h">
+      <Filter>Engine\GameObject\Components\HitComponent\BoxCollisionComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Math\Math.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\RenderQueue\DebugLineRenderQueue\DebugLineRenderQueue.h">
+      <Filter>Engine\Renderer\RenderQueue\DebugLineRenderQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Mesh\DebugLineResource\DebugLineResource.h">
+      <Filter>Engine\Mesh\DebugLineResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameObject\Renderable\IDebugLineRenderable.h">
+      <Filter>Engine\GameObject\Renderable</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\Renderer\RendererItem\DebugLineDrawItem\DebugLineDrawItem.h">
+      <Filter>Engine\Renderer\RendererItem\DebugLineDrawItem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Source\Engine\Shader\MeshShader\MeshShaderPS.hlsl">
@@ -739,6 +802,12 @@
     <SlangTask Include="Source\Engine\Shader\slangTest\CoopVecTest.slang">
       <Filter>Engine\Shader\slangTest</Filter>
     </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\Debug\DebugLineShader\DebugLineVS.slang">
+      <Filter>Engine\Shader\Debug\DebugLineShader</Filter>
+    </SlangTask>
+    <SlangTask Include="Source\Engine\Shader\Debug\DebugLineShader\DebugLinePS.slang">
+      <Filter>Engine\Shader\Debug\DebugLineShader</Filter>
+    </SlangTask>
   </ItemGroup>
   <ItemGroup>
     <None Include="Source\Engine\Shader\MeshShader\MeshShaderInc.hlsli">
@@ -782,9 +851,6 @@
     <Filter Include="Editor\Components\ComponentInspectors">
       <UniqueIdentifier>{cb7db9e2-15be-90a3-1b8e-ece25249c452}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Editor\Components\ComponentRegistry">
-      <UniqueIdentifier>{27836a81-6ef4-0fa9-29cf-ba0bfc8b5756}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Editor\EditorApp">
       <UniqueIdentifier>{89a6456c-aea5-45d4-b6bd-18772dc380dd}</UniqueIdentifier>
     </Filter>
@@ -815,23 +881,32 @@
     <Filter Include="Editor\Prefab">
       <UniqueIdentifier>{b4da93fe-491b-004c-3647-199d0481d85c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Editor\Prefab\PrefabAsset">
-      <UniqueIdentifier>{8b8cdf2f-89c4-9a3a-3e96-88d78c48e89e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Editor\Prefab\PrefabSystem">
       <UniqueIdentifier>{9c597ad7-60e3-bed6-8645-73a1bbfcecfb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Editor\Scene">
       <UniqueIdentifier>{8ffb5e69-8e42-e40a-6e06-08562b1f4e1a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Editor\Scene\GameObjectFactory">
-      <UniqueIdentifier>{1408b4e0-1cbe-797f-9412-480cea36c2cd}</UniqueIdentifier>
+    <Filter Include="Editor\Scene\SceneEditor">
+      <UniqueIdentifier>{7fd0e478-0e6e-ea9e-9dc5-82d94c37ba68}</UniqueIdentifier>
     </Filter>
     <Filter Include="Editor\Selection">
       <UniqueIdentifier>{212321f9-0bfe-4266-a7d9-f71987ae1edb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{56dfad63-285d-4ab0-b40e-08a9e41a396b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Asset">
+      <UniqueIdentifier>{fbd0392c-3637-83c0-f6f0-0dac1312c21b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Asset\AssetTextFile">
+      <UniqueIdentifier>{ab642def-2c68-5a82-3325-34106e7ab612}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Asset\PrefabAsset">
+      <UniqueIdentifier>{eec25ca3-7caf-d7e1-5f08-30a898292740}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Asset\SceneAsset">
+      <UniqueIdentifier>{97f9a8a4-f914-469a-a22c-54df80a9ea27}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Camera">
       <UniqueIdentifier>{3d3c1f6b-7cc3-46c7-b754-df366d733f28}</UniqueIdentifier>
@@ -917,6 +992,9 @@
     <Filter Include="Engine\GameObject\Component">
       <UniqueIdentifier>{5e0020dd-ad41-4262-b97c-35f250477023}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\GameObject\ComponentRegistry">
+      <UniqueIdentifier>{157c267e-ffbe-b5eb-4aee-e3ccf2adec9a}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\GameObject\Components">
       <UniqueIdentifier>{734cde76-354b-4b57-b43f-519bafa2b266}</UniqueIdentifier>
     </Filter>
@@ -928,6 +1006,9 @@
     </Filter>
     <Filter Include="Engine\GameObject\Components\TransformComponent">
       <UniqueIdentifier>{ec0176b0-bc05-46e0-80fa-6b8eadf766c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GameObject\GameObjectFactory">
+      <UniqueIdentifier>{4fbc910a-da90-8a01-f8de-5564dfa57af6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\GameObject\Renderable">
       <UniqueIdentifier>{29bdd8f0-e1db-4b60-8b52-770423188de4}</UniqueIdentifier>
@@ -1000,6 +1081,12 @@
     </Filter>
     <Filter Include="Engine\Renderer\ViewportTarget">
       <UniqueIdentifier>{e406422b-43ad-435a-ba4d-f4949961fe50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Resource">
+      <UniqueIdentifier>{48e658f6-f45b-8d43-7708-f21532de24d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Resource\ModelLibrary">
+      <UniqueIdentifier>{adf04bb3-57ca-f69b-fe4c-4f88a7469040}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\RHI">
       <UniqueIdentifier>{cfcc7d40-3a7f-4c88-838f-020ce8b94866}</UniqueIdentifier>
@@ -1156,6 +1243,33 @@
     </Filter>
     <Filter Include="Game\Scene\GameScene">
       <UniqueIdentifier>{be0cd904-5a77-4b1d-8796-574a9388531c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GameObject\Components\HitComponent">
+      <UniqueIdentifier>{59aa023d-d5d4-4afc-85aa-8e197c9decf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GameObject\Components\HitComponent\BoxCollisionComponent">
+      <UniqueIdentifier>{cc3b9248-0ab3-43a5-a872-13562235b722}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GameObject\Components\HitComponent\BoxCollisionComponent\BoxCollision">
+      <UniqueIdentifier>{5b60fe83-cc34-4062-9a55-db58de5436f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Math">
+      <UniqueIdentifier>{b1920f7d-d437-48cd-8a5a-0f1bd4a95072}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\RenderQueue\DebugLineRenderQueue">
+      <UniqueIdentifier>{68b885c6-3dc3-4ecf-af14-b636b72cf562}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\DebugLineResource">
+      <UniqueIdentifier>{367b4d2d-9f02-4d21-986f-c8096946f7ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Shader\Debug">
+      <UniqueIdentifier>{f6684bf5-f1ac-48e4-952e-bd0354b0e5c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Shader\Debug\DebugLineShader">
+      <UniqueIdentifier>{64371d87-0a03-4c8c-8ec8-d36fc46119b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\RendererItem\DebugLineDrawItem">
+      <UniqueIdentifier>{50d45bdb-8188-4e0c-9316-c5d84667797f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

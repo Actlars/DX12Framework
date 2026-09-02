@@ -14,7 +14,7 @@
 // 
 // 派生クラス : 
 //	PolygonMeshResource	従来パイプライン（VB/IB)
-//	MeshletResource		メッシュシェーダーパイプライン（将来実装）
+//	MeshletResource		メッシュシェーダーパイプライン
 // -------------------------------------------------------------------------------
 class MeshResource
 {

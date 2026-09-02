@@ -247,6 +247,21 @@ namespace EditorUI
 		// -------------------------------------------------------------------------------
 		bool IsUiOperationActive() const;
 
+		// -------------------------------------------------------------------------------
+		// マウスカーソルの形
+		//
+		//	ウィジェットは「自分の上ではこう見せたい」とRequestするだけで、
+		//	実際にカーソルを差し替えるのはプラットフォーム層(Application)が行う
+		//	希望は毎フレームNewFrameでArrowへ戻すため、
+		//	どのウィジェットも「今フレーム自分の上にいる」ときだけ主張すればよい
+		//
+		//	同じフレームに複数の希望が来た場合はあとから来たものが勝つ
+		//	ウィジェットは奥から手前の順に処理されるため、
+		//	結果としていちばん手前にあるものの希望が残る
+		// -------------------------------------------------------------------------------
+		void		RequestMouseCursor(MouseCursor _cursor);
+		MouseCursor GetMouseCursor() const;
+
 		bool WantCaptureMouse() const;
 		bool WantCaptureKeyboard() const;
 
@@ -318,6 +333,10 @@ namespace EditorUI
 		const PopupState* FindPopup(Id _popupId) const;
 
 		Style			m_Style;
+
+		// 今フレームに立った「カーソルをこう見せたい」という希望
+		// NewFrameでArrowへ戻すため、状態として持ち越されることはない
+		MouseCursor		m_MouseCursor = MouseCursor::Arrow;
 		IdStack			m_IdStack;
 		InputTracker	m_InputTracker;
 

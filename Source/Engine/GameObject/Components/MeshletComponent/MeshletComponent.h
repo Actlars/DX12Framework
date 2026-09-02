@@ -108,6 +108,31 @@ public:
 	// -------------------------------------------------------------------------------
 	size_t GetMeshCount() const { return m_Meshes.size(); }
 
+	// -------------------------------------------------------------------------------
+	// 描くモデルの指定
+	//
+	//	MeshComponentと同じ考え方で、ここには希望だけを記録する
+	//	メッシュレット化はモデルの読み込みからやり直す必要があり、
+	//	デバイスを持つシーン側でしか行えないため
+	// -------------------------------------------------------------------------------
+	void SetModelRequest(std::string_view _modelKey);
+
+	const std::string& GetModelKey() const { return m_ModelKey; }
+
+	// @brief	希望と実際の読み込み内容がずれているか（シーンが毎フレーム見る）
+	bool NeedsModelUpdate() const { return m_ModelKey != m_AppliedModelKey; }
+
+	// -------------------------------------------------------------------------------
+	// @brief	希望どおりのモデルを読み直す（シーンから呼ぶ）
+	//
+	//	読み込み済みのものはいったん解放してから読み直す
+	//
+	// @param[in]	_pDevice		GPUリソースの生成に使うデバイス
+	// @param[in]	_absolutePath	読み込むモデルの絶対パス
+	// @return	true : 読み込めた
+	// -------------------------------------------------------------------------------
+	bool ApplyModel(RHI::Device* _pDevice, const std::wstring& _absolutePath);
+
 private:
 
 	// -------------------------------------------------------------------------------
@@ -125,6 +150,10 @@ private:
 	// RootSignatureのスロット番号（GameSceneの設定と合わせる）
 	uint32_t m_TransformSlot	= UINT32_MAX;
 	uint32_t m_TextureIndexSlot	= UINT32_MAX;
+
+	// 描きたいモデル（希望）と、いま実際に読み込んでいるモデル
+	std::string m_ModelKey;
+	std::string m_AppliedModelKey;
 
 	bool m_IsVisible = true;
 

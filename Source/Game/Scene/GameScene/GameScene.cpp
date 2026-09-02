@@ -2,15 +2,15 @@
 // Includes
 // -------------------------------------------------------------------------------
 #include "GameScene.h"
-#include <Engine/Utility/Debug/Logger/Logger.h>
-#include <Engine/Utility/FileUtil/FileUtil.h>
-#include <Engine/Mesh/MeshLoader/MeshLoader.h>
-#include <d3dcompiler.h>
-#include <Engine/Renderer/PostProcess/PostProcessEffects/BloomEffect/BloomEffect.h>
 
+#include <Engine/GameObject/GameObject.h>
+#include <Engine/GameObject/Components/TransformComponent/TransformComponent.h>
+#include <Engine/GameObject/Components/MeshComponent/MeshComponent.h>
+#include <Engine/GameObject/Components/MeshletComponent/MeshletComponent.h>
 #include <Engine/Input/InputManager/InputManager.h>
-
-#pragma comment(lib, "d3dcompiler.lib")
+#include <Engine/Renderer/PostProcess/PostProcessEffects/BloomEffect/BloomEffect.h>
+#include <Engine/Resource/ModelLibrary/ModelLibrary.h>
+#include <Engine/Utility/Debug/Logger/Logger.h>
 
 // -------------------------------------------------------------------------------
 // コンストラクタ
@@ -22,62 +22,59 @@ GameScene::GameScene(const Desc& _desc)
 
 // -------------------------------------------------------------------------------
 // 初期化
+//
+// 順序に意味があるのは次の2点
+//  1. SceneRenderer を先に作る（RootSignatureのスロット番号がここで決まる）
+//  2. カメラ → オブジェクト の順（オブジェクトの配置はカメラに依存しないが、
+//     失敗時にどこまで進んだかを追いやすいよう、重い処理を後ろに置く）
 // -------------------------------------------------------------------------------
-bool GameScene::OnInit(RHI::Device* _pDevice)
+bool GameScene::OnInit(RHI::Device* _pDevice, ModelLibrary* _pModels)
 {
-    assert(_pDevice != nullptr);
-    m_pDevice = _pDevice;
+    if (_pDevice == nullptr)
+    {
+        ELOG("GameScene::OnInit() device is null");
+        return false;
+    }
 
-    auto* pDevice = m_pDevice->GetDevice();
+    m_pDevice       = _pDevice;
+    m_pModels       = _pModels;
+    m_pInputManager = m_Desc.pInputManager;
 
     m_SceneRenderer.AddPostProcessEffect(std::make_unique<BloomEffect>());
+
     if (!m_SceneRenderer.Init(m_pDevice))
     {
-        ELOG("SceneRenderer::Init() failed");
+        ELOG("GameScene::OnInit() SceneRenderer::Init failed");
         return false;
     }
 
     InitCamera();
 
-    if (!InitMeshes())      { ELOG("InitMeshes() failed");      return false; }
-    if (!InitGameObjects()) { ELOG("InitGameObjects() failed"); return false; }
-    if (!InitMeshlets())    { ELOG("InitMeshlets() failed");    return false; }
+    if (!InitDefaultObjects())
+    {
+        ELOG("GameScene::OnInit() InitDefaultObjects failed");
+        return false;
+    }
 
-    m_pInputManager = m_Desc.pInputManager;
-
-    //if (!m_NTCRunner.Run(m_pDevice))
-    //{
-    //    ELOG("NTCImageDecodeTestRunner::Run() failed");
-    //    // 失敗してもゲーム自体は続行させたいならreturnしない
-    //}
-    //else
-    //{
-    //    m_SceneRenderer.SetNTCPreviewTexture(&m_NTCRunner.GetBakedTexture());
-    //}
-
-    //ShowCursor(FALSE);
     m_IsInitialized = true;
     return true;
 }
 
 // -------------------------------------------------------------------------------
 // 終了処理
+//
+// GPUリソースを参照しているオブジェクトを先に捨てる
+// モデルの実体はModelLibraryが持つため、ここでは解放しない
 // -------------------------------------------------------------------------------
 void GameScene::OnTerm()
 {
     ShowCursor(TRUE);
 
-    // GameObjectManager を先に解放する
-    // MeshComponent が Mesh / Material を参照しているため
-    m_MeshComponents.clear();
-    m_MeshletComponents = nullptr;
     m_ObjectManager.Clear();
 
-    m_Materials.clear();
-    m_Meshes.clear();
-
-    m_pDevice           = nullptr;
-    m_IsInitialized     = false;
+    m_pModels       = nullptr;
+    m_pDevice       = nullptr;
+    m_IsInitialized = false;
 }
 
 // -------------------------------------------------------------------------------
@@ -87,32 +84,33 @@ void GameScene::OnUpdate(float _deltaTime)
 {
     if (m_pInputManager != nullptr)
     {
-        if (m_pInputManager->GetKeyboardInput().IsPressed('M')) 
-        { m_SceneRenderer.ToggleMeshletDebugMode(); }
+        if (m_pInputManager->GetKeyboardInput().IsPressed('M'))
+        {
+            m_SceneRenderer.ToggleMeshletDebugMode();
+        }
 
         if (m_pInputManager->IsCameraControlActive())
-        { UpdateInput(_deltaTime); }
+        {
+            UpdateInput(_deltaTime);
+        }
     }
 
-    // 全 MeshComponent に最新のカメラ行列とフレームインデックスを渡す
-    UpdateViewProj();
+    // 描画コンポーネントに実体とカメラ行列を結び付ける
+    // エディタから増減した直後のコンポーネントも、ここで描ける状態になる
+    SyncRenderComponents();
 
-    // 全 GameObject の Update を呼ぶ
     m_ObjectManager.Update(_deltaTime);
 
-    // エディタ等から削除予約されたオブジェクトを、ここで実際に取り除く
+    // 削除予約されたオブジェクトを、ここで実際に取り除く
     // Update / Draw のループ中にリストが変化しない、安全な位置で行う
     m_ObjectManager.FlushPendingRemoves();
 }
 
 // -------------------------------------------------------------------------------
-// 毎フレームの描画コマンド組み立て
-// -------------------------------------------------------------------------------
-//      シーンの描画先の設定
+// シーンの描画先の設定
 //
-//  描画先の指定をそのままSceneRendererへ渡し、
-//  同時にカメラの縦横比も出力先へ合わせる
-//  ここで射影行列を作り直さないと、パネルの形に合わせて絵が伸びてしまう
+// 描画先の指定をそのままSceneRendererへ渡し、同時にカメラの縦横比も合わせる
+// ここで射影行列を作り直さないと、パネルの形に合わせて絵が伸びてしまう
 // -------------------------------------------------------------------------------
 void GameScene::SetSceneOutput(const SceneOutput& _output)
 {
@@ -128,6 +126,8 @@ void GameScene::SetSceneOutput(const SceneOutput& _output)
 }
 
 // -------------------------------------------------------------------------------
+// 毎フレームの描画コマンド組み立て
+// -------------------------------------------------------------------------------
 void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
 {
     m_SceneRenderer.Render(_pCmd, m_ObjectManager, m_Camera);
@@ -136,7 +136,6 @@ void GameScene::OnRender(ID3D12GraphicsCommandList* _pCmd)
 // ===============================================================================
 // private
 // ===============================================================================
-
 
 // -------------------------------------------------------------------------------
 // カメラ初期化
@@ -147,6 +146,7 @@ void GameScene::InitCamera()
     desc.Position   = m_Desc.CameraPosition;
     desc.MoveSpeed  = m_Desc.CameraMoveSpeed;
     desc.RotSpeed   = m_Desc.CameraRotSpeed;
+
     m_Camera.Init(desc);
 
     m_Camera.SetFov(m_Desc.CameraFov);
@@ -158,129 +158,177 @@ void GameScene::InitCamera()
 }
 
 // -------------------------------------------------------------------------------
-// メッシュ・マテリアルのロード
+// 起動時のオブジェクトを置く
+//
+// ここではGPUリソースに触らない
+// 「どのモデルの何番目を描くか」を指定するだけで、
+// 実体の結び付けは SyncRenderComponents が次のフレームに行う
 // -------------------------------------------------------------------------------
-bool GameScene::InitMeshes()
+bool GameScene::InitDefaultObjects()
 {
-    auto* pDevice   = m_pDevice->GetDevice();
-    auto* pQueue    = m_pDevice->GetQueue();
-    auto* pPool     = m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES);
-
-    std::vector<ResMesh>     resMeshes;
-    std::vector<ResMaterial> resMaterials;
-    
-    m_Desc.ModelPath = L"Assets/Model/Player/Elinyaa/Elinyaa.fbx";
-
-    if (!MeshLoader::Load(m_Desc.ModelPath, resMeshes, resMaterials))
+    if (m_Desc.ModelPath.empty() || m_pModels == nullptr)
     {
-        ELOG("MeshLoader::Load() failed. path=%ls", m_Desc.ModelPath.c_str());
+        return true;    // 何も置かないシーンも許す
+    }
+
+    // -------------------------------------------------------------------------------
+    // モデルを先に読み込み、いくつのメッシュに分かれているかを調べる
+    //
+    // モデル1ファイルは体・髪・服のように複数のメッシュを含むことが多い
+    // MeshComponentが描くのはそのうちの1つなので、メッシュの数だけ置く
+    // -------------------------------------------------------------------------------
+    const ModelResource* pModel = m_pModels->Load(m_Desc.ModelPath);
+
+    if (pModel == nullptr)
+    {
+        ELOG("GameScene::InitDefaultObjects() model load failed : %ls", m_Desc.ModelPath.c_str());
         return false;
     }
 
-    m_Meshes.reserve(resMeshes.size());
-    for (auto& resMesh : resMeshes)
+    const std::string modelKey = pModel->GetKey();
+
+    for (uint32_t part = 0; part < pModel->GetPartCount(); ++part)
     {
-        auto mesh = std::make_unique<Mesh>();
-        if (!mesh->Init(pDevice, resMesh))
-        {
-            ELOG("Mesh::Init() failed."); return false;
-        }
-        m_Meshes.emplace_back(std::move(mesh));
+        auto* pObject = m_ObjectManager.Add<GameObject>("Mesh_" + std::to_string(part));
+
+        pObject->AddComponent<TransformComponent>();
+        pObject->AddComponent<MeshComponent>()->SetModelRequest(modelKey, part);
     }
 
-    m_Materials.reserve(resMaterials.size());
-    for (auto& resMat : resMaterials)
-    {
-        auto mat = std::make_unique<Material>();
-        if (!mat->Init(m_pDevice, resMat))
-        {
-            ELOG("Material::Init() failed."); return false;
-        }
-        m_Materials.emplace_back(std::move(mat));
-    }
+    // -------------------------------------------------------------------------------
+    // メッシュシェーダーで描くほうのオブジェクト
+    //
+    // 同じモデルを、別の描画経路で描いて比べられるようにしている
+    // -------------------------------------------------------------------------------
+    auto* pMeshletObject = m_ObjectManager.Add<GameObject>("MeshletModel");
+
+    pMeshletObject->AddComponent<TransformComponent>();
+    pMeshletObject->AddComponent<MeshletComponent>()->SetModelRequest(modelKey);
+
+    DLOG("GameScene : placed %zu objects (model parts=%zu)",
+        m_ObjectManager.ObjectCount(), pModel->GetPartCount());
 
     return true;
 }
 
-bool GameScene::InitMeshlets()
+// -------------------------------------------------------------------------------
+// 描画コンポーネントに実体と毎フレームの値を結び付ける
+// -------------------------------------------------------------------------------
+void GameScene::SyncRenderComponents()
 {
-    auto* pObj = m_ObjectManager.Add<GameObject>("MeshletModel");
-
-    auto* pTransform = pObj->AddComponent<TransformComponent>();
-    pTransform->SetPosition({ 0.0f,0.0f,0.0f });
-    pTransform->SetScale({ 1.0f,1.0f,1.0f });
-
-    auto* pMeshletComp = pObj->AddComponent<MeshletComponent>();
-    if (!pMeshletComp->Init(m_pDevice, m_Desc.ModelPath))
+    for (const auto& object : m_ObjectManager.GetObjects())
     {
-        ELOG("MeshletComponent::Init() failed");
-        return false;
-    }
-
-    pMeshletComp->SetRootLayout(m_SceneRenderer.GetModelMeshletRootSignatureLayout());
-
-    m_MeshletComponents = pMeshletComp;
-
-    return true;
-}
-
-// -------------------------------------------------------------------------------
-// GameObjectManager への登録
-// -------------------------------------------------------------------------------
-bool GameScene::InitGameObjects()
-{
-    auto* pDevice   = m_pDevice->GetDevice();
-    auto* pPool     = m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES);
-    const auto fc   = m_pDevice->GetFrameCount();
-
-    // 各メッシュに対して GameObject を1つ生成する
-    for (auto i = 0u; i < m_Meshes.size(); ++i)
-    {
-        const auto materialId = m_Meshes[i]->GetMaterialId();
-        Material* pMaterial = (materialId < m_Materials.size()) ? m_Materials[materialId].get() : nullptr;
-
-        const auto name = "Mesh_" + std::to_string(i);
-        auto* pObj = m_ObjectManager.Add<GameObject>(name);
-
-        // TransformComponent の追加
-        auto* pTransform = pObj->AddComponent<TransformComponent>();
-        pTransform->SetPosition({ 0.0f, 0.0f, 0.0f });
-        pTransform->SetScale({ 1.0f, 1.0f, 1.0f });
-
-        // MeshComponent の追加
-        auto* pMeshComp = pObj->AddComponent<MeshComponent>();
-
-        // 定数バッファの初期化（FrameCount 分）
-        if (!pMeshComp->Init(pDevice, pPool, fc))
+        if (object == nullptr)
         {
-            ELOG("MeshComponent::Init() failed. index=%u", i);
-            return false;
+            continue;
         }
 
-        pMeshComp->SetMesh(m_Meshes[i].get(), pMaterial);
-        // RootSignature のスロット番号を設定（GameScene の定義と合わせる）
-        pMeshComp->SetRootLayout(m_SceneRenderer.GetMeshRootSignatureLayout());
-        pMeshComp->SetRootLayoutBindless(m_SceneRenderer.GetMeshRootSignatureLayoutBIndless());
+        if (auto* pMesh = object->GetComponent<MeshComponent>())
+        {
+            SyncMeshComponent(*pMesh);
+        }
 
-        // UpdateViewProj() で使うためにキャッシュしておく
-        m_MeshComponents.emplace_back(pMeshComp);
+        if (auto* pMeshlet = object->GetComponent<MeshletComponent>())
+        {
+            SyncMeshletComponent(*pMeshlet);
+        }
     }
-
-    ELOG("InitGameObjects: mesh=%zu objects=%zu",
-        m_Meshes.size(), m_ObjectManager.ObjectCount());
-
-    return true;
 }
 
 // -------------------------------------------------------------------------------
-// 入力処理とカメラ更新
+// MeshComponent 1つ分
+// -------------------------------------------------------------------------------
+void GameScene::SyncMeshComponent(MeshComponent& _component)
+{
+    // -------------------------------------------------------------------------------
+    // 1. 定数バッファとスロット番号の用意
+    //
+    // エディタから追加された直後のコンポーネントは、まだ何も持っていない
+    // -------------------------------------------------------------------------------
+    if (!_component.IsReady())
+    {
+        const bool initialized = _component.Init(
+            m_pDevice->GetDevice(),
+            m_pDevice->GetPool(RHI::Device::POOL_TYPE_RES),
+            m_pDevice->GetFrameCount());
+
+        if (!initialized)
+        {
+            ELOG("GameScene::SyncMeshComponent() MeshComponent::Init failed");
+            return;
+        }
+
+        _component.SetRootLayout(m_SceneRenderer.GetMeshRootSignatureLayout());
+        _component.SetRootLayoutBindless(m_SceneRenderer.GetMeshRootSignatureLayoutBIndless());
+    }
+
+    // -------------------------------------------------------------------------------
+    // 2. 希望しているモデルと、実際に結び付いているものがずれていたら直す
+    //
+    // ずれるのは
+    //      ・エディタでモデルを選び直した
+    //      ・プレファブやシーンから読み込んだ直後
+    //  のどちらか
+    // -------------------------------------------------------------------------------
+    if (_component.NeedsModelUpdate())
+    {
+        Mesh*     pMesh     = nullptr;
+        Material* pMaterial = nullptr;
+
+        if (m_pModels != nullptr && !_component.GetModelKey().empty())
+        {
+            if (const ModelResource* pModel = m_pModels->Load(_component.GetModelKey()))
+            {
+                if (const ModelPart* pPart = pModel->GetPart(_component.GetPartIndex()))
+                {
+                    pMesh     = pPart->pMesh;
+                    pMaterial = pPart->pMaterial;
+                }
+            }
+        }
+
+        // 見つからなかった場合もApplyModelは呼ぶ
+        // 呼ばないと「ずれたまま」と判断され、毎フレーム読み込みを試み続ける
+        _component.ApplyModel(pMesh, pMaterial);
+    }
+
+    // -------------------------------------------------------------------------------
+    // 3. 毎フレーム変わる値を渡す
+    // -------------------------------------------------------------------------------
+    _component.SetFrameIndex(m_pDevice->GetFrameIndex());
+    _component.SetViewProj(m_Camera.GetView(), m_Camera.GetProj());
+}
+
+// -------------------------------------------------------------------------------
+// MeshletComponent 1つ分
 //
-// カーソルの再中央化はMouseInputの相対モードが受け持つ
-// このシーンは「与えられた移動量を使う」ことに専念する
-//
-//  以前はここでもGetCursorPos / SetCursorPosを行っており、
-//  MouseInputの再中央化と二重に働いて移動量が打ち消し合っていた
-//  そのため、少し動かすとカメラが止まって見える不具合が起きていた
+// メッシュレットは読み込み時に分割まで済ませるため、
+// モデルの結び付けが「読み直し」になる点だけがMeshComponentと異なる
+// -------------------------------------------------------------------------------
+void GameScene::SyncMeshletComponent(MeshletComponent& _component)
+{
+    if (_component.NeedsModelUpdate())
+    {
+        std::wstring absolutePath;
+
+        if (m_pModels != nullptr && !_component.GetModelKey().empty())
+        {
+            absolutePath = m_pModels->ToAbsolute(_component.GetModelKey()).wstring();
+        }
+
+        if (_component.ApplyModel(m_pDevice, absolutePath))
+        {
+            // 読み込み直後はスロット番号も付け直す
+            _component.SetRootLayout(m_SceneRenderer.GetModelMeshletRootSignatureLayout());
+        }
+    }
+
+    _component.SetFrameIndex(m_pDevice->GetFrameIndex());
+    _component.SetViewProj(m_Camera.GetView(), m_Camera.GetProj());
+}
+
+// -------------------------------------------------------------------------------
+// カメラ操作
 // -------------------------------------------------------------------------------
 void GameScene::UpdateInput(float _deltaTime)
 {
@@ -317,27 +365,4 @@ void GameScene::UpdateInput(float _deltaTime)
     }
 
     m_Camera.Update();
-}
-
-// -------------------------------------------------------------------------------
-// 全 MeshComponent にカメラ行列とフレームインデックスを渡す
-// -------------------------------------------------------------------------------
-void GameScene::UpdateViewProj()
-{
-    const auto frameIndex = m_pDevice->GetFrameIndex();
-    const auto view = m_Camera.GetView();
-    const auto proj = m_Camera.GetProj();
-
-    for (auto* pMeshComp : m_MeshComponents)
-    {
-        if (pMeshComp == nullptr) { continue; }
-        pMeshComp->SetFrameIndex(frameIndex);
-        pMeshComp->SetViewProj(view, proj);
-    }
-
-    if (m_MeshletComponents != nullptr)
-    {
-        m_MeshletComponents->SetFrameIndex(frameIndex);
-        m_MeshletComponents->SetViewProj(view, proj);
-    }
 }

@@ -68,7 +68,13 @@ namespace EditorUI
 			const Style&		_style,
 			bool				_allowCapture);
 
-		void DrawResizeGrip(
+		// -------------------------------------------------------------------------------
+		// @brief	右下のリサイズグリップを描き、ドラッグによる拡縮を処理する
+		//
+		// @return	true : グリップの上にいる、またはこのWindowをリサイズ中
+		//			呼び出し側がマウスカーソルの形を切り替える判断に使う
+		// -------------------------------------------------------------------------------
+		bool DrawResizeGrip(
 			WindowState&		_state,
 			WindowFrame&		_frame,
 			const InputTracker& _input,

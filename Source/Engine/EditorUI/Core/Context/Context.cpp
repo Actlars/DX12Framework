@@ -23,6 +23,10 @@ void EditorUI::Context::NewFrame(const EditorUI::InputState& _input)
 	// 1. 入力を最初に更新し、このフレームのClicked/Releasedを確定する
 	m_InputTracker.NewFrame(_input);
 
+	// カーソルの希望は毎フレーム作り直す
+	// 前フレームの形が残ると、ウィジェットから離れても戻らなくなる
+	m_MouseCursor = EditorUI::MouseCursor::Arrow;
+
 	// 2. WindowFrameはWindowStateへの生ポインタを持つ
 	//	  永続Window削除よりも先にフレーム限定参照を破棄する
 	m_IdStack.Clear();
@@ -314,42 +318,70 @@ bool EditorUI::Context::BeginWindow(std::string_view _title, bool* _isOpen, Edit
 		return false;
 	}
 
+	// -------------------------------------------------------------------------------
+	// Windowの基本矩形を確定
+	// -------------------------------------------------------------------------------
+
+	// DockWindowが保持しているDockControllerのBoundsを利用
+	// FloatingWindowのWindowStateのPosition/Sizeを使用
+	// さらにTitleBar/DockTabBar分を除いたContentRectも計算する
 	SetupWindowGeometry(frame, state, _flags, dockInfo);
 
-	// Window全体Clip + 背景/枠線
+	// -------------------------------------------------------------------------------
+	// Window全体の描画Clip開始
+	// -------------------------------------------------------------------------------
 	frame.Draw.PushClipRect(frame.WindowRect);
 
+	// -------------------------------------------------------------------------------
+	// Window背景/Border描画
+	// -------------------------------------------------------------------------------
 	if (!HasFlag(_flags, EditorUI::WindowFlags::NoBackground))
 	{
 		frame.Draw.AddRectFilled(frame.WindowRect, m_Style.ColorWindowBg);
 		frame.Draw.AddRectOutline(frame.WindowRect, m_Style.ColorBorder, m_Style.BorderThickness);
 	}
 
+	// FloatingWindowだけが独立したTitleBarを持つ
+	// DockWindowの場合はDockControllerがTabBarを描画するため、通常のTitleBarは表示しない
 	const bool hasTitleBar = !frame.IsDocked && !HasFlag(_flags, EditorUI::WindowFlags::NoTitleBar);
 
+	// -------------------------------------------------------------------------------
+	// FloatingWindowのTitleBar
+	// -------------------------------------------------------------------------------
 	if (hasTitleBar)
 	{
+		// Window上端からChromeHeight分をTitleBar領域とする
 		const EditorUI::Rect2D titleBarRect = MakeRect(frame.WindowRect.Min, { frame.WindowRect.Width(), frame.ChromeHeight });
+		// Focus中のWindowはタイトルバーの色を変え、現在操作対象になっていることを視覚的に示す
 		const bool focused = m_WindowManager.GetFocused() == id;
 		frame.Draw.AddRectFilled(titleBarRect, focused ? m_Style.ColorTitleBarBgFocused : m_Style.ColorTitleBarBg);
 
-		// タイトル文字と×ボタン。閉じる要求はStateに立て、次フレームで反映する
+		// Windowタイトル文字と×ボタンを描画。閉じる要求はStateに立て、次フレームで反映する
 		DrawWindowChrome(frame, state, titleBarRect, _isOpen != nullptr);
 
+		// -------------------------------------------------------------------------------
+		// FloatingWindowの移動処理
+		// -------------------------------------------------------------------------------
 		if (!HasFlag(_flags, EditorUI::WindowFlags::NoMove))
 		{
+			// SplitterやWidgetがすでにMouse操作を取得している場合、WindowMoveが同じPointerを横取りしないようにする
 			const bool allowCapture = !m_DockController.IsPointerBusy() && !m_WidgetInteractionState.IsAnyActive();
 			const EditorUI::WindowMoveResult move = m_WindowInteraction.HandleTitleBarDrag(
 				state, titleBarRect, m_InputTracker, allowCapture);
 
+			// Drag開始時点でWindowをFocusし、FloatingWindowのz-orderでも最前面に移動させる
 			if (move.Started)
 			{
 				m_WindowManager.SetFocused(id);
 				m_WindowManager.BringToFron(id);
 			}
 
-			// プレビューは移動中ウィンドウのクリップに影響されないオーバーレイへ描く
-			// こうしないと、画面端へ運んだときの外周プレビューが見えない
+			// -------------------------------------------------------------------------------
+			// Dock候補Preview
+			// FloatingWindowをDragしている間、Mouse位置に応じたDock候補領域を表示する
+			// PreviewをWindow自身のDrawListに積むとWindowRectでClipされてしまい、画面端のDockPreview等が見えなくなる。
+			// そのため、Windowに属さないOverlayDrawListへ描画する
+			// -------------------------------------------------------------------------------
 			if (move.Active && !HasFlag(_flags, EditorUI::WindowFlags::NoDock))
 			{
 				m_DockController.DrawPreview(
@@ -357,47 +389,78 @@ bool EditorUI::Context::BeginWindow(std::string_view _title, bool* _isOpen, Edit
 			}
 		}
 	}
+	// -------------------------------------------------------------------------------
+	// DockWindowのTabBar
+	// -------------------------------------------------------------------------------
 	else if (frame.IsDocked)
 	{
+		// WindowMoveやWidget操作が進行中の場合は、DockTabのUndock操作を開始させない。
 		const bool allowUndock = !m_WindowInteraction.IsBusy() && !m_WidgetInteractionState.IsAnyActive();
 
-		// DockControllerはウィンドウの名前を知らないため、引き方だけを渡す
+		// -------------------------------------------------------------------------------
+		// WindowId → Windowタイトル変換
+		// DockController側が必要としているのはこのWindowIdの表示名は何かという情報なので、ContextからCallbackとして渡す
+		// -------------------------------------------------------------------------------
 		const auto titleOf = [this](EditorUI::Id _windowId) -> std::string_view
 		{
 			const EditorUI::WindowState* pState = m_WindowManager.Find(_windowId);
 			return (pState != nullptr) ? std::string_view(pState->Title) : std::string_view{};
 		};
 
+		// TabBarを描画し、
+		// FocusされたWindow、閉じられたWindow、UndockされたWindow
+		// を結果として受け取る
 		const EditorUI::DockTabInteractionResult tabResult = m_DockController.DrawTabBar(
 			frame, dockInfo.LeafId, frame.WindowRect, m_InputTracker, m_Style, allowUndock, m_pFont, titleOf);
 
+		// DockController自身ではWindowManager等を操作せず、結果の反映はContext側で行う
 		ApplyDockTabResult(tabResult);
 	}
 
+	// -------------------------------------------------------------------------------
+	// MouseWheelによるScroll入力
+	// -------------------------------------------------------------------------------
 	if (!HasFlag(_flags, EditorUI::WindowFlags::NoScrollbar))
 	{
 		m_WindowInteraction.HandleScrollInput(state, frame.WindowRect, m_InputTracker);
 	}
 
-	// このウィンドウで使う余白を確定させる
-	// 指定がなければスタイルの既定値を使う
+	// -------------------------------------------------------------------------------
+	// Content領域のPaddingを確定
+	// -------------------------------------------------------------------------------
+
+	// NextPadding.Pendingが指定されていればその値を使用し、指定がなければStyleの標準WindowPaddingを使用する
 	frame.Padding = m_NextPadding.Pending
 		? m_NextPadding.Value
 		: DirectX::XMFLOAT2{ m_Style.WindowPadding, m_Style.WindowPadding };
-
+	// Padding指定も次のWindow1つだけに適用されるため、BeginWindowで消費する
 	m_NextPadding.Pending = false;
 
+	// -------------------------------------------------------------------------------
+	// Widget配置開始位置を計算
+	// -------------------------------------------------------------------------------
+
+	// ContentRect左上からPadding分だけ内側をWidget配置の基準座標とする
 	frame.ContentOrigin =
 	{
 		frame.ContentRect.Min.x + frame.Padding.x,
 		frame.ContentRect.Min.y + frame.Padding.y
 	};
+	// 最初のWidgetはContentOriginから配置する
+	// Widgetが追加されるたびLayout処理によってCursorPosが進んでいく
 	frame.CursorPos = frame.ContentOrigin;
 
-	// WidgetsはこのClipの内側へDrawCommandを積む
-	// PushClipRectは親との積を取るため、ウィジェット側が自分の矩形を積んでも
-	// このコンテンツ領域より外へは決してはみ出さない
+	// -------------------------------------------------------------------------------
+	// Content領域用Clipを開始
+	// 
+	// 先ほどWindowRectのClipを積んでいるため、現在は
+	// WindowRect.Clip -> ContentRect.Clip
+	// というネストになる。
+	// PushClipRectは親Clipとの交差領域を使用するため、
+	// Widget側がさらにClipを積んでもWindowのContent領域より外には描画されない。
+	// -------------------------------------------------------------------------------
 	frame.Draw.PushClipRect(frame.ContentRect);
+	// Collapsed状態ではWindow自体は存在されるが、内部Widgetの構築だけを省略する
 	frame.SkipContents = state.Collapsed;
 	return !frame.SkipContents;
 }
@@ -436,8 +499,12 @@ void EditorUI::Context::EndWindow()
 
 	if (!HasFlag(frame->Flags, EditorUI::WindowFlags::NoResize) && !frame->IsDocked)
 	{
-		m_WindowInteraction.DrawResizeGrip(
-			state, *frame, m_InputTracker, m_Style, allowWindowCapture);
+		// グリップの上にいる間は、斜めの両矢印で「引き伸ばせる」ことを示す
+		if (m_WindowInteraction.DrawResizeGrip(
+				state, *frame, m_InputTracker, m_Style, allowWindowCapture))
+		{
+			RequestMouseCursor(EditorUI::MouseCursor::ResizeNWSE);
+		}
 	}
 
 	m_FrameContext.PopWindowFrame();
@@ -921,6 +988,22 @@ bool EditorUI::Context::IsUiOperationActive() const
 		m_WindowInteraction.IsBusy() ||
 		m_DockController.IsPointerBusy() ||
 		!m_OpenPopups.empty();
+}
+
+// -------------------------------------------------------------------------------
+// マウスカーソルの形の希望を立てる
+// -------------------------------------------------------------------------------
+void EditorUI::Context::RequestMouseCursor(EditorUI::MouseCursor _cursor)
+{
+	m_MouseCursor = _cursor;
+}
+
+// -------------------------------------------------------------------------------
+// 今フレームに立った希望を返す（実際の切り替えはプラットフォーム層が行う）
+// -------------------------------------------------------------------------------
+EditorUI::MouseCursor EditorUI::Context::GetMouseCursor() const
+{
+	return m_MouseCursor;
 }
 
 bool EditorUI::Context::WantCaptureMouse() const

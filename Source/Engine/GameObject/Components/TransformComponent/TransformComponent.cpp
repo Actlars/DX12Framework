@@ -24,27 +24,27 @@ void TransformComponent::Update(float _deltaTime)
 // -------------------------------------------------------------------------------
 //		セッター
 // -------------------------------------------------------------------------------
-void TransformComponent::SetPosition(const DirectX::XMFLOAT3& _pos) 
+void TransformComponent::SetPosition(const Math::Vector3& _pos) 
 { m_Position = _pos; m_Dirty = true; }
-void TransformComponent::SetRotation(const DirectX::XMFLOAT3& _rot) 
+void TransformComponent::SetRotation(const Math::Vector3& _rot) 
 { m_Rotation = _rot; m_Dirty = true; }
-void TransformComponent::SetScale(const DirectX::XMFLOAT3& _scale) 
+void TransformComponent::SetScale(const Math::Vector3& _scale) 
 { m_Scale = _scale; m_Dirty = true; }
 
 // -------------------------------------------------------------------------------
 //		ゲッター
 // -------------------------------------------------------------------------------
-const DirectX::XMFLOAT3& TransformComponent::GetPosition() const 
+const Math::Vector3& TransformComponent::GetPosition() const 
 { return m_Position; }
-const DirectX::XMFLOAT3& TransformComponent::GetRotation() const 
+const Math::Vector3& TransformComponent::GetRotation() const 
 { return m_Rotation; }
-const DirectX::XMFLOAT3& TransformComponent::GetScale() const 
+const Math::Vector3& TransformComponent::GetScale() const 
 { return m_Scale; }
 
 // -------------------------------------------------------------------------------
 //		位置を加算する
 // -------------------------------------------------------------------------------
-void TransformComponent::AddPosition(const DirectX::XMFLOAT3& _delta)
+void TransformComponent::AddPosition(const Math::Vector3& _delta)
 {
 	m_Position.x += _delta.x;
 	m_Position.y += _delta.y;
@@ -55,7 +55,7 @@ void TransformComponent::AddPosition(const DirectX::XMFLOAT3& _delta)
 // -------------------------------------------------------------------------------
 //		回転を加算する
 // -------------------------------------------------------------------------------
-void TransformComponent::AddRotation(const DirectX::XMFLOAT3& _delta)
+void TransformComponent::AddRotation(const Math::Vector3& _delta)
 {
 	m_Rotation.x += _delta.x;
 	m_Rotation.y += _delta.y;
@@ -66,7 +66,7 @@ void TransformComponent::AddRotation(const DirectX::XMFLOAT3& _delta)
 // -------------------------------------------------------------------------------
 //		ワールド変換行列を返す
 // -------------------------------------------------------------------------------
-DirectX::XMMATRIX TransformComponent::GetWorldMatrix() const
+Math::Matrix TransformComponent::GetWorldMatrix() const
 {
 	if (!m_Dirty) 
 	{ return m_WorldMatrix; }

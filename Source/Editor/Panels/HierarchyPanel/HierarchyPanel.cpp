@@ -8,7 +8,7 @@
 
 #include <Editor/Commands/ObjectCommands/ObjectCommands.h>
 #include <Editor/Prefab/PrefabSystem/PrefabSystem.h>
-#include <Editor/Scene/GameObjectFactory/GameObjectFactory.h>
+#include <Engine/GameObject/GameObjectFactory/GameObjectFactory.h>
 
 namespace
 {
@@ -75,12 +75,12 @@ void Editor::HierarchyPanel::OnGUI(EditorContext& _ctx)
 	// 右クリックの対象と名前変更の対象は、どちらもメニューや入力を閉じるまで
 	// 保持し続ける。その間に削除されている可能性があるため、毎フレーム確かめる
 	// -------------------------------------------------------------------------------
-	if (!GameObjectFactory::IsAlive(_ctx, m_pContextTarget))
+	if (!GameObjectFactory::IsAlive(objects, m_pContextTarget))
 	{
 		m_pContextTarget = nullptr;
 	}
 
-	if (!GameObjectFactory::IsAlive(_ctx, m_pRenameTarget))
+	if (!GameObjectFactory::IsAlive(objects, m_pRenameTarget))
 	{
 		EndRename();
 	}

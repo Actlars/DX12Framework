@@ -10,6 +10,7 @@
 #include <Editor/Panels/EffectEditorPanel/EffectEditorPanel.h>
 #include <Editor/Effect/EffectAsset.h>
 #include <Editor/Prefab/PrefabSystem/PrefabSystem.h>
+#include <Editor/Scene/SceneEditor/SceneEditor.h>
 
 namespace
 {
@@ -241,6 +242,17 @@ void Editor::ContentBrowserPanel::OpenEntry(EditorContext& _ctx, const AssetEntr
 	{
 		PrefabSystem::InstantiateFromFile(_ctx, _entry.Path);
 	}
+
+	// -------------------------------------------------------------------------------
+	// シーンを開くと、今置いてあるものはすべて入れ替わる
+	//
+	// 取り消せない操作なので、ダブルクリックで即座に開くのは危ないとも言えるが、
+	// コンテンツブラウザの「開く」の意味をそろえることを優先している
+	// -------------------------------------------------------------------------------
+	if (_entry.Type == AssetType::Scene)
+	{
+		SceneEditor::Open(_ctx, _entry.Path);
+	}
 }
 
 // -------------------------------------------------------------------------------
@@ -274,6 +286,15 @@ void Editor::ContentBrowserPanel::DrawContextMenu(EditorContext& _ctx, const Ass
 			if (EditorUI::MenuItem(ui, font, "シーンへ配置", _ctx.pObjects != nullptr))
 			{
 				PrefabSystem::InstantiateFromFile(_ctx, _pTarget->Path);
+			}
+		}
+
+		// シーンだけの操作
+		if (_pTarget->Type == AssetType::Scene)
+		{
+			if (EditorUI::MenuItem(ui, font, "このシーンを開く", _ctx.pObjects != nullptr))
+			{
+				SceneEditor::Open(_ctx, _pTarget->Path);
 			}
 		}
 

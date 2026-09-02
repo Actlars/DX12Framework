@@ -1,0 +1,220 @@
+{
+    "Format": "DX12FrameworkScene",
+    "Name": "New Scene",
+    "Objects": [
+        {
+            "Active": true,
+            "Components": [
+                {
+                    "Position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Type": "TransformComponent"
+                },
+                {
+                    "Model": "Assets/Model/Player/Elinyaa/Elinyaa.fbx",
+                    "Part": 0,
+                    "Type": "MeshComponent",
+                    "Visible": true
+                }
+            ],
+            "Name": "Mesh_0"
+        },
+        {
+            "Active": true,
+            "Components": [
+                {
+                    "Position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Type": "TransformComponent"
+                },
+                {
+                    "Model": "Assets/Model/Player/Elinyaa/Elinyaa.fbx",
+                    "Part": 1,
+                    "Type": "MeshComponent",
+                    "Visible": true
+                }
+            ],
+            "Name": "Mesh_1"
+        },
+        {
+            "Active": true,
+            "Components": [
+                {
+                    "Position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Type": "TransformComponent"
+                },
+                {
+                    "Model": "Assets/Model/Player/Elinyaa/Elinyaa.fbx",
+                    "Part": 2,
+                    "Type": "MeshComponent",
+                    "Visible": true
+                }
+            ],
+            "Name": "Mesh_2"
+        },
+        {
+            "Active": true,
+            "Components": [
+                {
+                    "Position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Type": "TransformComponent"
+                },
+                {
+                    "Model": "Assets/Model/Player/Elinyaa/Elinyaa.fbx",
+                    "Part": 3,
+                    "Type": "MeshComponent",
+                    "Visible": true
+                }
+            ],
+            "Name": "Mesh_3"
+        },
+        {
+            "Active": true,
+            "Components": [
+                {
+                    "Position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Type": "TransformComponent"
+                },
+                {
+                    "Model": "Assets/Model/Player/Elinyaa/Elinyaa.fbx",
+                    "Part": 4,
+                    "Type": "MeshComponent",
+                    "Visible": true
+                }
+            ],
+            "Name": "Mesh_4"
+        },
+        {
+            "Active": true,
+            "Components": [
+                {
+                    "Position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Type": "TransformComponent"
+                },
+                {
+                    "Model": "Assets/Model/Player/Elinyaa/Elinyaa.fbx",
+                    "Part": 5,
+                    "Type": "MeshComponent",
+                    "Visible": true
+                }
+            ],
+            "Name": "Mesh_5"
+        },
+        {
+            "Active": true,
+            "Components": [
+                {
+                    "Position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Rotation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "Scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Type": "TransformComponent"
+                },
+                {
+                    "Model": "Assets/Model/Player/Elinyaa/Elinyaa.fbx",
+                    "Type": "MeshletComponent",
+                    "Visible": true
+                },
+                {
+                    "DebugLineEnable": true,
+                    "Type": "BoxCollisionComponent"
+                }
+            ],
+            "Name": "MeshletModel"
+        }
+    ],
+    "Version": 1
+}

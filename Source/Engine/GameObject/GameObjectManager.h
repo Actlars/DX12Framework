@@ -9,6 +9,7 @@
 // -------------------------------------------------------------------------------
 class RenderQueue;
 class MeshletRenderQueue;
+class DebugLineRenderQueue;
 
 // -------------------------------------------------------------------------------
 // GameObjectManager class
@@ -152,6 +153,14 @@ public:
 	void SubmitMeshlet(MeshletRenderQueue* _pQueue);
 
 	// -------------------------------------------------------------------------------
+	// @brief	IMeshletRenderableを持つGameObjectのDrawを呼ぶ
+	// 
+	// @param[in]	_pCmd	記録中のコマンドリスト
+	// -------------------------------------------------------------------------------
+	void SubmitDebugLine(DebugLineRenderQueue* _pQueue);
+
+
+	// -------------------------------------------------------------------------------
 	// @brief	名前でGameObjectを検索する
 	//			同名が複数見つかった場合最初に見つかったものを返す
 	// 
@@ -167,6 +176,14 @@ public:
 	// @return	条件に合うGameObjectのポインタリスト
 	// -------------------------------------------------------------------------------
 	std::vector<GameObject*> FindAll(const std::function<bool(const GameObject&)>& _pred) const;
+
+	// -------------------------------------------------------------------------------
+	// @brief	引数と同じGameObjectが存在するかを返す
+	// 
+	// @param[in]	_pObject	探すGameObject
+	// @return	GameObjectの有無
+	// -------------------------------------------------------------------------------
+	bool Contains(const GameObject* _pObject);
 
 	// -------------------------------------------------------------------------------
 	// @brief	全GameObjectを削除する

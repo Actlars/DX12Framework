@@ -5,10 +5,11 @@
 #include <Editor/Panels/IEditorPanel.h>
 
 class GameObject;
+struct ComponentTypeInfo;
 
 namespace Editor
 {
-	struct ComponentTypeInfo;
+	struct ComponentDisplayInfo;
 
 	// -------------------------------------------------------------------------------
 	// InspectorPanel class
@@ -69,9 +70,10 @@ namespace Editor
 		//	中身は _typeInfo が指すインスペクタ関数へ任せる
 		// -------------------------------------------------------------------------------
 		void DrawComponentSection(
-			EditorContext&				_ctx,
-			GameObject&					_object,
-			const ComponentTypeInfo&	_typeInfo);
+			EditorContext&					_ctx,
+			GameObject&						_object,
+			const ComponentTypeInfo&		_typeInfo,
+			const ComponentDisplayInfo&		_display);
 
 		// 「コンポーネントを追加」ボタンと、その中身
 		void DrawAddComponentMenu(EditorContext& _ctx, GameObject& _object);

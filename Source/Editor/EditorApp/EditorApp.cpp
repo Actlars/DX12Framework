@@ -16,6 +16,9 @@
 #include <Editor/Panels/EffectEditorPanel/EffectEditorPanel.h>
 #include <Editor/Commands/ObjectCommands/ObjectCommands.h>
 #include <Editor/Prefab/PrefabSystem/PrefabSystem.h>
+#include <Editor/Scene/SceneEditor/SceneEditor.h>
+#include <Engine/Asset/PrefabAsset/PrefabAsset.h>
+#include <Engine/Asset/SceneAsset/SceneAsset.h>
 
 namespace
 {
@@ -45,6 +48,7 @@ namespace
 	// メニューバーから開くドロップダウン
 	constexpr std::string_view kCreateMenu = "CreateMenu";
 	constexpr std::string_view kEditMenu   = "EditMenu";
+	constexpr std::string_view kSceneMenu  = "SceneMenu";
 	constexpr std::string_view kWindowMenu = "WindowMenu";
 	constexpr std::string_view kToolsMenu  = "ToolsMenu";
 }
@@ -62,6 +66,7 @@ bool Editor::EditorApp::Init(
 	SceneManager*					_pScenes,
 	RHI::Device*					_pDevice,
 	EditorUIRenderer*				_pUIRenderer,
+	ModelLibrary*					_pModels,
 	const std::filesystem::path&	_contentRoot)
 {
 	if (_pUI == nullptr || _pFont == nullptr)
@@ -79,6 +84,7 @@ bool Editor::EditorApp::Init(
 	m_pScenes		= _pScenes;
 	m_pDevice		= _pDevice;
 	m_pUIRenderer	= _pUIRenderer;
+	m_pModels		= _pModels;
 
 	// -------------------------------------------------------------------------------
 	// AssetDatabaseの初期化
@@ -127,6 +133,7 @@ void Editor::EditorApp::Term()
 	m_pScenes		= nullptr;
 	m_pDevice		= nullptr;
 	m_pUIRenderer	= nullptr;
+	m_pModels		= nullptr;
 
 	m_Initialized = false;
 }
@@ -219,13 +226,7 @@ void Editor::EditorApp::BuildUI(float _deltaTime)
 	if (!m_Initialized)
 	{ return; }
 
-	// -------------------------------------------------------------------------------
 	// ViewportPanelのフレーム状態を初期化
-	// 
-	// 「今フレームViewportが実際に表示されたか」は、Panel描画中に改めて設定される
-	// 
-	// 前フレームの表示状態が残ると、閉じたViewportに対して不要なScene描画を続ける可能性があるため毎フレームリセット
-	// -------------------------------------------------------------------------------
 	if (m_pViewportPanel != nullptr)
 	{
 		m_pViewportPanel->BeginFrame();
@@ -323,6 +324,7 @@ void Editor::EditorApp::BuildContext(float _deltaTime)
 	m_Context.pViewport		= m_pViewport;
 	m_Context.pDevice		= m_pDevice;
 	m_Context.pUIRenderer	= m_pUIRenderer;
+	m_Context.pModels		= m_pModels;
 
 	// Panel側でアニメーションや時間依存処理を行えるよう、現在フレームの経過時間もContext経由で共有
 	m_Context.DeltaTime		= _deltaTime;
@@ -359,9 +361,19 @@ void Editor::EditorApp::BuildContext(float _deltaTime)
 // -------------------------------------------------------------------------------
 void Editor::EditorApp::ValidateSelection()
 {
+	// -------------------------------------------------------------------------------
+	// 現在SceneのGameObjectManagerを取得
+	// -------------------------------------------------------------------------------
+	
+	// BuildContextによって現在のSceneのObjectManagerが設定されている。
+	// Sceneが存在しない場合や切り替え途中の場合はnullptrになる可能性があるため、
+	// この値自体もValidation条件に含める
 	GameObjectManager* pObjects = m_Context.pObjects;
 
-	// Selection側へこのポインタが現在も有効かを判定する関数を返す
+	// -------------------------------------------------------------------------------
+	// Selectionへ生存判定関数を渡す
+	// -------------------------------------------------------------------------------
+
 	m_Selection.Validate(
 		[pObjects](const GameObject* _pObject)
 		{
@@ -369,20 +381,8 @@ void Editor::EditorApp::ValidateSelection()
 			if (pObjects == nullptr)
 			{ return false; }
 
-			const auto& objects = pObjects->GetObjects();
-
-			// -------------------------------------------------------------------------------
-			// 現在Sceneが所有しているGameObjectとアドレスを比較
-			// 
-			// Selectionは所有権を持たないため、
-			// 現在GameObjectManagerが所有しているunique_ptrの中に
-			// 同じ実体が存在するかどうかで生存を判定する
-			// -------------------------------------------------------------------------------
-			return std::any_of(objects.begin(), objects.end(),
-				[_pObject](const std::unique_ptr<GameObject>& _candidate)
-				{
-					return _candidate.get() == _pObject;
-				});
+			// pObjectsの中に_pObjectが存在するかどうか返す
+			return pObjects->Contains(_pObject);
 		});
 }
 
@@ -465,6 +465,18 @@ void Editor::EditorApp::DrawMenuBar()
 		EditorUI::SameLine(ui);
 
 		// -------------------------------------------------------------------------------
+		// シーンメニュー
+		//
+		// 今の並びを丸ごと保存したり、別のシーンを開いたりする入り口
+		// -------------------------------------------------------------------------------
+		if (EditorUI::Button(ui, "シーン", *m_pFont, { 72.0f, kMenuButtonHeight }))
+		{
+			openMenuUnderLastItem(kSceneMenu);
+		}
+
+		EditorUI::SameLine(ui);
+
+		// -------------------------------------------------------------------------------
 		// Windowメニュー
 		// -------------------------------------------------------------------------------
 		if (EditorUI::Button(ui, "ウィンドウ", *m_pFont, { 90.0f, kMenuButtonHeight }))
@@ -501,6 +513,17 @@ void Editor::EditorApp::DrawMenuBar()
 		if (EditorUI::BeginPopup(ui, kEditMenu))
 		{
 			DrawEditMenu();
+			EditorUI::EndPopup(ui);
+		}
+
+		// -------------------------------------------------------------------------------
+		// ScenePopup
+		//
+		// シーンの新規作成・保存・読み込み
+		// -------------------------------------------------------------------------------
+		if (EditorUI::BeginPopup(ui, kSceneMenu))
+		{
+			DrawSceneMenu();
 			EditorUI::EndPopup(ui);
 		}
 
@@ -690,7 +713,7 @@ void Editor::EditorApp::DrawCreateMenu()
 	// コンテンツブラウザでプレファブを選んでいるときだけ有効
 	const bool prefabSelected =
 		m_Selection.GetType() == SelectionType::Asset &&
-		PrefabSystem::IsPrefabPath(m_Selection.GetAssetPath());
+		PrefabIO::IsPrefabPath(m_Selection.GetAssetPath());
 
 	if (EditorUI::MenuItem(ui, *m_pFont, "選択プレファブをシーンへ配置", prefabSelected && hasScene))
 	{
@@ -765,6 +788,71 @@ void Editor::EditorApp::DrawEditMenu()
 }
 
 // -------------------------------------------------------------------------------
+// シーンメニュー
+//
+// シーンを開くと今の中身がすべて入れ替わるため、
+// 「開く」より先に「保存」を並べて、保存し忘れにくい順にしている
+// -------------------------------------------------------------------------------
+void Editor::EditorApp::DrawSceneMenu()
+{
+	EditorUI::Context& ui = *m_pUI;
+
+	const bool hasScene = (m_Context.pObjects != nullptr);
+
+	// いま開いているシーン名。まだ保存していない場合は仮の名前が出る
+	EditorUI::MenuItem(ui, *m_pFont, "現在 : " + SceneEditor::GetCurrentName(), false);
+
+	EditorUI::MenuSeparator(ui);
+
+	// -------------------------------------------------------------------------------
+	// 保存
+	//
+	// 保存先はコンテンツブラウザで今開いているフォルダ
+	// 作られたファイルをそのまま選択し、どこへ出来たかを分かるようにする
+	// -------------------------------------------------------------------------------
+	if (EditorUI::MenuItem(ui, *m_pFont, "上書き保存", hasScene && SceneEditor::HasCurrentPath()))
+	{
+		SceneEditor::Save(m_Context);
+	}
+
+	if (EditorUI::MenuItem(ui, *m_pFont, "名前を付けて保存", hasScene))
+	{
+		std::filesystem::path savedPath;
+
+		if (SceneEditor::SaveAs(m_Context, SceneEditor::GetCurrentName(), savedPath))
+		{
+			m_Selection.SelectAsset(savedPath);
+		}
+	}
+
+	EditorUI::MenuSeparator(ui);
+
+	// -------------------------------------------------------------------------------
+	// 開く / 新規作成
+	//
+	// どちらも今の中身が消える操作なので、区切り線で分けている
+	// -------------------------------------------------------------------------------
+	const bool sceneSelected =
+		m_Selection.GetType() == SelectionType::Asset &&
+		SceneIO::IsScenePath(m_Selection.GetAssetPath());
+
+	if (EditorUI::MenuItem(ui, *m_pFont, "選択シーンを開く", sceneSelected && hasScene))
+	{
+		SceneEditor::Open(m_Context, m_Selection.GetAssetPath());
+	}
+
+	if (EditorUI::MenuItem(ui, *m_pFont, "新規シーン（すべて削除）", hasScene))
+	{
+		SceneEditor::CreateNew(m_Context);
+	}
+
+	EditorUI::MenuSeparator(ui);
+
+	EditorUI::MenuItem(ui, *m_pFont,
+		"シーンを開くとUndo履歴は消えます", false);
+}
+
+// -------------------------------------------------------------------------------
 // キーボードショートカット
 //
 //	Ctrl+Z			元に戻す
@@ -797,24 +885,28 @@ void Editor::EditorApp::ProcessShortcuts()
 		// 先にCtrl+Zを判定すると、Shiftを押していても「元に戻す」になってしまう
 		if (shift && ui.IsKeyPressed(EditorUI::Key::Z))
 		{
+			// 取り消した操作を戻す
 			m_History.Redo(m_Context);
 			return;
 		}
 
 		if (ui.IsKeyPressed(EditorUI::Key::Z))
 		{
+			// 直前の動作を取り消す
 			m_History.Undo(m_Context);
 			return;
 		}
 
 		if (ui.IsKeyPressed(EditorUI::Key::Y))
 		{
+			// 取り消した操作を戻す
 			m_History.Redo(m_Context);
 			return;
 		}
 
 		if (ui.IsKeyPressed(EditorUI::Key::D))
 		{
+			// 既存のオブジェクトを複製
 			ObjectCommands::Duplicate(m_Context, m_Selection.GetObject());
 			return;
 		}
@@ -828,6 +920,7 @@ void Editor::EditorApp::ProcessShortcuts()
 	// -------------------------------------------------------------------------------
 	if (!ctrl && !shift && ui.IsKeyPressed(EditorUI::Key::Delete))
 	{
+		// オブジェクトを削除
 		ObjectCommands::Destroy(m_Context, m_Selection.GetObject());
 	}
 }

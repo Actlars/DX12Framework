@@ -8,6 +8,7 @@
 namespace EditorUI { class Font; }
 
 class GameObjectManager;
+class ModelLibrary;
 class ViewportTarget;
 class SceneManager;
 class EditorUIRenderer;
@@ -52,6 +53,14 @@ namespace Editor
 		CommandHistory*		pHistory	= nullptr;
 
 		GameObjectManager*	pObjects	= nullptr;	// 現在のシーンの中身(無い場合はnullptr)
+
+		// -------------------------------------------------------------------------------
+		// モデルの置き場
+		//
+		//	インスペクタからモデルを選ぶために使う
+		//	所有者はApplicationで、シーンより長生きする
+		// -------------------------------------------------------------------------------
+		ModelLibrary*		pModels		= nullptr;
 		SceneManager*		pScenes		= nullptr;	// シーンの問い合わせ
 		ViewportTarget*		pViewport	= nullptr;	// ゲーム画面のレンダーターゲット
 

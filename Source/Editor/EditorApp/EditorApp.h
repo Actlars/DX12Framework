@@ -51,6 +51,7 @@ namespace Editor
 			SceneManager*					_pScenes,
 			RHI::Device*					_pDevice,
 			EditorUIRenderer*				_pUIRenderer,
+			ModelLibrary*					_pModels,
 			const std::filesystem::path&	_contentRoot);
 
 		void Term();
@@ -153,6 +154,15 @@ namespace Editor
 		void DrawEditMenu();
 
 		// -------------------------------------------------------------------------------
+		// @brief	「シーン」メニューの中身
+		//
+		//	新規作成 / 保存 / 名前を付けて保存 と、
+		//	コンテンツブラウザで選んでいるシーンを開く操作を並べる
+		//	実際の処理は SceneEditor が持つ
+		// -------------------------------------------------------------------------------
+		void DrawSceneMenu();
+
+		// -------------------------------------------------------------------------------
 		// @brief	キーボードショートカットを処理する
 		//
 		//	文字を入力している最中は何もしない
@@ -194,6 +204,7 @@ namespace Editor
 		SceneManager*		m_pScenes		= nullptr;
 		RHI::Device*		m_pDevice		= nullptr;
 		EditorUIRenderer*	m_pUIRenderer	= nullptr;
+		ModelLibrary*		m_pModels		= nullptr;
 
 		bool m_Initialized = false;
 

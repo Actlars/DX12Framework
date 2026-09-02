@@ -28,12 +28,17 @@ bool Editor::CommandHistory::Execute(
 	// -------------------------------------------------------------------------------
 	m_RedoStack.clear();
 
+	// 実行済みコマンドをUndo履歴に登録
 	m_UndoStack.emplace_back(std::move(_pCommand));
 
 	// 上限を超えたぶんは、いちばん古い操作から捨てる
 	if (m_UndoStack.size() > kMaxHistory)
 	{
+		// 101個だった場合
+		// 101 - 100 = 1, 
+		// m_UndoStackの一番先頭から1個消し、残り残数が100になる
 		const size_t excess = m_UndoStack.size() - kMaxHistory;
+		// begin + excessは、1の場合、beginのみ削除、 + 1しているが、2件は消さない
 		m_UndoStack.erase(m_UndoStack.begin(), m_UndoStack.begin() + excess);
 	}
 
@@ -50,12 +55,20 @@ bool Editor::CommandHistory::Undo(EditorContext& _ctx)
 		return false;
 	}
 
+	// -------------------------------------------------------------------------------
+	// 最新CommandをUndoStackから取り出す
+	// -------------------------------------------------------------------------------
+	
+	// backはCommand末尾(最後に実行したCommand)を取得する
+	// std::moveによってCommandの所有権を一時変数へ移す
 	std::unique_ptr<IEditorCommand> pCommand = std::move(m_UndoStack.back());
+	// Stack末尾はmove後の空unique_ptrが残るため、その要素自体を削除する
 	m_UndoStack.pop_back();
 
+	// Commandが保存している以前の状態へ戻す
 	pCommand->Undo(_ctx);
 
-	// やり直せるよう、取り出した操作は反対側の山へ移す
+	// Undo後に再び戻せるようにRedoにコマンドを移す
 	m_RedoStack.emplace_back(std::move(pCommand));
 
 	return true;
@@ -71,6 +84,9 @@ bool Editor::CommandHistory::Redo(EditorContext& _ctx)
 		return false;
 	}
 
+	// -------------------------------------------------------------------------------
+	// 次にRedoするコマンドを取り出す
+	// -------------------------------------------------------------------------------
 	std::unique_ptr<IEditorCommand> pCommand = std::move(m_RedoStack.back());
 	m_RedoStack.pop_back();
 
@@ -84,6 +100,7 @@ bool Editor::CommandHistory::Redo(EditorContext& _ctx)
 		return false;
 	}
 
+	// Redo後に再び戻せるようにUndoにコマンドを移す
 	m_UndoStack.emplace_back(std::move(pCommand));
 
 	return true;
@@ -91,6 +108,9 @@ bool Editor::CommandHistory::Redo(EditorContext& _ctx)
 
 // -------------------------------------------------------------------------------
 // 次に戻る操作の名前
+// Menu表示で
+// 元の戻す : オブジェクト移動
+// のような文字列を作成するために使用する
 // -------------------------------------------------------------------------------
 std::string_view Editor::CommandHistory::GetUndoLabel() const
 {

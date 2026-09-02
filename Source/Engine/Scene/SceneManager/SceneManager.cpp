@@ -19,10 +19,15 @@ SceneManager::~SceneManager()
 // -------------------------------------------------------------------------------
 //		初期化
 // -------------------------------------------------------------------------------
-void SceneManager::Init(RHI::Device* _pGraphicsDevice)
+void SceneManager::Init(RHI::Device* _pGraphicsDevice, ModelLibrary* _pModels)
 {
 	assert(_pGraphicsDevice);
-	m_pGraphicsDevice = _pGraphicsDevice;
+
+	m_pGraphicsDevice	= _pGraphicsDevice;
+
+	// シーンが切り替わっても読み直しが起きないよう、
+	// モデルの置き場はシーンの外（Application）が持ち、参照だけを預かる
+	m_pModels			= _pModels;
 }
 
 // -------------------------------------------------------------------------------
@@ -120,7 +125,7 @@ void SceneManager::ProcessSceneChange()
 	}
 
 	// 次のシーンを初期化
-	if (!m_pNextScene->OnInit(m_pGraphicsDevice))
+	if (!m_pNextScene->OnInit(m_pGraphicsDevice, m_pModels))
 	{
 		ELOG("SceneManager::ProcessSceneChange OnInit failed");
 		m_pNextScene.reset();

@@ -246,7 +246,7 @@ void EditorUI::WindowInteraction::DrawScrollbar(
 // -------------------------------------------------------------------------------
 // Window右下のリサイズグリップ描画・リサイズ操作
 // -------------------------------------------------------------------------------
-void EditorUI::WindowInteraction::DrawResizeGrip(
+bool EditorUI::WindowInteraction::DrawResizeGrip(
 	EditorUI::WindowState&			_state, 
 	EditorUI::WindowFrame&			_frame, 
 	const EditorUI::InputTracker&	_input,
@@ -273,9 +273,14 @@ void EditorUI::WindowInteraction::DrawResizeGrip(
 		m_ResizeStartSize = _state.Size;
 	}
 
-	// 現在このWindowをリサイズ中で、左マウスボタンが押され続けている場合
-	if (m_Operation == EditorUI::WindowPointOperation::Resize &&
-		m_OperationWindow == _state.WindowId &&
+	// このWindowを今まさにリサイズ中か
+	// カーソルの形を決めるのにも使うため、条件を変数にしておく
+	const bool resizingThisWindow =
+		m_Operation == EditorUI::WindowPointOperation::Resize &&
+		m_OperationWindow == _state.WindowId;
+
+	// リサイズ中で、左マウスボタンが押され続けている場合
+	if (resizingThisWindow &&
 		_input.IsMouseDown(EditorUI::MouseButton::Mouse_Left))
 	{
 		// リサイズ開始位置から現在のマウス位置までの移動量を取得
@@ -294,6 +299,10 @@ void EditorUI::WindowInteraction::DrawResizeGrip(
 	}
 	// リサイズグリップを描画
 	_frame.Draw.AddRectFilled(gripRect, hovered ? _style.ColorButtonHovered : _style.ColorBorder);
+
+	// ドラッグ中はグリップから多少離れてもカーソルの形を保つ
+	// 掴んだ手を動かしている最中に形が戻ると、操作が外れたように見えるため
+	return hovered || resizingThisWindow;
 }
 
 // -------------------------------------------------------------------------------

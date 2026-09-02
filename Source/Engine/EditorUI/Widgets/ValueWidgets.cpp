@@ -357,6 +357,12 @@ namespace
 		const bool	hovered		= _bounds.Contains(_ctx.GetMousePos()) && _ctx.IsCurrentWindowHovered();
 		bool		editing		= (edit.Widget == _id);
 
+		// 入力欄の上ではIビームにして、文字を打てる場所であることを示す
+		if (hovered && !_config.ReadOnly)
+		{
+			_ctx.RequestMouseCursor(MouseCursor::TextInput);
+		}
+
 		// -------------------------------------------------------------------------------
 		// 編集の開始
 		// -------------------------------------------------------------------------------

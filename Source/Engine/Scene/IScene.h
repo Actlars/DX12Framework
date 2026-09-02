@@ -9,6 +9,7 @@
 // 前方宣言
 // -------------------------------------------------------------------------------
 class GameObjectManager;
+class ModelLibrary;
 
 // -------------------------------------------------------------------------------
 // IScene インターフェース（純粋仮想基底）
@@ -42,10 +43,12 @@ public :
 	//	@brief	シーンの初期化
 	// 
 	// @param[in]	_pGraphicsDevice	GraphicsDeviceへの参照（所有権なし）
+	// @param[in]	_pModels			モデルの置き場への参照（所有権なし）
+	//									シーンより長生きするため、外から渡される
 	// @retval	true	初期化成功
 	// @retval	false	初期化失敗
 	// -------------------------------------------------------------------------------
-	virtual bool OnInit(RHI::Device* _pGraphicsDevice) = 0;
+	virtual bool OnInit(RHI::Device* _pGraphicsDevice, ModelLibrary* _pModels) = 0;
 
 	// -------------------------------------------------------------------------------
 	// @brief	シーンの終了
